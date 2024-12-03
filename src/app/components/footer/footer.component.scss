@@ -1,0 +1,31 @@
+::ng-deep{
+   .mdc-dialog__surfac{
+        background-color: #191E22 !important;
+    }
+    .mdc-slider__thumb-knob{
+        height: 15px !important;
+        color: #ABB7C0 !important;
+        border-radius: 5px !important;
+        width: 6px !important;
+        top: 48% !important;
+        border: none !important;;
+        background-color: #ABB7C0 !important;
+    }
+    .mdc-slider__track--active{
+        height: 2px !important;
+        border: 2px solid #ABB7C0 !important;
+        border-radius: 5px !important;
+    }
+    .mat-mdc-slider{
+        color: #ABB7C0 !important;
+        width: 67px !important;
+        min-width: 67px !important;
+    }
+    .mdc-slider__input{
+        left: 0px !important;
+        padding: 0px !important;
+    }
+}
+ .mdc-dialog__surfac{
+    background-color: #191E22 !important;
+}

@@ -1,0 +1,22 @@
+<mat-drawer-container id="menu-drawer" class="example-container" autosize>
+  
+<div class="h-screen min-h-[700px] relative bg-primaryBg">
+  <div class="fixed top-0 z-30"><app-header [toggleDrawer]="toggleDrawer.bind(this)" (toggleEvent)="handleToggleEvent($event)"></app-header></div>
+  <mat-drawer #drawer class="!bg-primaryBg mt-10 !block !z-50 !h-screen !w-[805px]" mode="side">
+    <app-sidebar-drawer [type]="type"></app-sidebar-drawer>
+  </mat-drawer>
+  <div #mapContainer class="map z-10 h-full absolute"></div>
+  <div class="flex justify-end end-0 gap-3 px-3 absolute bottom-10">
+    <div class="relative z-30 w-full">
+     <app-footer (drawTypeSelected)="setDrawType($event)" [zoomLevel]="zoomLevel" (zoomIn)="zoomIn()" (zoomOut)="zoomOut()" [longitude]="longitude" [latitude]="latitude"></app-footer>
+    </div>
+  </div>
+  
+  <!-- <div class="drawing-controls z-30 relative flex gap-3 text-white">
+    <button (click)="setDrawType('Polygon')">Draw Polygon</button>
+    <button (click)="setDrawType('Circle')">Draw Circle</button>
+    <button (click)="setDrawType('Box')">Draw Box</button>
+
+  </div> -->
+</div>
+</mat-drawer-container>

@@ -1,0 +1,78 @@
+<div class="flex flex-col gap-3">
+    <div class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
+        <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
+        <span class="w-[16px] h-[14px]">
+            <img src="assets/svg-icons/drawer-toggle-icon.svg" />
+        </span>
+    </div>
+    <div class="mx-5 gap-3 flex">
+        <div class="w-[182px] flex flex-col gap-3 p-3 bg-secondaryBg rounded-[5px]">
+            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Selection area</span>
+            <span class="text-sm font-medium leading-[18px] text-secondaryText">8,080,464.3 km2</span>
+        </div>
+        <div class="w-[182px] flex flex-col gap-3 p-3 bg-secondaryBg rounded-[5px]">
+            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
+            <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
+                <span class="text-sm font-medium leading-[18px] text-secondaryText">Untitled area</span>
+                <button mat-button
+                    class="cursor-pointer hover:!bg-secondaryBg !h-[18px] !text-yellow font-semibold text-xs leading-[18px]"
+                    [matMenuTriggerFor]="menu">Save</button>
+            </div>
+            <mat-menu class="bg-primaryBg" #menu="matMenu" id="library">
+                <div class="p-[15px] flex flex-col gap-[10px]">
+                    <div class="flex flex-col gap-3" (click)="$event.stopPropagation()">
+                        <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Save
+                            selection</span>
+                        <mat-form-field id="library" appearance="outline" class="!w-[320px]"
+                            (click)="$event.stopPropagation()">
+                            <mat-label>Name</mat-label>
+                            <input matInput placeholder="Placeholder">
+                        </mat-form-field>
+                    </div>
+                    <span (click)="$event.stopPropagation()"><mat-checkbox class="example-margin"
+                            [(ngModel)]="checked">Notify me of new updates</mat-checkbox></span>
+                    <button
+                        class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
+                    <button
+                        class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">Cancel</button>
+                </div>
+            </mat-menu>
+        </div>
+        <div class="w-[182px] flex flex-col gap-3 p-3 bg-secondaryBg rounded-[5px]">
+            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
+            <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
+                <span class="text-sm font-medium leading-[18px] text-secondaryText">Not assigned</span>
+                <span class="cursor-pointer text-yellow font-semibold text-xs leading-[18px]"
+                    [matMenuTriggerFor]="assign">Assign</span>
+            </div>
+        </div>
+        <div class="w-[182px] flex flex-col gap-3 p-3 bg-secondaryBg rounded-[5px]">
+            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Objects</span>
+            <span class="text-sm font-medium leading-[18px] text-secondaryText">8660</span>
+        </div>
+    </div>
+    <mat-menu class="bg-primaryBg" #assign="matMenu" id="assign">
+        <div class="p-[15px] flex flex-col gap-[10px]">
+            <div class="flex flex-col gap-3" (click)="$event.stopPropagation()">
+                <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
+                <mat-form-field id="library" appearance="outline" class="!w-[320px]" (click)="$event.stopPropagation()">
+                    <mat-label>Search groups</mat-label>
+                    <input matInput placeholder="Search ...">
+                    <img src="assets/svg-icons/search-icon.svg" alt="Search" />
+                </mat-form-field>
+            </div>
+            <mat-list>
+                <ng-container *ngFor="let group of groups">
+                  <ng-template [ngTemplateOutlet]="renderGroup"
+                               [ngTemplateOutletContext]="{ $implicit: group }"></ng-template>
+                </ng-container>
+              </mat-list>
+            <span (click)="$event.stopPropagation()"><mat-checkbox class="example-margin" [(ngModel)]="checked">Notify
+                    me of new updates</mat-checkbox></span>
+            <button
+                class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
+            <button
+                class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">Cancel</button>
+        </div>
+    </mat-menu>
+</div>

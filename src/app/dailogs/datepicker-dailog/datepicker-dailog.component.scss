@@ -1,0 +1,260 @@
+.range-date-picker {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+  }
+  
+  .calendar-card {
+    background-color: #191E22;
+    color: #ffffff;
+    padding: 20px;
+    width: 500px;
+    border-radius: 8px;
+  }
+  
+  .mat-calendar {
+    color: #ffffff;
+  }
+  
+  .preset-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  .preset-buttons button {
+    color: #ffffff;
+    background-color: #3b3b3b;
+    border: 1px solid #565656;
+    text-align: left;
+  }
+  
+  .date-range-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  button[mat-raised-button] {
+    width: 100%;
+    margin-top: 16px;
+    background-color: #ffcc4d;
+    color: #000;
+  }
+  
+  .calendar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .selected-range {
+    margin-top: 16px;
+    text-align: center;
+  }
+  /* Highlighting the range */
+.in-range {
+  background-color: #e0f7fa; /* Light blue color for in-range dates */
+}
+
+/* Style for the start date */
+.start-date {
+  background-color: #4a90e2;
+  color: white;
+  border-radius: 50%;
+}
+
+/* Style for the end date */
+.end-date {
+  background-color: #4a90e2;
+  color: white;
+  border-radius: 50%;
+}
+.hidden-inputs {
+  display: none;
+}
+
+.range-calendar-container {
+  display: inline-block;
+}
+
+
+::ng-deep{
+  .mat-calendar-body-label {
+   opacity: 0 !important;
+   width: 0px !important;
+   height: 0px !important;
+  }
+  
+  /* Hide the visually hidden span elements */
+  #mat-calendar-header-1-period-label {
+    display: block !important;
+    opacity: 1 !important;
+    width: 334px !important;
+    text-align: center !important;
+    position: absolute !important;
+    top: 10px !important;
+  }
+  .cdk-overlay-connected-position-bounding-box{
+    // position: absolute !important;
+    // top: 20% !important;
+    // height: 848px !important;
+    align-items: center !important;
+  }
+  .mat-datepicker-content-container{
+    align-items: center !important;
+  }
+  .mat-calendar{
+    width: 334px !important;
+    color: #ABB7C0 !important;
+    font-size: 14px !important;
+  }
+  .cdk-overlay-container{
+    // position: absolute !important;
+    // top: 0 !important;
+    // height: 1050px !important;
+    /* right: 50%; */
+    // width: 100% !important;
+    z-index: 30 !important;
+    width: 100% !important;
+  }
+  .cdk-global-overlay-wrapper{
+    justify-content: center !important;
+    align-items: center !important;
+    display: flex !important;
+    height: 100% !important;
+  }
+ .mat-datepicker-popup{
+  top: 65px !important;
+  position: relative !important;
+  left: 97px !important;
+  width: 44% !important;
+  }
+  .mat-datepicker-content{
+    display: flex !important;
+    // justify-content: center !important;
+    // width: 85% !important;
+    background: #191E22 !important;
+    box-shadow: none !important;
+    color: #ABB7C0 !important;
+    height: 334px !important;
+  }
+  .mat-calendar-controls{
+    position: relative !important;
+    margin: 0px !important;
+  }
+  .mat-calendar-period-button{
+    display: none !important;;
+  }
+  .mat-calendar-previous-button{
+    position: absolute !important;
+    left: 0px !important;
+     color: #ABB7C0 !important;
+  }
+  .mat-datepicker-content .mat-calendar-previous-button:not(.mat-mdc-button-disabled){
+    color: #ABB7C0 !important;
+  }
+  .mat-datepicker-content .mat-calendar-next-button:not(.mat-mdc-button-disabled){
+    color: #ABB7C0 !important;
+  }
+  span[aria-hidden="true"] {
+    display: none !important;
+  }
+  .mat-calendar-header{
+    padding: 0px !important;
+    font-weight: 700 !important;
+    line-height: 24px !important;
+  }
+  .mat-calendar-table-header{
+   opacity: 0.70 !important;
+  }
+  .mat-calendar-table{
+    font-weight: 500 !important;
+    line-height: 16.8px !important;
+  }
+  .mat-calendar-body-cell-content{
+    border: none !important;
+    color: #ABB7C0 !important;
+  }
+  .cdk-visually-hidden{
+    position: relative !important;
+    color: #ABB7C0 !important;
+  }
+  .mat-calendar-table{
+    height: 100% !important;
+  }
+  mat-month-view{
+    height: 100% !important;
+    display: block !important;
+  }
+  .mat-calendar-content{
+    height: 100% !important;
+  }
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline .mdc-notched-outline__notch{
+    border-color: #4A5863 !important;
+    border-right: none !important;
+  }
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading{
+    border-color: #4A5863 !important;
+  }
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing{
+    border-color: #4A5863 !important;
+  }
+  .mdc-floating-label{
+    color: #4A5863 !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+  }
+
+  .mat-mdc-dialog-container .mdc-dialog__surface{
+    background-color: #191e22 !important;
+  }
+  .mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before{
+    background-color: transparent !important;
+  }
+  .in-range .mat-calendar-body-cell-content {
+    background-color: rgba(25, 118, 210, 0.2) !important;
+    color: black !important;
+  }
+  
+  .start-date .mat-calendar-body-cell-content,
+  .end-date .mat-calendar-body-cell-content {
+    background-color: #1976d2 !important;
+    color: white !important;
+    border-radius: 50%;
+  }
+  /* Highlight for dates in the range */
+.in-range .mat-calendar-body-cell-content {
+  background-color: rgba(25, 118, 210, 0.2) !important;
+  color: black !important;
+}
+
+/* Highlight for start and end dates */
+.start-date .mat-calendar-body-cell-content,
+.end-date .mat-calendar-body-cell-content {
+  background-color: #1976d2 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+  
+}
+span[aria-hidden="true"] {
+  display: none !important;
+}
+
+
+::ng-deep .in-range .mat-calendar-body-cell-content {
+  background-color: rgba(25, 118, 210, 0.2) !important;
+  color: black !important;
+}
+
+::ng-deep .start-date .mat-calendar-body-cell-content,
+::ng-deep .end-date .mat-calendar-body-cell-content {
+  background-color: #1976d2 !important;
+  color: white !important;
+  border-radius: 50%;
+}
