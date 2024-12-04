@@ -4,6 +4,7 @@ import {MatSelectModule} from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import {MatSliderModule} from '@angular/material/slider';
 import { DatepickerDailogComponent } from '../../dailogs/datepicker-dailog/datepicker-dailog.component';
+import dayjs from 'dayjs';
 @Component({
   selector: 'app-footer',
   standalone: true,
@@ -25,6 +26,8 @@ export class FooterComponent {
   @Input()longitude:any;
   @Input()latitude:any;
   @Input()zoomLevel:any;
+  startDate:any;
+  endDate:any;
   constructor(private dialog: MatDialog){}
 
   toggleDropdown() {
@@ -36,6 +39,8 @@ export class FooterComponent {
     this.isDropdownOpen = false;
     this.drawTypeSelected.emit(option.value);
   }
+
+  // opening range date picker dialog to get start date and end date.
   openDateDailog() {
     const dialogRef = this.dialog.open(DatepickerDailogComponent, {
       width: '470px',
@@ -44,8 +49,11 @@ export class FooterComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         console.log('Selected date range:', result);
+        this.startDate = result.startDate;
+        this.endDate  = result.endDate;
         // Do something with the result
         // For example: this.startDate = result.startDate; this.endDate = result.endDate;
+
       }
     });
   }
@@ -55,6 +63,9 @@ export class FooterComponent {
     }else{
       this.zoomOut.emit()
     }
+  }
+  getFormattedDate(date: Date): string {
+    return dayjs(date).format('MM.DD.YYYY');
   }
 }
 
