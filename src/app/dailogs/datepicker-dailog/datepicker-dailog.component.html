@@ -1,4 +1,4 @@
-<div class="range-date-picker">
+ <div class="range-date-picker">
     <mat-card class="calendar-card">
       <!-- <mat-calendar
       [(selected)]="selectedDate"
@@ -10,37 +10,50 @@
     <div class="flex flex-col w-[334px] gap-3 !relative justify-end">
     <div class="range-calendar-container !relative !h-[300px]">
       <!-- Date Range Picker with Hidden Input Fields -->
-      <mat-date-range-input [rangePicker]="picker" class="hidden-inputs absolute">
-        <input matStartDate placeholder="Start date">
-        <input matEndDate placeholder="End date">
-      </mat-date-range-input>
-      <mat-date-range-picker id="date" [opened]="true" #picker (closed)="keepPickerOpen()"></mat-date-range-picker>
+      <ngx-daterangepicker-material (choosedDate)="choosedDate($event)"
+      [linkedCalendars]="false" [locale]="{ 
+        format: 'YYYY-MM-DD' 
+      }"
+      [autoApply]="true"
+  [showDropdowns]="true"
+  [startDate]="startDate"
+            [endDate]="endDate">
+      </ngx-daterangepicker-material>
     </div>
     <div class=" w-full z-50">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Start</mat-label>
-        <input matInput placeholder="Placeholder">
+        <input [value]="startDate?.format('MM.DD.YYYY')" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
        
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>End</mat-label>
-        <input matInput placeholder="Placeholder">
+        <input [value]="endDate?.format('MM.DD.YYYY')" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
        
       </mat-form-field>
     </div>
     </div>
       
-      <div class="flex flex-col gap-[10px] py-2">
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(1)">24 Hours</button>
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(3)">3 Days</button>
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(7)">7 Days</button>
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(14)">14 Days</button>
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(28)">28 Days</button>
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(90)">3 Months</button>
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(180)">6 Months</button>
-        <button class="!w-[84px] !h-[40px] cursor-pointer  bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"  (click)="selectPreset(270)">9 Months</button>
-      </div>
+    <div class="flex flex-col gap-[10px] py-2">
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('24hours')">24 Hours</button>
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('3days')">3 Days</button>
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('7days')">7 Days</button>
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('14days')">14 Days</button>
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('28days')">28 Days</button>
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('3months')">3 Months</button>
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('6months')">6 Months</button>
+      <button class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center" 
+              (click)="setDateRange('9months')">9 Months</button>
+    </div>
+    
     </div>
       <button class="text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]" (click)="applyDateRange()">Apply</button>
     </mat-card>
