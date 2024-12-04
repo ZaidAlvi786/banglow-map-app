@@ -24,10 +24,11 @@
       </div>
 
     </div>
-    <div class=" w-[329px] gap-3 items-center flex border-r border-custom-border h-full" (click)="openDateDailog()">
-      <div class="flex gap-3 w-[300px]">
-        <div class="felx gap-1"></div>
-        <div class="felx gap-1"></div>
+    <div class=" w-[329px] gap-3 items-center px-2 flex border-r border-custom-border h-full" (click)="openDateDailog()">
+      <div class="flex gap-3 w-[300px] text-secondaryText text-xs font-bold" >
+        <div class="felx gap-1 text-secondaryText text-xs font-bold" *ngIf="startDate">{{getFormattedDate(startDate) }}</div>
+        -
+        <div class="felx gap-1 text-secondaryText text-xs font-bold" *ngIf="endDate">{{getFormattedDate(endDate)}}</div>
       </div>
       <span>
         <svg width="9" height="6" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">

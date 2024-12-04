@@ -24,13 +24,17 @@
     "@angular/router": "^18.2.13",
     "@angular/ssr": "^18.2.12",
     "@asymmetrik/ngx-leaflet": "^18.0.1",
+    "dayjs": "^1.11.13",
     "express": "^4.18.2",
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
+    "moment": "^2.30.1",
+    "ngx-daterangepicker-material": "^6.0.4",
     "ol": "^10.2.1",
     "osm": "^1.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "typescript": "^5.5.4",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {

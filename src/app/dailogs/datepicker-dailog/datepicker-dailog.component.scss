@@ -93,7 +93,7 @@
   #mat-calendar-header-1-period-label {
     display: block !important;
     opacity: 1 !important;
-    width: 334px !important;
+    width: 320px !important;
     text-align: center !important;
     position: absolute !important;
     top: 10px !important;
@@ -108,7 +108,7 @@
     align-items: center !important;
   }
   .mat-calendar{
-    width: 334px !important;
+    width:320px !important;
     color: #ABB7C0 !important;
     font-size: 14px !important;
   }
@@ -128,7 +128,7 @@
     height: 100% !important;
   }
  .mat-datepicker-popup{
-  top: 65px !important;
+  top: 78px !important;
   position: relative !important;
   left: 97px !important;
   width: 44% !important;
@@ -140,7 +140,7 @@
     background: #191E22 !important;
     box-shadow: none !important;
     color: #ABB7C0 !important;
-    height: 334px !important;
+    height: 320px !important;
   }
   .mat-calendar-controls{
     position: relative !important;
@@ -240,7 +240,23 @@
   border-radius: 50%;
 }
 
-  
+.mat-calendar-body tr:first-child {
+  display: none !important;
+}
+.mat-mdc-floating-label{
+  height: 26px !important;
+}
+.mdc-notched-outline__notch{
+  padding: 0px !important;
+}
+.mdc-notched-outline--upgraded,.mat-mdc-form-field-flex,.mat-mdc-form-field-infix{
+  height: 48px !important;
+  padding: 0px !important;
+}
+.mat-mdc-form-field-infix{
+  min-height: 48px !important;
+  display: flex !important;
+}
 }
 span[aria-hidden="true"] {
   display: none !important;
@@ -257,4 +273,59 @@ span[aria-hidden="true"] {
   background-color: #1976d2 !important;
   color: white !important;
   border-radius: 50%;
+}
+
+
+
+::ng-deep{
+  .ngx-daterangepicker-material {
+    background-color:  #191e22 !important;  /* Light gray background */
+  }
+  
+  .md-drppicker,.calendar-table{
+    background-color:#191e22 !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0px !important;
+  }
+  .md-drppicker td.off{
+    background-color: transparent !important;
+    color: #4A5863 !important;
+  }
+  .md-drppicker td{
+    color: #ABB7C0 !important;
+    margin: 0px !important;
+  }
+  .md-drppicker.ltr{
+    width: 334px;
+    height: 300px;
+  }
+  .calendar,.calendar-table,.table-condensed{
+    width: 334px !important;
+    height: 300px;
+    max-width: 100% !important;
+  }
+  // .buttons_input{
+  //   display: none;
+  // }
+  .md-drppicker td.in-range{
+    background-color: #272F34 !important;
+    border: none !important;
+    color: #ABB7C0 !important;
+  }
+  .md-drppicker td.active,.md-drppicker td.available:hover{
+    background-color: #ABB7C0 !important;
+    border-radius: 10px !important;
+    color: #191E22 !important;
+  }
+  .prev{
+   background-image: url('../../../assets/svg-icons/prev-icon.svg') !important;
+  }
+  .next{
+    background-image: url('../../../assets/svg-icons/prev-icon.svg') !important;
+   }
+   .md-drppicker .dropdowns{
+    background-image: none !important;
+   }
+  
 }

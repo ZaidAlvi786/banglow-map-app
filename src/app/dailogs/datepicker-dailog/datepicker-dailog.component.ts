@@ -2,13 +2,15 @@ import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/co
 import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { CustomDateAdapter } from '../../customFIles/cutom-adaptor';
 import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment from 'moment'; 
+import dayjs from 'dayjs';
 const today = new Date();
 const month = today.getMonth();
 const year = today.getFullYear();
@@ -25,90 +27,119 @@ const year = today.getFullYear();
     MatNativeDateModule,
     MatButtonModule,
     MatFormFieldModule,
+    NgxDaterangepickerMd
+    
 
   ],
-  providers: [provideNativeDateAdapter(),{ provide: DateAdapter, useClass: CustomDateAdapter }],
+  providers: [],
   templateUrl: './datepicker-dailog.component.html',
   styleUrl: './datepicker-dailog.component.scss'
 })
 
 export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
-  startDate: any = ''; // Initialize with today's date
-  endDate: any = '';   // Initialize with today's date
+  startDate: dayjs.Dayjs = dayjs(); // Initialize with current date
+  endDate: dayjs.Dayjs = dayjs().add(0, 'days'); // Initialize with 1 day later
   selectedDate: Date | null = null; // Initialize with today's date
-  selected: Date | null = null;
   dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
-  campaignOne = new FormGroup({
-    start: new FormControl(new Date(year, month, 13)),
-    end: new FormControl(new Date(year, month, 16)),
-  });
-  campaignTwo = new FormGroup({
-    start: new FormControl(new Date(year, month, 15)),
-    end: new FormControl(new Date(year, month, 19)),
-  });
   selectedRange: { start: Date | null; end: Date | null } = { start: null, end: null };
-  presets:any[] = [
-    { label: '24 Hours', days: 1 },
-    { label: '3 Days', days: 3 },
-    { label: '7 Days', days: 7 },
-    { label: '14 Days', days: 14 },
-    { label: '28 Days', days: 28 },
-    { label: '3 Months', days: 90 },
-    { label: '6 Months', days: 180 },
-    { label: '9 Months', days: 270 },
-  ];
+
   isSelectingStart = true;
   ngOnInit(): void {
-   this.presets = [
-    { label: '24 Hours', days: 1 },
-    { label: '3 Days', days: 3 },
-    { label: '7 Days', days: 7 },
-    { label: '14 Days', days: 14 },
-    { label: '28 Days', days: 28 },
-    { label: '3 Months', days: 90 },
-    { label: '6 Months', days: 180 },
-    { label: '9 Months', days: 270 },
-  ]
+ 
+  }
+  dateRangeForm: FormGroup;
+  onSubmit() {
+    console.log('Selected Date Range:', this.dateRangeForm.value.dateRange);
   }
 
-
-  constructor(public dialogRef: MatDialogRef<DatepickerDailogComponent>) {}
-  @ViewChild(MatDateRangePicker) picker!: MatDateRangePicker<Date>;
-
+  constructor(public dialogRef: MatDialogRef<DatepickerDailogComponent>,private fb: FormBuilder) {
+    this.dateRangeForm = this.fb.group({
+      dateRange: [''],  // Bind this to the date range picker
+    });
+  }
   ngAfterViewInit(): void {
-    if (this.picker) {
-      this.picker.open();
-      
+    
+  }
+  // This method will be triggered when a date range is selected
+  choosedDate(event: any) {
+    console.log('Selected Date and Time Range:', event);
+
+    if (event && event.startDate && event.endDate) {
+      // Convert the selected startDate and endDate to Dayjs objects
+      this.startDate = dayjs(event.startDate);
+      this.endDate = dayjs(event.endDate);
+
+      // Optional: Automatically apply the date range
+      this.autoApplyDateRange();
     }
   }
-  
-  onDateChange(date: Date | any): void {
-    this.keepPickerOpen();
-    if (!this.startDate || (this.startDate && this.endDate)) {
-      this.startDate = date;
-      this.endDate = null;
-    } else if (!this.endDate) {
-      this.endDate = date;
-    }
-    setTimeout(() => this.picker.open(), 0);
+
+  autoApplyDateRange() {
+    console.log('Auto Applying Date Range with Time:', this.startDate.format('MM.DD.YYYY'), this.endDate.format('MM.DD.YYYY'));
   }
-  onDateRangeSelected(event: { start: Date | null; end: Date | null }): void {
-    this.selectedRange = event;
-    // Ensure the picker stays open after selection
+  // Helper method to format the date as MM.DD.YYYY
+  formatDate(date: any): string {
+    const month = (date.month() + 1).toString().padStart(2, '0'); // Add leading zero for single digits
+    const day = date.date().toString().padStart(2, '0'); // Add leading zero for single digits
+    const year = date.year();
+
+    return `${month}.${day}.${year}`;
+  }
+
+  // Optionally, this method can be used to apply the selected date range
+
+
+
+  // Function to set the date range based on button clicked
+ setDateRange(range: string): void {
+    const now = dayjs(); // Current date
+
+    switch (range) {
+      case '24hours':
+        this.startDate = now;
+        this.endDate = now.add(1, 'day'); // 1 day onward
+        break;
+      case '3days':
+        this.startDate = now;
+        this.endDate = now.add(3, 'day'); // 3 days onward
+        break;
+      case '7days':
+        this.startDate = now;
+        this.endDate = now.add(7, 'day'); // 7 days onward
+        break;
+      case '14days':
+        this.startDate = now;
+        this.endDate = now.add(14, 'day'); // 14 days onward
+        break;
+      case '28days':
+        this.startDate = now;
+        this.endDate = now.add(28, 'day'); // 28 days onward
+        break;
+      case '3months':
+        this.startDate = now;
+        this.endDate = now.add(3, 'month'); // 3 months onward
+        break;
+      case '6months':
+        this.startDate = now;
+        this.endDate = now.add(6, 'month'); // 6 months onward
+        break;
+      case '9months':
+        this.startDate = now;
+        this.endDate = now.add(9, 'month'); // 9 months onward
+        break;
+      default:
+        break;
+    }
+
+    console.log(this.endDate,'yyyyyyyyyyyyyyy');
     
   }
 
-  selectPreset(days: number): void {
-    const now = new Date();
-    this.endDate = now;
-    this.startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-  }
-  keepPickerOpen(): void {
-    // Re-open the picker if it gets closed
-    setTimeout(() => {
-      this.picker.open();
-    });
-  }
+  // selectPreset(days: number): void {
+  //   const now = new Date();
+  //   this.endDate = now;
+  //   this.startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  // }
 
   applyDateRange(): void {
     console.log('Start Date:', this.startDate);
@@ -122,49 +153,6 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
     }
   }
 
-  onDateSelected(date: Date | null): void {
-    if (!date) {
-      return; // Do nothing if date is null
-    }
-  
-    if (this.isSelectingStart) {
-      this.dateRange.start = date;
-      this.dateRange.end = null; // Reset end date
-    } else {
-      if (this.dateRange.start && date < this.dateRange.start) {
-        // Swap start and end if end date is earlier than start
-        this.dateRange.end = this.dateRange.start;
-        this.dateRange.start = date;
-      } else {
-        this.dateRange.end = date;
-      }
-    }
-    this.isSelectingStart = !this.isSelectingStart; // Toggle between start and end selection
-  }
 
-  isInRange(date: Date): boolean {
-    if (this.dateRange.start && this.dateRange.end) {
-      return date >= this.dateRange.start && date <= this.dateRange.end;
-    }
-    return false;
-  }
-
-  isStartDate(date: Date): boolean {
-    return this.dateRange.start !== null && date.getTime() === this.dateRange.start.getTime();
-  }
-  
-  isEndDate(date: Date): boolean {
-    return this.dateRange.end !== null && date.getTime() === this.dateRange.end.getTime();
-  }
-  dateClass = (date: Date) => {
-    if (this.isStartDate(date)) {
-      return 'start-date';
-    } else if (this.isEndDate(date)) {
-      return 'end-date';
-    } else if (this.isInRange(date)) {
-      return 'in-range';
-    }
-    return '';
-  };
   
 }
