@@ -23,13 +23,13 @@
     <div class=" w-full z-50">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Start</mat-label>
-        <input [value]="startDate?.format('MM.DD.YYYY')" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
+        <input [value]="startDate ? startDate.format('MM.DD.YYYY') : ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
        
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>End</mat-label>
-        <input [value]="endDate?.format('MM.DD.YYYY')" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
+        <input [value]="endDate ? endDate.format('MM.DD.YYYY'): ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
        
       </mat-form-field>
     </div>
