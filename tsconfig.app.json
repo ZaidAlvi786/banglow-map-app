@@ -3,15 +3,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": [
-      "node"
-    ]
+    "skipLibCheck": true,
+    "types": ["leaflet", "leaflet-draw","geojson", "google.maps",  "googlemaps"],
+
   },
   "files": [
-    "src/main.ts",
-    "src/main.server.ts",
-    "server.ts",
-    "server.ts",
+    "src/main.ts"
   ],
   "include": [
     "src/**/*.d.ts"

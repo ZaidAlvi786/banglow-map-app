@@ -1,11 +1,12 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
   
-<div class="h-screen min-h-[700px] relative bg-primaryBg">
-  <div class="fixed top-0 z-30"><app-header [toggleDrawer]="toggleDrawer.bind(this)" (toggleEvent)="handleToggleEvent($event)"></app-header></div>
+<div class="h-screen min-h-[700px] relative !bg-[#234436] z-30">
+  <div class="bg-[#131f07]">
+  <div class="fixed top-0 z-30"><app-header [toggleDrawer]="toggleDrawer.bind(this)" (toggleEvent)="handleToggleEvent($event)" (searchEvent)="onSearchLocation($event)"></app-header></div>
   <mat-drawer #drawer class="!bg-primaryBg mt-10 !block !z-50 !h-screen !w-[805px]" mode="side">
     <app-sidebar-drawer [type]="type"></app-sidebar-drawer>
   </mat-drawer>
-  <div #mapContainer class="map z-10 h-full absolute"></div>
+  <div #mapContainer id="mapContainer" class="map  h-full absolute opacity-50"></div>
   <div class="flex justify-end end-0 gap-3 px-3 absolute bottom-10">
     <div class="relative z-30 w-full">
      <app-footer (drawTypeSelected)="setDrawType($event)" [zoomLevel]="zoomLevel" (zoomIn)="zoomIn()" (zoomOut)="zoomOut()" [longitude]="longitude" [latitude]="latitude"></app-footer>
@@ -18,5 +19,6 @@
     <button (click)="setDrawType('Box')">Draw Box</button>
 
   </div> -->
+</div>
 </div>
 </mat-drawer-container>

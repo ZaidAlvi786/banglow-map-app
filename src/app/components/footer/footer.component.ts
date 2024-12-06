@@ -26,8 +26,8 @@ export class FooterComponent {
   @Input()longitude:any;
   @Input()latitude:any;
   @Input()zoomLevel:any;
-  startDate:any;
-  endDate:any;
+  startDate:Date = new Date();
+  endDate:Date = new Date();
   constructor(private dialog: MatDialog){}
 
   toggleDropdown() {
