@@ -31,14 +31,21 @@ export class HeaderComponent implements OnInit {
   private autocomplete!: google.maps.places.Autocomplete;
 
   private ngZone = inject(NgZone);
-
+  isDrawerOpen: boolean = false;
   searchQuery: string = "";
-
+toggleType:string=''
   ngOnInit(): void {
     this.initializeAutocomplete();
   }
 
   onToggleDrawer(type: string) {
+    this.isDrawerOpen = !this.isDrawerOpen;
+    if(this.isDrawerOpen){
+      this.toggleType = type;
+    } else {
+      this.toggleType =''
+    }
+    
     if (this.toggleDrawer) {
       this.toggleDrawer();
       this.toggleEvent.emit(type);

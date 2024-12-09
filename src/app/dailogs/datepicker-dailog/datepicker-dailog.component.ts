@@ -11,6 +11,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import moment from 'moment'; 
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 const today = new Date();
 const month = today.getMonth();
 const year = today.getFullYear();
@@ -44,6 +46,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   selectedRange: { start: Date | null; end: Date | null } = { start: null, end: null };
 
   isSelectingStart = true;
+  currentUtcTime:dayjs.Dayjs = dayjs().utc();
   ngOnInit(): void {
  
   }
@@ -65,10 +68,16 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
     console.log('Selected Date and Time Range:', event);
 
     if (event && event.startDate && event.endDate) {
-      // Convert the selected startDate and endDate to Dayjs objects
-      this.startDate = dayjs(event.startDate);
-      this.endDate = dayjs(event.endDate);
-
+      // Convert the selected startDate and endDate to UTC Dayjs objects
+      this.startDate = dayjs(event.startDate).utc();
+      this.endDate = dayjs(event.endDate).utc();
+  
+      // Get the current UTC time in HH:mm UTC format
+      //  this.currentUtcTime = dayjs().utc().format('HH:mm [UTC]');
+      console.log('Start Date in UTC:', this.startDate.format('YYYY-MM-DD HH:mm [UTC]'));
+      console.log('End Date in UTC:', this.endDate.format('YYYY-MM-DD HH:mm [UTC]'));
+      console.log('Current UTC Time:', this.currentUtcTime);
+  
       // Optional: Automatically apply the date range
       this.autoApplyDateRange();
     }
@@ -147,7 +156,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
     // Pass only valid dates back to the parent component
     if (this.startDate && this.endDate) {
-      this.dialogRef.close({ startDate: this.startDate, endDate: this.endDate });
+      this.dialogRef.close({ startDate: this.startDate, endDate: this.endDate,currentUtcTime:this.currentUtcTime });
     } else {
       this.dialogRef.close(null); // Close without returning if dates are invalid
     }

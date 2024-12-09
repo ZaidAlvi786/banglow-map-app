@@ -1,27 +1,29 @@
-<div class="flex bg-primaryBg">
-<span (click)="onToggleDrawer('menu')" class="flex items-center justify-center w-[60px] h-[40px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
-    <img src="assets/svg-icons/menu-icon.svg" alt="" />
+<div class="flex bg-primaryBg w-lvw">
+<span  class="flex items-center justify-center min-w-[60px] h-[40px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
+     <img src="assets/svg-icons/menu-icon.svg" alt=""/>
 </span>
-<div (click)="onToggleDrawer('library')" class="flex items-center justify-center w-[135px] h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
-    <img src="assets/svg-icons/location-icon.svg" alt="" />
-    <span class="text-yellow text-xs leading-[18px] font-Barlow uppercase font-bold">library</span>
+<!-- (click)="onToggleDrawer('library')" -->
+<div  class="flex items-center justify-center min-w-[135px] w-auto h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
+    <img src="assets/svg-icons/location-icon-active.svg" alt="" *ngIf="toggleType === 'library'" />
+    <img src="assets/svg-icons/location-icon.svg" alt="" *ngIf="toggleType !== 'library'" />
+    <span class="text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'library' ? 'text-yellow':'text-secondaryText'">library</span>
 </div>
-<div class="flex items-center justify-center w-[119px] h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
+<div class="flex items-center justify-center min-w-[119px] w-auto h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
     <img src="assets/svg-icons/sites-icon.svg" alt="" />
-    <span class="text-secondary text-xs leading-[18px] font-Barlow uppercase font-bold">Sites</span>
+    <span class="text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'Sites' ? 'text-yellow':'text-secondaryText'">Sites</span>
 </div>
-<div class="flex items-center justify-center w-[134px] h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
+<div class="flex items-center justify-center min-w-[134px] w-auto h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
     <img src="assets/svg-icons/file-icon.svg" alt="" />
-    <span class="text-secondary text-xs leading-[18px] font-Barlow uppercase font-bold">Groups</span>
+    <span class="text-secondary text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'Groups' ? 'text-yellow':'text-secondaryText'">Groups</span>
 </div>
 <span class="flex justify-between  w-[1252px] h-[40px] py-1.5 px-5 bg-inputBg">
-    <input #searchInput type="text" placeholder="Search" class="bg-inherit placeholder:!text-secondaryText border-0 outline-0 w-full !text-secondaryText" />
+    <input #searchInput type="text" placeholder="Search ..." class="bg-inherit placeholder:!text-secondary-heiglight border-0 outline-0 w-full !text-secondaryText text-xs font-bold font-Barlow" />
     <img height="14px" width="14px" src="assets/svg-icons/search-icon.svg" alt="" />
 </span>
-<span class="flex items-center justify-center w-[60px] h-[40px] border-r-0 border-l- border-y-0 border-secondary cursor-pointer">
+<span class="flex items-center justify-center min-w-[60px] w-auto h-[40px] border-r-0 border-l- border-y-0 border-secondary cursor-pointer">
     <img src="assets/svg-icons/notification-icon.svg" alt="" />
 </span>
-<span class="flex items-center justify-center w-[60px] h-[40px] border-r-0 border-l border-y-0 border-secondary cursor-pointer">
+<span class="flex items-center justify-center min-w-[60px] w-auto h-[40px] border-r-0 border-l border-y-0 border-secondary cursor-pointer">
     <img src="assets/svg-icons/user-icon.svg" alt="" />
 </span>
 

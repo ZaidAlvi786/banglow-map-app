@@ -22,6 +22,7 @@
     "@angular/router": "^18.2.13",
     "@asymmetrik/ngx-leaflet": "^18.0.1",
     "dayjs": "^1.11.13",
+    "dayjs-plugin-utc": "^0.1.2",
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
     "moment": "^2.30.1",
