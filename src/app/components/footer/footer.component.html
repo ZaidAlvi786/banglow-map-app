@@ -1,5 +1,5 @@
 <div class="flex justify-between items-end gap-[250px]">
-  <div class="w-[470px] flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
+  <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
     <div class="border-r border-custom-border w-[70px] px-[15px]">
 
       <ul *ngIf="isDropdownOpen" class="absolute w-[70px] h-[100px] rounded-[5px] bg-primaryBg -top-[110px]">
@@ -10,8 +10,8 @@
         </li>
       </ul>
       <div class="h-[50px] cursor-pointer" (click)="toggleDropdown()">
-        <div class=" w-full gap-2 items-center flex  h-full">
-          <img class="w-[16px] h-[16px]" [src]="selectedOption.image" alt="{{ selectedOption.label }}" />
+        <div class=" w-full gap-2 items-center flex h-full">
+          <img class="w-[20px] h-[20px]" [src]="selectedOption.image" alt="{{ selectedOption.label }}" />
           <span>
             <svg width="9" height="6" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -24,11 +24,20 @@
       </div>
 
     </div>
-    <div class=" w-[329px] gap-[15px] items-center px-[15px] flex border-r border-custom-border h-full" (click)="openDateDailog()">
-      <div class="flex gap-[15px] w-[300px] text-secondaryText text-xs font-bold" >
-        <div class="felx gap-1 text-secondaryText text-xs font-bold" *ngIf="startDate">{{getFormattedDate(startDate) }}</div>
+    <div class="w-fit gap-[15px] items-center px-[15px] flex border-r border-custom-border h-full" (click)="openDateDailog()">
+      <div class="flex gap-[15px] min-w-[284px] text-secondaryText text-xs font-bold"  *ngIf="startDate && endDate">
+        <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
+          <span>{{getFormattedDate(startDate) }}</span>
+          <span class="text-secondary-heiglight">{{formatUtcTime(currentUtcTime)}}</span>
+        </div>
         -
-        <div class="felx gap-1 text-secondaryText text-xs font-bold" *ngIf="endDate">{{getFormattedDate(endDate)}}</div>
+        <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
+          <span>{{getFormattedDate(endDate)}}</span>
+          <span class="text-secondary-heiglight">{{formatUtcTime(currentUtcTime)}}</span>
+        </div>
+      </div>
+      <div class="text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]" *ngIf="!startDate && !endDate">
+        Time range
       </div>
       <span>
         <svg width="9" height="6" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">

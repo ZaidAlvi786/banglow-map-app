@@ -18,7 +18,7 @@ module.exports = {
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],
         serif: ['Merriweather', 'serif'],
-        Barlow: ['Barlow']
+        Barlow: ['Barlow', 'sans-serif']
       },
       borderColor: {
         primary: '#1D2428',
