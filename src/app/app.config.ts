@@ -5,6 +5,8 @@ import { BrowserModule, provideClientHydration } from '@angular/platform-browser
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { HttpClientModule } from '@angular/common/http';
+import { provideAuth } from './interceptors/auth.provider';
+import { provideLoading } from './interceptors/loading/loading.provider';
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), provideClientHydration(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,NgxDaterangepickerMd.forRoot(),HttpClientModule])]
+  providers: [provideRouter(routes), provideClientHydration(),provideAuth(),provideLoading(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,NgxDaterangepickerMd.forRoot(),HttpClientModule])]
 };

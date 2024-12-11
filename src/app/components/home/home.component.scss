@@ -66,3 +66,11 @@
     margin-left: 0px !important;
   }
 }
+
+::ng-deep .custom-dialog-class{
+  .mat-mdc-dialog-surface{
+    background-color: #191E22 !important;
+    box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, 0.50) !important;
+    border-radius: 5px !important;
+  }
+}

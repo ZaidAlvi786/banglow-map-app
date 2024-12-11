@@ -1,17 +1,64 @@
-import { HttpInterceptorFn } from "@angular/common/http";
+import { HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { catchError, Observable, throwError } from 'rxjs';
+import { AuthUtils } from './auth.utils';
+import { AuthService } from './auth.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-// Define the Auth Interceptor function
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const clonedRequest = req.clone({
-    setHeaders: {
-      Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoyMDQ4NzM3NDA3LCJpYXQiOjE3MzMzNzc0MDcsImp0aSI6ImFiM2NlZDZlNTI4MzRlMTdhMjcyOGIzZjY2ZDU4ZjJlIiwidXNlcl9pZCI6MX0.SbZhv67nD5T68FvsercJOrWPje98fppXK22AozfKitc`,
-      "X-CSRFTOKEN":
-        "Y6uma0fzv9FVcOcOkM8yOFDKbZQdj4quWcghlG1ndIDLM7PT0miUtKfCACKMKKWa",
-    },
-  });
+/**
+ * Intercept
+ *
+ * @param req
+ * @param next
+ */
+export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
+    const authService = inject(AuthService);
+    const snackBar = inject(MatSnackBar);
+    // Clone the request object
+    let newReq = req.clone();
 
-  return next(clonedRequest);
+    // Request
+    //
+    // If the access token didn't expire, add the Authorization header.
+    // We won't add the Authorization header if the access token expired.
+    // This will force the server to return a "401 Unauthorized" response
+    // for the protected API routes which our response interceptor will
+    // catch and delete the access token from the local storage while logging
+    // the user out from the app.
+    if (authService.accessToken && !AuthUtils.isTokenExpired(authService.accessToken)) {
+        newReq = req.clone({
+            headers: req.headers.set('Authorization', 'Bearer ' + authService.accessToken),
+        });
+    }
+
+    // Response
+    return next(newReq).pipe(
+        catchError((error) => {
+
+            if (error instanceof HttpErrorResponse) {
+                if (error.status === 401) {
+                    console.log("Got 401 token has expired", error);
+                    authService.signOut();
+                    snackBar.open('Session expired. Please log in again.', 'Close', {
+                        duration: 3000, // Snackbar duration in milliseconds
+                        verticalPosition: 'top', // Position the snackbar at the top
+                    });
+                } else {
+                    snackBar.open(`${error.error.data}`, 'Close', {
+                        duration: 3000,
+                        verticalPosition: 'top',
+                    });
+                }
+            } else {
+                snackBar.open('An unexpected error occurred.', 'Close', {
+                    duration: 3000,
+                    verticalPosition: 'top',
+                });
+            }
+            return throwError(error);
+        }),
+    );
 };
-// export const authInterceptor: HttpInterceptorFn = (req, next) => {
-//   return next(req);
-// };
+
+
+
