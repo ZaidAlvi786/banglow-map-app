@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -44,9 +44,10 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   selectedDate: Date | null = null; // Initialize with today's date
   dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
   selectedRange: { start: Date | null; end: Date | null } = { start: null, end: null };
-
+  maxDate:dayjs.Dayjs = dayjs();
   isSelectingStart = true;
   currentUtcTime:dayjs.Dayjs = dayjs().utc();
+  @ViewChild('startDateInput') startDateInput!: ElementRef<HTMLInputElement>;
   ngOnInit(): void {
  
   }
@@ -85,6 +86,9 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
   autoApplyDateRange() {
     console.log('Auto Applying Date Range with Time:', this.startDate.format('MM.DD.YYYY'), this.endDate.format('MM.DD.YYYY'));
+    if (this.startDateInput && this.startDateInput.nativeElement) {
+      this.startDateInput.nativeElement.click();
+    }
   }
   // Helper method to format the date as MM.DD.YYYY
   formatDate(date: any): string {
@@ -100,49 +104,63 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
 
   // Function to set the date range based on button clicked
- setDateRange(range: string): void {
-    const now = dayjs(); // Current date
+setDateRange(range: string): void {
+  const now = dayjs().utc(); // Get current UTC time as a Dayjs object
 
-    switch (range) {
-      case '24hours':
-        this.startDate = now;
-        this.endDate = now.add(1, 'day'); // 1 day onward
-        break;
-      case '3days':
-        this.startDate = now;
-        this.endDate = now.add(3, 'day'); // 3 days onward
-        break;
-      case '7days':
-        this.startDate = now;
-        this.endDate = now.add(7, 'day'); // 7 days onward
-        break;
-      case '14days':
-        this.startDate = now;
-        this.endDate = now.add(14, 'day'); // 14 days onward
-        break;
-      case '28days':
-        this.startDate = now;
-        this.endDate = now.add(28, 'day'); // 28 days onward
-        break;
-      case '3months':
-        this.startDate = now;
-        this.endDate = now.add(3, 'month'); // 3 months onward
-        break;
-      case '6months':
-        this.startDate = now;
-        this.endDate = now.add(6, 'month'); // 6 months onward
-        break;
-      case '9months':
-        this.startDate = now;
-        this.endDate = now.add(9, 'month'); // 9 months onward
-        break;
-      default:
-        break;
-    }
-
-    console.log(this.endDate,'yyyyyyyyyyyyyyy');
-    
+  switch (range) {
+    case '24hours':
+      this.startDate = now.subtract(1, 'day'); // 1 day before (UTC)
+      this.endDate = now; // Now (UTC)
+      break;
+    case '3days':
+      this.startDate = now.subtract(3, 'days');
+      this.endDate = now;
+      break;
+    case '7days':
+      this.startDate = now.subtract(7, 'days');
+      this.endDate = now;
+      break;
+    case '14days':
+      this.startDate = now.subtract(14, 'days');
+      this.endDate = now;
+      break;
+    case '28days':
+      this.startDate = now.subtract(28, 'days');
+      this.endDate = now;
+      break;
+    case '3months':
+      this.startDate = now.subtract(3, 'months');
+      this.endDate = now;
+      break;
+    case '6months':
+      this.startDate = now.subtract(6, 'months');
+      this.endDate = now;
+      break;
+    case '9months':
+      this.startDate = now.subtract(9, 'months');
+      this.endDate = now;
+      break;
+    default:
+      console.error('Invalid range');
+      break;
   }
+  setTimeout(() => {
+    this.autoApplyDateRange();
+  }, 10);
+  // Ensure startDate and endDate are Dayjs objects in UTC format
+  this.startDate = dayjs(this.startDate).utc();
+  this.endDate = dayjs(this.endDate).utc();
+
+  // Log to check the result
+  
+  console.log('Start Date in UTC:', this.startDate.format('YYYY-MM-DD HH:mm [UTC]'));
+  console.log('End Date in UTC:', this.endDate.format('YYYY-MM-DD HH:mm [UTC]'));
+
+  // Optionally, trigger auto-apply of the date range
+   // Delay for 1 second (1000 ms)
+}
+
+  
 
   // selectPreset(days: number): void {
   //   const now = new Date();
@@ -151,8 +169,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   // }
 
   applyDateRange(): void {
-    console.log('Start Date:', this.startDate);
-    console.log('End Date:', this.endDate);
+    // console.log('Start Date:', this.startDate);
+    // console.log('End Date:', this.endDate);
 
     // Pass only valid dates back to the parent component
     if (this.startDate && this.endDate) {

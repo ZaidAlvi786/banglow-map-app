@@ -11,13 +11,14 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { LoadingBarComponent } from "../shared/loading-bar";
 
 // declare var google: any;
 
 @Component({
   selector: "app-header",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,LoadingBarComponent],
   templateUrl: "./header.component.html",
   styleUrl: "./header.component.scss",
 })

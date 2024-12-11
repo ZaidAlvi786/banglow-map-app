@@ -6,10 +6,11 @@ import {MatSliderModule} from '@angular/material/slider';
 import { DatepickerDailogComponent } from '../../dailogs/datepicker-dailog/datepicker-dailog.component';
 import dayjs from 'dayjs';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule,MatSliderModule],
+  imports: [CommonModule,MatSliderModule,FormsModule],
   exportAs: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'
@@ -27,20 +28,20 @@ export class FooterComponent {
   @Input()longitude:any;
   @Input()latitude:any;
   @Input()zoomLevel:any;
+  @Output() zoomLevelChange = new EventEmitter<number>();
+  // @Output() sliderZoom = new EventEmitter<any>();
+  previousZoomLevel:any = 2
   startDate:any
   endDate:any;
   currentUtcTime:any;
   private _snackBar = inject(MatSnackBar);
   constructor(private dialog: MatDialog){}
 
+
+
   toggleDropdown() {
-    if(this.startDate && this.endDate){
+    
       this.isDropdownOpen = !this.isDropdownOpen;
-    } else {
-      this._snackBar.open('Please first select date range.', 'Ok', {
-        duration: 2000  // Snackbar will disappear after 300 milliseconds
-      });
-    }
     
   }
   
@@ -68,16 +69,28 @@ export class FooterComponent {
       }
     });
   }
+
+  //Map zoom in and out functions
   zoomMap(type:string){
     if(type ==='zoomIn'){
       this.zoomIn.emit()
-    }else{
+    }else if(type ==='zoomOut'){
       this.zoomOut.emit()
+    } else{
+      //Map zooming level functionality
+     this.zoomLevelChange.emit(this.zoomLevel);
+      // this.sliderZoom.emit()
     }
   }
+
+  //Map zoom level using slider
+
+  //Date formating
   getFormattedDate(date: Date): string {
     return dayjs(date).format('MM.DD.YYYY');
   }
+
+  //UTC format date function
    formatUtcTime(payload: string | Date): string {
     // If payload is a string, convert it to Date first
     const date = new Date(payload);

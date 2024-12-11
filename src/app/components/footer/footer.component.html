@@ -11,20 +11,21 @@
       </ul>
       <div class="h-[50px] cursor-pointer" (click)="toggleDropdown()">
         <div class=" w-full gap-2 items-center flex h-full">
-          <img class="w-[20px] h-[20px]" [src]="selectedOption.image" alt="{{ selectedOption.label }}" />
+          <span class="w-[20px] h-[20px] shadow-custom-light flex items-center justify-center">
+          <img class="object-none " height="16" width="16" [src]="selectedOption.image" alt="{{ selectedOption.label }}" />
+          </span>
           <span>
             <svg width="9" height="6" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M4.84976 0.159138L8.85512 4.55918C9.04829 4.77139 9.04829 5.11544 8.85512 5.32763L8.38796 5.84082C8.19511 6.05267 7.88257 6.05308 7.68927 5.84173L4.49999 2.35462L1.31073 5.84175C1.11743 6.0531 0.804888 6.0527 0.612043 5.84085L0.144881 5.32765C-0.0482938 5.11544 -0.0482938 4.77139 0.144881 4.55921L4.15024 0.159161C4.3434 -0.0530499 4.65658 -0.0530497 4.84976 0.159138Z"
                 fill="#ABB7C0" />
             </svg>
-
           </span>
         </div>
       </div>
 
     </div>
-    <div class="w-fit gap-[15px] items-center px-[15px] flex border-r border-custom-border h-full" (click)="openDateDailog()">
+    <div class="w-fit gap-[15px] items-center px-[15px] flex border-r border-custom-border h-full cursor-pointer" (click)="openDateDailog()">
       <div class="flex gap-[15px] min-w-[284px] text-secondaryText text-xs font-bold"  *ngIf="startDate && endDate">
         <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
           <span>{{getFormattedDate(startDate) }}</span>
@@ -88,7 +89,7 @@
       </div>
       <div class="felx gap-1"></div>
     </div>
-    <div class="flex items-center justify-center border-r border-custom-border gap-[10px] w-[35px] h-[35px]" (click)="zoomMap('zoomOut')">
+    <div class="flex items-center justify-center border-r border-custom-border gap-[10px] w-[35px] h-[35px] cursor-pointer" (click)="zoomMap('zoomOut')">
       <span>
         <svg width="13" height="3" viewBox="0 0 13 3" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M11.5 1.5H1.5" stroke="#4A5863" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -100,11 +101,11 @@
       <span class="text-secondary-heiglight ">
         {{zoomLevel}}
       </span>
-      <mat-slider  min="0" max="10">
-        <input matSliderThumb [(value)]="zoomLevel">
+      <mat-slider  min="2" max="10" >
+        <input matSliderThumb [(ngModel)]="zoomLevel" (input)="zoomMap('')" #slider>
       </mat-slider>
     </div>
-    <div class="flex items-center justify-center gap-3 w-[35px] h-[35px] border-r border-custom-border" (click)="zoomMap('zoomIn')">
+    <div class="flex items-center justify-center gap-3 w-[35px] h-[35px] border-r border-custom-border cursor-pointer" (click)="zoomMap('zoomIn')">
       <span>
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M11.5 6.5H1.5M6.5 1.5V11.5" stroke="#ABB7C0" stroke-width="2" stroke-linecap="round"

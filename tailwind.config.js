@@ -13,7 +13,8 @@ module.exports = {
         error: '#DC2626',
         yellow: '#FCCA40',
         inputBg: '#14191E',
-        'secondary-heiglight': '#4A5863'
+        'secondary-heiglight': '#4A5863',
+        'custom-green': '#22F57A'
       },
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],
@@ -28,6 +29,7 @@ module.exports = {
       },
       boxShadow: {
         'custom-black': '0px 2px 1px 0px rgba(0, 0, 0, 0.5)', // #00000080 in RGBA
+        'custom-light': '0px 0px 5px 0px rgba(255, 255, 255, 0.20), 0px 0px 10px 0px rgba(255, 255, 255, 0.25)',
       },
     },
   },
