@@ -10,20 +10,21 @@
     <div class="flex flex-col w-[334px] gap-3 !relative justify-end">
     <div class="range-calendar-container !relative !h-[300px]">
       <!-- Date Range Picker with Hidden Input Fields -->
-      <ngx-daterangepicker-material (choosedDate)="choosedDate($event)"
-      [linkedCalendars]="false" [locale]="{ 
-        format: 'YYYY-MM-DD' 
-      }"
-      [autoApply]="true"
+      <ngx-daterangepicker-material
+  (choosedDate)="choosedDate($event)"
+  [linkedCalendars]="false"
+  [locale]="{ format: 'YYYY-MM-DD' }"
+  [autoApply]="true"
   [showDropdowns]="true"
   [startDate]="startDate"
-            [endDate]="endDate">
-      </ngx-daterangepicker-material>
+  [endDate]="endDate"
+  [maxDate]="maxDate">
+</ngx-daterangepicker-material>
     </div>
     <div class=" w-full z-50">
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Start</mat-label>
-        <input [value]="startDate ? startDate.format('YYYY.MM.DD HH:mm [UTC]') : ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
+        <input #startDateInput [value]="startDate ? startDate.format('YYYY.MM.DD HH:mm [UTC]') : ''" matInput placeholder="Placeholder" class="!text-secondaryText placeholder:!text-secondaryText">
        
       </mat-form-field>
 

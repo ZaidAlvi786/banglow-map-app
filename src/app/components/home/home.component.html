@@ -9,26 +9,41 @@
   <div #mapContainer id="mapContainer" class="map  h-full absolute opacity-50"></div>
   <div class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]">
     <div class="relative z-30 w-full">
-     <app-footer (drawTypeSelected)="setDrawType($event)" [zoomLevel]="zoomLevel" (zoomIn)="zoomIn()" (zoomOut)="zoomOut()" [longitude]="longitude" [latitude]="latitude"></app-footer>
+     <app-footer (drawTypeSelected)="setDrawType($event)" [zoomLevel]="zoomLevel" (zoomIn)="zoomIn()" (zoomOut)="zoomOut()" (zoomLevelChange)="onZoomLevelChange($event)" [longitude]="longitude" [latitude]="latitude"></app-footer>
     </div>
   </div>
   <div class="relative flex ">
-    <div class="absolute right-0 min-h-[200px] min-w-[40px] w-auto rounded-[5px] bg-secondaryBg z-40 mr-[12px] top-[50px]">
-      <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" (click)="handleAction('location')">
-        <img src="assets/svg-icons/pin-location-icon.svg" alt="pin location icon" />
+    <div class="absolute right-0 min-h-[120px] min-w-[40px] w-auto rounded-[5px] bg-secondaryBg z-40 mr-[12px] top-[50px]">
+      <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" [ngClass]="currentAction === 'location' ? 'bg-yellow rounded-t-[5px]':''" (click)="handleAction('location')">
+        @if (currentAction === 'location') {
+          <img src="assets/svg-icons/pin-location-active.svg" alt="pin location icon" />
+        }
+        @if (currentAction !== 'location') {
+          <img src="assets/svg-icons/pin-location-icon.svg" alt="pin location icon" />
+        }
       </div>
-      <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointe" (click)="handleAction('polygon')">
-        <img src="assets/svg-icons/polygon-draw-icon.svg" alt="pin location icon" />
+      <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" [ngClass]="currentAction === 'polygon' ? 'bg-yellow':''" (click)="handleAction('polygon')">
+        @if (currentAction === 'polygon') {
+          <img src="assets/svg-icons/polygon-draw-icon-active.svg" alt="pin location icon" />
+        }
+        @if (currentAction !== 'polygon') {
+          <img src="assets/svg-icons/polygon-draw-icon.svg" alt="pin location icon" />
+        }
       </div>
-      <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointe" (click)="handleAction('line')">
-        <img src="assets/svg-icons/line-draw-icon.svg" alt="pin location icon" />
+      <div class="p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" [ngClass]="currentAction === 'line' ? 'bg-yellow rounded-b-[5px]':''" (click)="handleAction('line')">
+        @if (currentAction === 'line') {
+          <img src="assets/svg-icons/line-draw-icon-active.svg" alt="pin location icon" />
+        }
+        @if (currentAction !== 'line') {
+          <img src="assets/svg-icons/line-draw-icon.svg" alt="pin location icon" />
+        }
       </div>
-      <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointe" (click)="handleAction('settings')">
+      <!-- <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" (click)="handleAction('settings')">
         <img src="assets/svg-icons/filter-icon.svg" alt="pin location icon" />
       </div>
-      <div class="p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointe" (click)="handleAction('layers')">
+      <div class="p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" (click)="handleAction('layers')">
         <img src="assets/svg-icons/layer-icon.svg" alt="pin location icon" />
-      </div>
+      </div> -->
     </div>
 
   </div>
