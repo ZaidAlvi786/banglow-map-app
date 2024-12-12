@@ -23,18 +23,24 @@ export class FooterComponent {
   @Output() drawTypeSelected = new EventEmitter<any>();
   @Output() zoomIn = new EventEmitter<any>();
   @Output() zoomOut = new EventEmitter<any>();
+  @Output() dateRangeChanged = new EventEmitter<{ startDate: string, endDate: string }>();
   selectedOption = this.options[0];
   isDropdownOpen = false;
   @Input()longitude:any;
   @Input()latitude:any;
   @Input()zoomLevel:any;
   @Output() zoomLevelChange = new EventEmitter<number>();
+  @Output() toggleLayer = new EventEmitter<any>();
   // @Output() sliderZoom = new EventEmitter<any>();
-  previousZoomLevel:any = 2
+  previousZoomLevel:any = 4
   startDate:any
   endDate:any;
   currentUtcTime:any;
+  startTime:any;
+  endTime:any;
+  showLayers:boolean = false;
   private _snackBar = inject(MatSnackBar);
+  @Input() ActiveLayer:string ='OpenStreetMap'
   constructor(private dialog: MatDialog){}
 
 
@@ -53,8 +59,23 @@ export class FooterComponent {
 
   // opening range date picker dialog to get start date and end date.
   openDateDailog() {
+    const combinedDateTimeString = this.startDate && this.startTime 
+    ? `${this.startDate} ${this.startTime}` 
+    : null;
+    const startDate = combinedDateTimeString 
+    ? dayjs(combinedDateTimeString, 'MM.DD.YYYY HH:mm:ss') 
+    : null;
+
+// Combine and conditionally set endDate
+    const combinedDateTimeEnding = this.endDate && this.endTime 
+    ? `${this.endDate} ${this.endTime}` 
+    : null;
+    const endDate = combinedDateTimeEnding 
+    ? dayjs(combinedDateTimeEnding, 'MM.DD.YYYY HH:mm:ss') 
+    : null;
     const dialogRef = this.dialog.open(DatepickerDailogComponent, {
       width: '470px',
+      data:{startDate:startDate ? startDate :null,endDate:endDate ? endDate:null}
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -63,6 +84,12 @@ export class FooterComponent {
         this.startDate = result.startDate;
         this.endDate  = result.endDate;
         this.currentUtcTime = result.currentUtcTime;
+        this.startDate = result.startDate.format('MM.DD.YYYY');
+        this.startTime = result.startDate.format('HH:mm:ss');
+        this.endDate = result.endDate.format('MM.DD.YYYY');
+        this.endTime = result.endDate.format('HH:mm:ss');
+        this.dateRangeChanged.emit({ startDate:result.startDate , endDate:  result.endDate});
+        // console.log("Date:", date);
         // Do something with the result
         // For example: this.startDate = result.startDate; this.endDate = result.endDate;
 
@@ -106,6 +133,14 @@ export class FooterComponent {
   
     // Return formatted time in "HH:mm UTC" format
     return `${hours}:${minutes} UTC`;
+  }
+
+  layerDropdown(){
+    this.showLayers = !this.showLayers
+  }
+  selectedLayer(type:string){
+    console.log(type);
+    this.toggleLayer.emit(type)
   }
   
 }
