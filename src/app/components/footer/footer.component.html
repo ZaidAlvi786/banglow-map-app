@@ -2,7 +2,7 @@
   <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
     <div class="border-r border-custom-border w-[70px] px-[15px]">
 
-      <ul *ngIf="isDropdownOpen" class="absolute w-[70px] h-[100px] rounded-[5px] bg-primaryBg -top-[110px]">
+      <ul *ngIf="isDropdownOpen" class="absolute w-[70px] h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0">
         <li *ngFor="let option of options" (click)="selectOption(option)"
           class="border-b h-[50px] last:border-b-0 border-solid border-custom-border">
           <span class="flex items-center justify-center h-full w-full"><img [src]="option.image"
@@ -28,13 +28,13 @@
     <div class="w-fit gap-[15px] items-center px-[15px] flex border-r border-custom-border h-full cursor-pointer" (click)="openDateDailog()">
       <div class="flex gap-[15px] min-w-[284px] text-secondaryText text-xs font-bold"  *ngIf="startDate && endDate">
         <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
-          <span>{{getFormattedDate(startDate) }}</span>
-          <span class="text-secondary-heiglight">{{formatUtcTime(currentUtcTime)}}</span>
+          <span>{{startDate}}</span>
+          <span class="text-secondary-heiglight">{{startTime}}</span>
         </div>
         -
         <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
-          <span>{{getFormattedDate(endDate)}}</span>
-          <span class="text-secondary-heiglight">{{formatUtcTime(currentUtcTime)}}</span>
+          <span>{{endDate}}</span>
+          <span class="text-secondary-heiglight">{{endTime}}</span>
         </div>
       </div>
       <div class="text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]" *ngIf="!startDate && !endDate">
@@ -49,14 +49,20 @@
 
       </span>
     </div>
-    <div class="flex items-center px-[15px] gap-3 w-[70px] h-[50px]">
-      <span>
-        <svg width="17" height="12" viewBox="0 0 17 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M1.37884 6.9375V6.942C1.35496 7.03727 1.31355 7.12663 1.25699 7.20496C1.20042 7.2833 1.12982 7.34907 1.0492 7.39853C0.968585 7.44798 0.879543 7.48015 0.787165 7.49318C0.694788 7.50622 0.600887 7.49987 0.510831 7.4745C-0.100465 7.3035 0.00732719 6.558 0.00732719 6.558L0.0328571 6.465C0.0328571 6.465 0.0697334 6.339 0.0995181 6.2475C0.463489 5.16823 0.999299 4.16274 1.68378 3.2745C2.95601 1.6335 5.09626 0 8.49314 0C11.89 0 14.0303 1.6335 15.3039 3.2745C15.9884 4.16274 16.5242 5.16823 16.8882 6.2475C16.9187 6.34025 16.9471 6.43378 16.9733 6.528L16.9775 6.5475V6.5535L16.9789 6.5565C17.0239 6.7474 16.9962 6.94935 16.9017 7.11882C16.8072 7.28829 16.6536 7.41171 16.4738 7.46248C16.2941 7.51324 16.1027 7.48729 15.9409 7.39021C15.7791 7.29313 15.6599 7.1327 15.6089 6.9435L15.6074 6.9375L15.5961 6.9L15.5464 6.7365C15.2373 5.82529 14.7841 4.97621 14.2061 4.2255C13.1537 2.868 11.3936 1.5 8.49314 1.5C5.59267 1.5 3.83396 2.868 2.78014 4.2255C2.20218 4.97621 1.74896 5.82529 1.43983 6.7365L1.39019 6.9L1.37884 6.9375ZM8.49314 4.5C7.55273 4.5 6.65084 4.89509 5.98588 5.59835C5.32091 6.30161 4.94734 7.25544 4.94734 8.25C4.94734 9.24456 5.32091 10.1984 5.98588 10.9017C6.65084 11.6049 7.55273 12 8.49314 12C9.43354 12 10.3354 11.6049 11.0004 10.9017C11.6654 10.1984 12.0389 9.24456 12.0389 8.25C12.0389 7.25544 11.6654 6.30161 11.0004 5.59835C10.3354 4.89509 9.43354 4.5 8.49314 4.5ZM6.36566 8.25C6.36566 7.65326 6.5898 7.08097 6.98878 6.65901C7.38776 6.23705 7.92889 6 8.49314 6C9.05738 6 9.59851 6.23705 9.99749 6.65901C10.3965 7.08097 10.6206 7.65326 10.6206 8.25C10.6206 8.84674 10.3965 9.41903 9.99749 9.84099C9.59851 10.2629 9.05738 10.5 8.49314 10.5C7.92889 10.5 7.38776 10.2629 6.98878 9.84099C6.5898 9.41903 6.36566 8.84674 6.36566 8.25Z"
-            fill="#ABB7C0" />
-        </svg>
-
+    <div class="flex items-center px-[15px] gap-3 w-[70px] h-[50px] relative">
+      <ul *ngIf="showLayers" class="absolute w-[150px] font-Barlow h-[100px] rounded-[5px] bg-primaryBg -top-[103px] left-0">
+        <li (click)="selectedLayer('OpenStreetMap')" [ngClass]="ActiveLayer === 'OpenStreetMap' ? 'bg-yellow text-main-highlight rounded-t-[5px]':'text-secondaryText'"
+          class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium">
+          <span class="flex items-center justify-center h-full w-full">OpenStreetMap</span>
+        </li>
+        <li (click)="selectedLayer('GoogleStreetMap')" [ngClass]="ActiveLayer === 'GoogleStreetMap' ? 'bg-yellow text-main-highlight rounded-b-[5px]':'text-secondaryText'"
+        class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
+        <span class="flex items-center justify-center h-full w-full">GoogleStreetMap</span>
+      </li>
+      </ul>
+      <div class="flex items-center gap-3 cursor-pointer" (click)="layerDropdown()">
+      <span  class="cursor-pointer">
+        <img src="assets/svg-icons/layer-icon.svg" alt="pin location icon" />
       </span>
       <span>
         <svg width="9" height="6" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -66,18 +72,19 @@
         </svg>
 
       </span>
+      </div>
     </div>
   </div>
-  <div class="w-[545px] flex h-[35px] bg-primaryBg rounded-[5px] shadow-custom-black">
+  <div class="w-[545px] flex h-[35px] bg-primaryBg rounded-[5px] shadow-custom-black" (click)="closeDropdown()">
     <div class=" px-[10px] w-[329px] gap-[10px] items-center flex border-r border-custom-border h-full">
       <div class="flex gap-3 w-[300px] items-center">
-        <div class="flex gap-2 items-center">
-          <div class="flex gap-1 z-30 relative font-semibold text-xs leading-[14.4px]"><span
-              class="uppercase text-secondaryText">longitude</span><span
-              class="text-secondary-heiglight">{{longitude}}</span></div>
-          <div class="flex gap-1 z-30 relative font-semibold text-xs leading-[14.4px]"><span
-              class="uppercase text-secondaryText">latitude</span><span
+        <div class="flex gap-2 items-center w-[280px]">
+          <div class="flex gap-1 z-30 relative min-w-[138px] font-semibold text-xs leading-[14.4px]"><span
+              class="uppercase text-secondaryText">Latitude</span><span
               class="text-secondary-heiglight">{{latitude}}</span></div>
+          <div class="flex gap-1 z-30 min-w-[138px] relative font-semibold text-xs leading-[14.4px]"><span
+              class="uppercase text-secondaryText">Longitude</span><span
+              class="text-secondary-heiglight">{{longitude}}</span></div>
           <span>
             <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -101,7 +108,7 @@
       <span class="text-secondary-heiglight ">
         {{zoomLevel}}
       </span>
-      <mat-slider  min="2" max="10" >
+      <mat-slider  min="4" max="20" >
         <input matSliderThumb [(ngModel)]="zoomLevel" (input)="zoomMap('')" #slider>
       </mat-slider>
     </div>
