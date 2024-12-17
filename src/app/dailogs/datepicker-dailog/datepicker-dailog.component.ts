@@ -53,8 +53,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
     console.log(this.data,'sssssssssssssssss');
     
     if (this.data.startDate && this.data.endDate) {
-      this.startDate = dayjs(this.data.startDate).utc();
-      this.endDate = dayjs(this.data.endDate).utc();
+      this.startDate = this.data.startDate;
+      this.endDate = this.data.endDate;
       this.updateFormValues();
     }
   }

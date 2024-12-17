@@ -7,6 +7,14 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { HttpClientModule } from '@angular/common/http';
 import { provideAuth } from './interceptors/auth.provider';
 import { provideLoading } from './interceptors/loading/loading.provider';
+import { NgxUiLoaderModule, NgxUiLoaderConfig } from 'ngx-ui-loader';
+const ngxUiLoaderConfig: NgxUiLoaderConfig = {
+  fgsType: 'three-strings',
+  fgsColor: '#FCCA40', // Change the loader color
+  pbThickness: 5, // Progress bar thickness
+  bgsColor: '#20272D',
+  bgsOpacity:0.7
+};
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), provideClientHydration(),provideAuth(),provideLoading(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,NgxDaterangepickerMd.forRoot(),HttpClientModule])]
+  providers: [provideRouter(routes), provideClientHydration(),provideAuth(),provideLoading(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,NgxDaterangepickerMd.forRoot(),HttpClientModule,NgxUiLoaderModule.forRoot(ngxUiLoaderConfig)])]
 };

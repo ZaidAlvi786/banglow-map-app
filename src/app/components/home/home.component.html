@@ -1,5 +1,5 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
-  <div
+  <div 
     class="h-screen min-h-[700px] relative"
     [ngClass]="isGoogleLayerActive === 'OpenStreetMap' ? '!bg-[#234436]' : ' z-30'"
   >
@@ -7,7 +7,7 @@
       class=""
       [ngClass]="isGoogleLayerActive ==='OpenStreetMap' ? 'bg-[#131f07]  z-30' : ' z-30'"
     >
-      <div class="fixed top-0 z-30">
+      <div class="fixed top-0 z-30" (click)="closeDropdown()">
         <app-header
           [toggleDrawer]="toggleDrawer.bind(this)"
           (toggleEvent)="handleToggleEvent($event)"
@@ -21,7 +21,7 @@
       >
         <app-sidebar-drawer [type]="type"></app-sidebar-drawer>
       </mat-drawer>
-      <div
+      <div (click)="closeDropdown()"
         #mapContainer
         id="mapContainer"
         class="map h-full absolute"
@@ -31,7 +31,7 @@
         class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]"
       >
         <div class="relative z-50 w-full">
-          <app-footer
+          <app-footer #childComponent
             (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"
             [zoomLevel]="zoomLevel"
@@ -42,10 +42,14 @@
             [latitude]="latitude"
             (dateRangeChanged)="onDateRangeChanged($event)"
             [ActiveLayer]="isGoogleLayerActive"
+            [isDropdownOpen]="isDropdownOpen" 
+            (toggleDropdownEvent)="handleDropdownToggle($event)"
+            (toggleLayersEvent)="handleLayersToggle($event)"
+            [showLayers]="showLayers"
           ></app-footer>
         </div>
       </div>
-      <div class="relative flex">
+      <div class="relative flex" (click)="closeDropdown()">
         <div
           class="absolute right-0 min-h-[120px] min-w-[40px] w-auto rounded-[5px] bg-secondaryBg z-40 mr-[12px] top-[50px]"
         >

@@ -25,7 +25,8 @@ export class FooterComponent {
   @Output() zoomOut = new EventEmitter<any>();
   @Output() dateRangeChanged = new EventEmitter<{ startDate: string, endDate: string }>();
   selectedOption = this.options[0];
-  isDropdownOpen = false;
+  @Input() isDropdownOpen: boolean = false;  // Receiving the dropdown state from the parent
+  @Output() toggleDropdownEvent: EventEmitter<boolean> = new EventEmitter<boolean>();  // To send state back to parent
   @Input()longitude:any;
   @Input()latitude:any;
   @Input()zoomLevel:any;
@@ -38,16 +39,20 @@ export class FooterComponent {
   currentUtcTime:any;
   startTime:any;
   endTime:any;
-  showLayers:boolean = false;
+  @Input() showLayers:boolean = false;
+  @Output() toggleLayersEvent: EventEmitter<boolean> = new EventEmitter<boolean>();  // To send state back to parent
   private _snackBar = inject(MatSnackBar);
-  @Input() ActiveLayer:string ='OpenStreetMap'
+  @Input() ActiveLayer:string ='OpenStreetMap';
+  // EventEmitter to send the close event to the parent
   constructor(private dialog: MatDialog){}
 
 
 
   toggleDropdown() {
     
-      this.isDropdownOpen = !this.isDropdownOpen;
+        // Toggle the dropdown and emit the state change to the parent
+    this.isDropdownOpen = !this.isDropdownOpen;
+    this.toggleDropdownEvent.emit(this.isDropdownOpen);
     
   }
   
@@ -59,6 +64,8 @@ export class FooterComponent {
 
   // opening range date picker dialog to get start date and end date.
   openDateDailog() {
+    if(this.isDropdownOpen) this.isDropdownOpen = false;
+    if(this.showLayers) this.showLayers = false;
     const combinedDateTimeString = this.startDate && this.startTime 
     ? `${this.startDate} ${this.startTime}` 
     : null;
@@ -137,12 +144,36 @@ export class FooterComponent {
 
   layerDropdown(){
     this.showLayers = !this.showLayers
+    this.toggleLayersEvent.emit(this.showLayers)
   }
   selectedLayer(type:string){
+    this.showLayers = false
     console.log(type);
     this.toggleLayer.emit(type)
   }
+
+  closeDropdown(){
+    if(this.isDropdownOpen) this.isDropdownOpen = false;
+    if(this.showLayers) this.showLayers = false;
+  }
   
+  copyToClipboard(): void {
+    const textToCopy = `Latitude: ${this.latitude}, Longitude: ${this.longitude}`;
+
+    // Create a temporary input element to copy text
+    const inputElement = document.createElement('input');
+    inputElement.value = textToCopy;
+    document.body.appendChild(inputElement);
+    inputElement.select();
+    document.execCommand('copy');
+    document.body.removeChild(inputElement);
+
+    // Optionally alert the user
+    
+    this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
+      duration: 2000  // Snackbar will disappear after 300 milliseconds
+    });
+  }
 }
 
 

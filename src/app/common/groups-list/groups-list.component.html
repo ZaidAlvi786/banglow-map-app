@@ -1,0 +1,23 @@
+<div class="font-Barlow" >
+    <!-- Group Header -->
+    <div class="group-header flex gap-[15px] text-sm font-medium text-secondaryText p-[15px] border-y border-y-solid border-y-custom-border" [ngClass]="isExpanded? 'bg-[#232B32] ':'bg-primaryBg'" (click)="toggle(group)">
+        @if (isExpanded) {
+            <span class="w-[14px] h-[12px]">
+                <img src="assets/svg-icons/folder-icon-expanded.svg" alt="Search" class="w-[14px]" />
+            </span>
+        } @else {
+            <span class="!w-[14px] h-[12px]">
+                <img src="assets/svg-icons/folder-icon.svg" alt="Search" class="w-[14px]" />
+            </span>
+        }
+      {{ group.name }}
+    </div>
+
+    <!-- Subgroups -->
+    @if (isExpanded){<div class="subgroup" [ngClass]="isExpanded? 'bg-[#232B32] ':'bg-primaryBg'">
+        @for (subgroup of group.subgroups; track subgroup) {
+        <app-groups-list [group]="subgroup" [backgroundColor]="backgroundColor"></app-groups-list>
+         }
+    </div>
+}
+  </div>
