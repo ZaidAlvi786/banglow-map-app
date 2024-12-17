@@ -1,0 +1,157 @@
+@if (data.type === 'marker' || data.type === 'polygon') {
+   <div class="flex p-[15px] flex-col items-start gap-[15px] rounded-[5px] bg-primaryBg z-40">
+    <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+            <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
+            <span class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite()">
+                <img src="/assets/svg-icons/vector-icon.svg" alt="" />
+            </span>          
+        </div>
+    </div>
+   @if(data.type !== 'polygon'){ <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.markerData?.address}}</span>
+            <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.markerData?.address)">
+                <img src="/assets/svg-icons/copy-icon.svg" alt="" />
+            </span>          
+        </div>
+     </div>
+    }
+    <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Group</span>
+        @if(selectedGroup == null){
+          <div class="flex relative items-center gap-[15px] self-stretch w-full">
+            <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups()"
+            [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
+            <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
+              <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
+                <!-- Groups Section -->
+                <div class="container">
+                  @for (group of groups; track group;let index = $index) {
+                    <ng-container>
+                      <app-groups-list [group]="group" (selectedGroup)="selectedGroupEvent($event)" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
+                    </ng-container>
+                  }
+                </div>
+            
+                <!-- Search and Assign Section -->
+                <div class="flex flex-col gap-3">
+                  <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
+                  <mat-form-field
+                    id="library"
+                    appearance="outline"
+                    class="!w-[320px]"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <mat-label>Search groups</mat-label>
+                    <input matInput placeholder="Search ..." (keyup)="onKeyPress($event)" >
+                    <img src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
+                  </mat-form-field>
+                </div>
+            
+                <!-- Checkbox Section -->
+                <span>
+                  <mat-checkbox
+                    class="example-margin"
+                    [(ngModel)]="checked"
+                    (click)="$event.stopPropagation()"
+                    >Notify me of new updates</mat-checkbox
+                  >
+                </span>
+            
+                <!-- Buttons -->
+                <button (click)="saveGroup()"
+                  class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]"
+                >
+                  Save
+                </button>
+                <button (click)="closeMenu()"
+                  class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </mat-menu>        
+        </div>
+        } @else {
+          <div class="flex relative items-center gap-[15px] self-stretch w-full">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
+          </div>
+        }
+    </div>
+    <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Image acquisition</span>
+        
+        <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
+            <div class="flex items-center gap-[5px] self-stretch">
+                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{formatDate(data?.markerData?.oldest_date)}}</span>
+                </div>
+                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Newest</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{formatDate(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
+                </div>
+                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Total</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.total_count}}</span>
+                </div>
+                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Avg</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day?.toFixed(3)}}</span>
+                </div>
+            </div>
+            <div class="p-[3px] flex justify-between items-center self-stretch rounded-[50px] bg-secondaryBg">
+                <span class="flex justify-center items-center flex-0 self-stretch text-xs font-bold font-Barlow leading-normal min-w-[50.8px] cursor-pointer"
+                [ngClass]="selectedTimeFrame === 1 ? 'bg-primaryBg rounded-[50px] text-secondaryText':'text-secondary-heiglight'" (click)="activeTimeFrame(1)">
+                    24h
+                </span>
+                <span class="flex justify-center items-center flex-0 self-stretch text-xs font-bold font-Barlow leading-normal min-w-[50.8px] cursor-pointer"
+                [ngClass]="selectedTimeFrame === 4 ? 'bg-primaryBg rounded-[50px] text-secondaryText':'text-secondary-heiglight'" (click)="activeTimeFrame(4)">
+                    4 days
+                </span>
+                <span class="flex justify-center items-center  flex-0 self-stretch text-xs font-bold font-Barlow leading-normal min-w-[50.8px] cursor-pointer"
+                [ngClass]="selectedTimeFrame === 7 ? 'bg-primaryBg rounded-[50px] text-secondaryText':'text-secondary-heiglight'" (click)="activeTimeFrame(7)">
+                    7 days
+                </span>
+                <span class="flex justify-center items-center flex-0 self-stretch text-xs font-bold font-Barlow leading-normal min-w-[50.8px] cursor-pointer"
+                [ngClass]="selectedTimeFrame === 30 ? 'bg-primaryBg rounded-[50px] text-secondaryText':'text-secondary-heiglight'" (click)="activeTimeFrame(30)">
+                    30 days
+                </span>
+                <span class="flex justify-center items-center  flex-0 self-stretch text-xs font-bold font-Barlow leading-normal min-w-[50.8px] cursor-pointer"
+                [ngClass]="selectedTimeFrame === 90 ? 'bg-primaryBg rounded-[50px] text-secondaryText':'text-secondary-heiglight'" (click)="activeTimeFrame(90)">
+                    90 days
+                </span>
+            </div>
+            <div class="flex items-center gap-[5px] self-stretch">
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{activeTimeDate?.percentage_change}}%</span>
+                <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
+                    @if (activeTimeDate?.current_count >activeTimeDate?.previous_count) {<img src="/assets/svg-icons/increase-icon.svg" alt="" />}
+                    @else if (activeTimeDate?.current_count < activeTimeDate?.previous_count) {
+                      <img src="/assets/svg-icons/decrease-icon.svg" alt="" />
+                    }
+                </span>
+            </div>
+            <div class="flex flex-col items-start gap-[5px] self-stretch">
+                <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Most recent</span>
+            <div class="flex items-center gap-[5px] self-stretch">
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{data?.markerData?.newest_info?.cloud_cover?.toFixed(3)}}%</span>
+                <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
+                    <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
+                </span>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+      
+   </div>
+  } @else if (data.type === 'shape') {
+    
+  } @else {
+    
+  }

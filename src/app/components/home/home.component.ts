@@ -20,6 +20,9 @@ import 'leaflet-draw';
 import { SatelliteService } from '../../services/satellite.service';
 // import 'leaflet-draw/dist/leaflet.draw.css';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MapControllersPopupComponent } from '../../dailogs/map-controllers-popup/map-controllers-popup.component';
+import { MatDialog } from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
 (window as any).type = undefined;
 
@@ -59,9 +62,11 @@ export class HomeComponent implements AfterViewInit {
   private drawHandler: any = null; // Declare drawHandler
   private markerHandler: any;
   private darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20, // Maximum zoom level
     subdomains: 'abc',
   });
   private lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 20, // Maximum zoom level
     subdomains: 'abc',
   });
   googleStreets: L.TileLayer = L.tileLayer(
@@ -77,10 +82,17 @@ export class HomeComponent implements AfterViewInit {
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
   startDate: string ='';
   endDate: string ='';
+  data: any;
   @ViewChild(FooterComponent) childComponent!: FooterComponent;
   isDropdownOpen: boolean = false;
   showLayers:boolean = false;
-  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+   private satelliteService:SatelliteService,private dialog: MatDialog,
+   private http: HttpClient,
+  )
+  {
+    this.data = null;
+  }
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -134,7 +146,9 @@ export class HomeComponent implements AfterViewInit {
     ];
   
     // Set the max bounds for the map
-    this.map.setMaxBounds(bounds);
+
+
+    // this.map.setMaxBounds(bounds);
   
     // Optional: Prevent zooming out beyond a certain level
     this.map.on('zoomend', () => {
@@ -164,9 +178,14 @@ export class HomeComponent implements AfterViewInit {
     // Add event listener for mouse movement to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
-      this.longitude = parseFloat(coords.lng.toFixed(6));
-      this.latitude = parseFloat(coords.lat.toFixed(6));
+    
+      // Normalize longitude to the range [-180, 180)
+      this.longitude = parseFloat((((coords.lng + 180) % 360 + 360) % 360 - 180).toFixed(6));
+    
+      // Clamp latitude to the range [-90, 90]
+      this.latitude = parseFloat(Math.max(-90, Math.min(coords.lat, 90)).toFixed(6));
     });
+    
   
     // Add event listener for when a shape is created
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
@@ -361,6 +380,7 @@ export class HomeComponent implements AfterViewInit {
       start_date:this.startDate,
       end_date: this.endDate
           }
+          this.data = resp?.data;
           this.getDataUsingPolygon(resp?.data,queryParams)};
       },
       error: (err) => {
@@ -374,6 +394,7 @@ export class HomeComponent implements AfterViewInit {
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
             this.addPolygonWithMetadata(item);
@@ -385,7 +406,6 @@ export class HomeComponent implements AfterViewInit {
       },
     });
   }
-
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
 
@@ -533,84 +553,325 @@ handleAction(action: string): void {
 
   // Locate user and center the map on their location
   private locateUser(): void {
-    
-    // Check if geolocation is available (this part remains unchanged)
-
-    
-        // No zoom adjustment here, we leave the zoom level unchanged
-        // this.map.setView([lat, lng], 5, { animate: true });
-    
-        // Add a click event listener to the map
-        this.map.on('click', (event) => {
-          const clickLat = event.latlng.lat;
-          const clickLng = event.latlng.lng;
-    
-          // Add a new marker at the clicked location
-          const newMarker = L.marker([clickLat, clickLng], {
-            icon: L.icon({
-              iconUrl: 'assets/svg-icons/pin-location-icon.svg',
-              iconSize: [21, 26],
-            }),
-          }).addTo(this.map);
+    this.map.on('click', (event) => {
+      const clickLat = event.latlng.lat;
+      const clickLng = event.latlng.lng;
   
-          // Bind a popup to the marker that appears when clicked
-          newMarker.bindPopup('You clicked here!').openPopup();
-        });
+      // Add a new marker at the clicked location
+      const newMarker = L.marker([clickLat, clickLng], {
+        icon: L.icon({
+          iconUrl: 'assets/svg-icons/pin-location-icon.svg',
+          iconSize: [21, 26],
+        }),
+      }).addTo(this.map);
+      
+      
+      // Bind a popup to the marker that appears when clicked
+      newMarker.on('click', () => {
+        // Convert lat/lng to screen coordinates
+        const mapContainer = this.map.getContainer();
+        const markerPoint = this.map.latLngToContainerPoint({ lat: clickLat, lng: clickLng });
+      
+        // Default dialog position
+        let position = {
+          top: `${markerPoint.y + mapContainer.offsetTop}px`,
+          left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
+        };
+
+      const  payload= {
+        latitude:clickLat,
+        longitude:clickLng,
+        distance:1
+      }
+      this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
+        next: (resp) => {
+          console.log(resp,'resprespresprespresprespresp');
+          if(resp){
+           
+            
+            const markerData = resp?.data?.analytics
+            this.getAddress(clickLat, clickLng).then((address) => {
+              const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+                width: '320px',
+                data: { type: 'marker', markerData:markerData,pointData:payload },
+                position,
+                panelClass: 'custom-dialog-class',
+              });
+          
+              // After dialog opens, measure and adjust position
+              dialogRef.afterOpened().subscribe(() => {
+                const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+          
+                if (dialogElement) {
+                  const dialogHeight = dialogElement.offsetHeight;
+                  const mapHeight = mapContainer.offsetHeight;
+                  const mapWidth = mapContainer.offsetWidth;
+          
+                  // Adjust horizontal position (left or right)
+                  let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
+                  if (markerPoint.x + 300 > mapWidth) {
+                    newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
+                  }
+          
+                  // Adjust vertical position (top or bottom)
+                  let newTop: number;
+                  const spaceAboveMarker = markerPoint.y; // Space available above the marker
+                  const spaceBelowMarker = mapHeight - markerPoint.y; // Space available below the marker
+          
+                  if (spaceBelowMarker >= dialogHeight + 20) {
+                    // Position dialog below the marker if enough space is available
+                    newTop = markerPoint.y + mapContainer.offsetTop + 10; // Add small margin below marker
+                  } else if (spaceAboveMarker >= dialogHeight + 20) {
+                    // Position dialog above the marker if enough space is available
+                    newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10; // Subtract margin above marker
+                  } else {
+                    // Default fallback: align the dialog vertically centered around the marker
+                    newTop = Math.max(
+                      mapContainer.offsetTop,
+                      Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                    );
+                  }
     
+                  console.log(newTop,'newTopnewTopnewTopnewTop');
+                  
+                  // Update dialog position dynamically
+                  dialogRef.updatePosition({
+                    top: `${newTop}px`,
+                    left: `${newLeft}px`,
+                  });
+                }
+              });
+            });
+          }
+          // if (Array.isArray(resp?.data)) {
+          //   resp.data.forEach((item:any) => {
+          //     this.addPolygonWithMetadata(item);
+          //   });
+          // }
+        },
+        error: (err) => {
+          console.log("err getPolyGonData: ", err);
+        },
+      });
+        // Fetch address and open the dialog
+       
+      });
+      
+    });
+  }
+  
+  
+  
+  
+  async getAddress(lat: number, lng: number): Promise<string> {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+    try {
+      const response: any = await this.http.get(url).toPromise();
+      return response.display_name || 'Address not found';
+    } catch (error) {
+      console.error('Error fetching address:', error);
+      return 'Error fetching address';
+    }
   }
   
 
   // Enable drawing mode for polygons or lines
   private enableDrawing(shape: string): void {
-    // Clear existing shapes before enabling the drawing tool
+    // Clear previous layers
     this.drawLayer.clearLayers();
+    
+    // If there's an active drawing tool, disable it before starting a new one
+    if (this.activeDrawTool) {
+      this.activeDrawTool.disable();
+    }
   
     let drawTool: L.Draw.Polyline | L.Draw.Polygon;
-
-    // Create the appropriate drawing tool based on the selected shape
+  
     if (shape === 'polygon') {
-        drawTool = new L.Draw.Polygon(this.map as L.DrawMap, {
-            shapeOptions: {
-                color: '#ff7800',
-                weight: 4,
-            },
-        });
+      drawTool = new L.Draw.Polygon(this.map as L.DrawMap, {
+        shapeOptions: {
+          color: '#ff7800',
+          weight: 4,
+        },
+      });
     } else if (shape === 'line') {
-        drawTool = new L.Draw.Polyline(this.map as L.DrawMap, {
-            shapeOptions: {
-                color: '#1f78b4',
-                weight: 4,
-            },
-            // Restricting line to only two points
-            maxPoints: 2,
-        });
+      drawTool = new L.Draw.Polyline(this.map as L.DrawMap, {
+        shapeOptions: {
+          color: '#1f78b4',
+          weight: 4,
+        },
+        maxPoints: 2,
+      });
     } else {
-        console.error('Invalid shape type');
-        return;
+      console.error('Invalid shape type');
+      return;
     }
-
-    // Enable the drawing tool
+  
+    // Enable the draw tool
     drawTool.enable();
-
-    // Store the active drawing tool
     this.activeDrawTool = drawTool;
-
-    // Listen to the created event
+  
+    // Remove any previous event listeners for 'L.Draw.Event.CREATED'
+    this.map.off(L.Draw.Event.CREATED);
+  
+    // Add the event listener for the new shape
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
-        const layer = event.layer;
-
-        // Handle the created shapes
-        if (shape === 'line' && layer instanceof L.Polyline) {
-            const latlngs = layer.getLatLngs();
-            if (latlngs.length === 2) {
-                console.log('Line drawn successfully between two points:', latlngs);
-                this.drawLayer.addLayer(layer);
-            }
-        } else if (shape === 'polygon') {
-            this.drawLayer.addLayer(layer);
+      const layer = event.layer;
+  
+      // Log to check how many times the event is being triggered
+      console.log('Event triggered: ', shape, new Date().toISOString());
+  
+      if (shape === 'line' && layer instanceof L.Polyline) {
+        const latlngs = layer.getLatLngs();
+        if (latlngs.length === 2) {
+          this.drawLayer.addLayer(layer);
         }
+      } else if (shape === 'polygon') {
+        this.drawLayer.addLayer(layer);
+        const bounds = (layer as L.Polygon).getBounds();
+        const center = bounds.getCenter();
+        const geoJSON = layer.toGeoJSON();
+        const payload = { geometry: geoJSON?.geometry };
+        let shapeData 
+        if (geoJSON.geometry.coordinates.length <= 5) {
+          shapeData = {
+            coordinates: geoJSON.geometry.coordinates,
+            type: 'Rectangle',
+          };
+        } else {
+          shapeData = {
+            coordinates: geoJSON.geometry.coordinates,
+            type: 'Polygon',
+          };
+        }
+        // API call to get polygon data
+        this.satelliteService.getPolyGonData(payload).subscribe({
+          next: (resp) => {
+            console.log(resp, 'Polygon Data Response');
+            const data = { polygon_wkt: resp.data.wkt_polygon };
+            if (resp.data) {
+              // API call for polygon selection analytics
+              this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+                next: (res) => {
+                  console.log(res, 'Polygon Selection Analytics Response');
+                  if (res.data) {
+                    // No need for layer.once() here, just use layer.on('click', ...)
+                    layer.on('click', async (e: L.LeafletEvent) => {
+                      const mapContainer = this.map.getContainer();
+                      const boundsNorthEast = this.map.latLngToContainerPoint(bounds.getNorthEast());
+                      const boundsSouthWest = this.map.latLngToContainerPoint(bounds.getSouthWest());
+  
+                      // Set the dialog position near the top-right of the polygon
+                      const polygonPoint = {
+                        x: boundsNorthEast.x,
+                        y: boundsSouthWest.y,
+                      };
+  
+                      const position = {
+                        top: `${polygonPoint.y + mapContainer.offsetTop}px`,
+                        left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
+                      };
+  
+                      // Mock data for dialog content (replace with actual data if needed)
+                      const markerData = res?.data?.analytics;
+                      this.getAddress(center.lat, center.lng).then((address) => {
+                        const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+                          width: '320px',
+                          data: { type: 'polygon', markerData: markerData, shapeData: shapeData },
+                          position,
+                          panelClass: 'custom-dialog-class',
+                        });
+  
+                        dialogRef.afterOpened().subscribe(() => {
+                          const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+  
+                          if (dialogElement) {
+                            const dialogHeight = dialogElement.offsetHeight;
+                            const mapHeight = mapContainer.offsetHeight;
+                            const mapWidth = mapContainer.offsetWidth;
+  
+                            let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
+                            if (polygonPoint.x + 300 > mapWidth) {
+                              newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
+                            }
+  
+                            let newTop: number;
+                            const spaceAbove = polygonPoint.y;
+                            const spaceBelow = mapHeight - polygonPoint.y;
+  
+                            if (spaceBelow >= dialogHeight + 20) {
+                              newTop = polygonPoint.y + mapContainer.offsetTop + 10;
+                            } else if (spaceAbove >= dialogHeight + 20) {
+                              newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 10;
+                            } else {
+                              newTop = Math.max(
+                                mapContainer.offsetTop,
+                                Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                              );
+                            }
+  
+                            dialogRef.updatePosition({
+                              top: `${newTop}px`,
+                              left: `${newLeft}px`,
+                            });
+                          }
+                        });
+                      });
+                    });
+                  }
+                },
+              });
+            }
+          },
+          error: (err) => {
+            console.error('Error fetching polygon data:', err);
+          },
+        });
+      }
     });
-}
+  }
+  
+  
+  
+  
+  
+  
+  // Helper function to calculate the centroid of a polygon
+  private getCentroid(latLngs: L.LatLng[]): L.LatLng {
+    let latSum = 0;
+    let lngSum = 0;
+  
+    // Log latLngs to ensure valid data
+    console.log('Polygon coordinates:', latLngs);
+  
+    latLngs.forEach(latLng => {
+      if (latLng instanceof L.LatLng) {
+        console.log('Valid LatLng:', latLng);  // Check if latLng is an instance of L.LatLng
+  
+        // Make sure latLng has valid lat and lng values
+        if (latLng.lat && latLng.lng) {
+          latSum += latLng.lat;
+          lngSum += latLng.lng;
+        } else {
+          console.warn('Invalid LatLng object (missing lat/lng):', latLng);
+        }
+      } else {
+        console.warn('Non-LatLng object in latLngs:', latLng);
+      }
+    });
+  
+    const length = latLngs.length;
+  
+    // Check if there are valid LatLngs
+    if (length === 0 || latSum === 0 || lngSum === 0) {
+      console.error('Invalid LatLng data for centroid calculation');
+      return L.latLng(0, 0); // Return default invalid LatLng if centroid calculation fails
+    }
+  
+    // Calculate and return the centroid
+    return L.latLng(latSum / length, lngSum / length);
+  }
+
 
   
   
@@ -715,6 +976,17 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
   this.endDate = formattedENdDate;
   console.log('Start Date:', this.startDate);
   console.log('End Date:', this.endDate);
+
+  if (this.data) {
+    let queryParams ={
+      page_number: '1',
+      page_size: '100',
+      start_date:this.startDate,
+      end_date: this.endDate
+    }
+  this.getDataUsingPolygon(this.data,queryParams);
+  }
+
 }
 
 // Handle the dropdown toggle event from the child
@@ -733,6 +1005,19 @@ closeDropdown() {
   
   this.isDropdownOpen = false;
   this.showLayers = false
+}
+
+
+
+
+//open map controller pop up
+openDialog(data: any, position: { top: string; left: string }): void {
+  
+  this.dialog.open(MapControllersPopupComponent, {
+    width: '300px',
+    data: data,
+    position: position, // Dynamically calculated position
+  });
 }
 
 

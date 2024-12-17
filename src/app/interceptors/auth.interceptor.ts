@@ -33,18 +33,18 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
 
     // Response
     return next(newReq).pipe(
-        catchError((error) => {
+        catchError((err) => {
 
-            if (error instanceof HttpErrorResponse) {
-                if (error.status === 401) {
-                    console.log("Got 401 token has expired", error);
+            if (err instanceof HttpErrorResponse) {
+                if (err.status === 401) {
+                    console.log("Got 401 token has expired", err);
                     authService.signOut();
                     snackBar.open('Session expired. Please log in again.', 'Close', {
                         duration: 3000, // Snackbar duration in milliseconds
                         verticalPosition: 'top', // Position the snackbar at the top
                     });
-                } else {
-                    snackBar.open(`${error.error.data}`, 'Close', {
+                } else if (err.status !== 404) { 
+                    snackBar.open(`${err.error.error || err.error.data}`, 'Close', {
                         duration: 3000,
                         verticalPosition: 'top',
                     });
@@ -55,7 +55,7 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
                     verticalPosition: 'top',
                 });
             }
-            return throwError(error);
+            return throwError(err);
         }),
     );
 };
