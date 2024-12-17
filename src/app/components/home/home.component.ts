@@ -663,16 +663,6 @@ handleAction(action: string): void {
   
   
   
-  async getAddress(lat: number, lng: number): Promise<string> {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-    try {
-      const response: any = await this.http.get(url).toPromise();
-      return response.display_name || 'Address not found';
-    } catch (error) {
-      console.error('Error fetching address:', error);
-      return 'Error fetching address';
-    }
-  }
   
 
   // Enable drawing mode for polygons or lines
