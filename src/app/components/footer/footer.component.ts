@@ -157,6 +157,23 @@ export class FooterComponent {
     if(this.showLayers) this.showLayers = false;
   }
   
+  copyToClipboard(): void {
+    const textToCopy = `Latitude: ${this.latitude}, Longitude: ${this.longitude}`;
+
+    // Create a temporary input element to copy text
+    const inputElement = document.createElement('input');
+    inputElement.value = textToCopy;
+    document.body.appendChild(inputElement);
+    inputElement.select();
+    document.execCommand('copy');
+    document.body.removeChild(inputElement);
+
+    // Optionally alert the user
+    
+    this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
+      duration: 2000  // Snackbar will disappear after 300 milliseconds
+    });
+  }
 }
 
 

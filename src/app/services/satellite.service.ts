@@ -22,5 +22,22 @@ export class SatelliteService extends BaseService {
     });
   }
 
+  getPinSelectionAnalytics(data: any): Observable<any> {
+    return this.post(createUrl("/get-pin-selection-analytics"), data);
+  }
+  getPolygonSelectionAnalytics(data: any): Observable<any> {
+    return this.post(createUrl("/get-polygon-selection-analytics"), data);
+  }
+  getGroupsForAssignment(data: {group_name:any}): Observable<any> {
+    return this.get(createUrl("/get-groups-for-assignment-and-searching"),{
+      params:data
+    });
+  }
+  generateCirclePolygon(data: any): Observable<any> {
+    return this.post(createUrl("/generate-circle-polygon/"), data);
+  }
 
+  addSite(data: any): Observable<any> {
+    return this.post(createUrl("/add-site"), data);
+  }
 }
