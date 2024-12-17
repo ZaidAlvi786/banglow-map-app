@@ -20,9 +20,7 @@ import 'leaflet-draw';
 import { SatelliteService } from '../../services/satellite.service';
 // import 'leaflet-draw/dist/leaflet.draw.css';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MapControllersPopupComponent } from '../../dailogs/map-controllers-popup/map-controllers-popup.component';
-import { MatDialog } from '@angular/material/dialog';
-import { HttpClient } from '@angular/common/http';
+import dayjs from 'dayjs';
 (window as any).type = undefined;
 
 
@@ -47,10 +45,10 @@ export class HomeComponent implements AfterViewInit {
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   @ViewChild('drawer') drawer?: MatDrawer;
   map!: L.Map;
-  zoomLevel: number = 2;
+  zoomLevel: number = 4;
   longitude: number = -90;
   latitude: number = 40;
-  parentZoomLevel: number = 2
+  parentZoomLevel: number = 4
   drawLayer!: L.FeatureGroup;
   extraShapesLayer!: L.FeatureGroup;
   vectorLayer!: L.LayerGroup;
@@ -66,14 +64,23 @@ export class HomeComponent implements AfterViewInit {
   private lightLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     subdomains: 'abc',
   });
+  googleStreets: L.TileLayer = L.tileLayer(
+    'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    {
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+    }
+  )
+  isGoogleLayerActive: string = 'OpenStreetMap'; // Track the current layer
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
-  constructor(@Inject(PLATFORM_ID) private platformId: Object,
-   private satelliteService:SatelliteService,private dialog: MatDialog,
-   private http: HttpClient,
-  )
-  {}
+  startDate: string ='';
+  endDate: string ='';
+  @ViewChild(FooterComponent) childComponent!: FooterComponent;
+  isDropdownOpen: boolean = false;
+  showLayers:boolean = false;
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,private satelliteService:SatelliteService) {}
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -112,11 +119,11 @@ export class HomeComponent implements AfterViewInit {
   //openstreetmap initialization
   private initMap(): void {
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [this.latitude, this.longitude],
+      center: [34.0479, 100.6197], // Set the center to a location in Asia
       zoom: this.zoomLevel,
       zoomControl: false,
-      minZoom: 2, // Set minimum zoom level
-      maxZoom: 10, // Set maximum zoom level
+      minZoom: 4, // Set minimum zoom level
+      maxZoom: 20, // Set maximum zoom level
       scrollWheelZoom: true, // Optionally allow zooming by scrolling
     });
   
@@ -128,11 +135,11 @@ export class HomeComponent implements AfterViewInit {
   
     // Set the max bounds for the map
     this.map.setMaxBounds(bounds);
-    
+  
     // Optional: Prevent zooming out beyond a certain level
     this.map.on('zoomend', () => {
-      if (this.map.getZoom() < 2) {
-        this.map.setZoom(2);
+      if (this.map.getZoom() < 4) {
+        this.map.setZoom(4);
       }
     });
   
@@ -178,11 +185,12 @@ export class HomeComponent implements AfterViewInit {
           const lng = position.coords.longitude;
   
           // Temporarily allow zooming to user location
-          this.map.setView([lat, lng], 2, { animate: true });
+          this.map.setView([lat, lng], 4, { animate: true });
         }
       );
     }
   }
+  
   
 
   // private addPin(coords: [number, number], iconUrl: string): void {
@@ -338,7 +346,22 @@ export class HomeComponent implements AfterViewInit {
         console.log("resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
-        }else this.getDataUsingPolygon(resp?.data);
+          
+          
+        }else {
+          if (this.startDate === '' && this.endDate === ''){
+            this.startDate = dayjs().utc().startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            this.endDate = dayjs().utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+            console.log(this.endDate,'daywwewweweweweewewewwewe');
+            
+          }
+          let queryParams ={
+            page_number: '1',
+      page_size: '100',
+      start_date:this.startDate,
+      end_date: this.endDate
+          }
+          this.getDataUsingPolygon(resp?.data,queryParams)};
       },
       error: (err) => {
         console.log("err: ", err);
@@ -348,8 +371,8 @@ export class HomeComponent implements AfterViewInit {
 
 
 
-  getDataUsingPolygon(payload: any) {
-    this.satelliteService.getDataFromPolygon(payload).subscribe({
+  getDataUsingPolygon(payload: any,queryParams: any) {
+    this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
@@ -510,100 +533,30 @@ handleAction(action: string): void {
 
   // Locate user and center the map on their location
   private locateUser(): void {
-    this.map.on('click', (event) => {
-      const clickLat = event.latlng.lat;
-      const clickLng = event.latlng.lng;
-  
-      // Add a new marker at the clicked location
-      const newMarker = L.marker([clickLat, clickLng], {
-        icon: L.icon({
-          iconUrl: 'assets/svg-icons/pin-location-icon.svg',
-          iconSize: [21, 26],
-        }),
-      }).addTo(this.map);
-  
-      // Bind a popup to the marker that appears when clicked
-      newMarker.on('click', () => {
-        // Convert lat/lng to screen coordinates
-        const mapContainer = this.map.getContainer();
-        const markerPoint = this.map.latLngToContainerPoint({ lat: clickLat, lng: clickLng });
-      
-        // Default dialog position
-        let position = {
-          top: `${markerPoint.y + mapContainer.offsetTop}px`,
-          left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
-        };
-      
-        // Fetch address and open the dialog
-        this.getAddress(clickLat, clickLng).then((address) => {
-          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-            width: '320px',
-            data: { type: 'marker', address },
-            position,
-            panelClass: 'custom-dialog-class',
-          });
-      
-          // After dialog opens, measure and adjust position
-          dialogRef.afterOpened().subscribe(() => {
-            const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
-      
-            if (dialogElement) {
-              const dialogHeight = dialogElement.offsetHeight;
-              const mapHeight = mapContainer.offsetHeight;
-              const mapWidth = mapContainer.offsetWidth;
-      
-              // Adjust horizontal position (left or right)
-              let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
-              if (markerPoint.x + 300 > mapWidth) {
-                newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
-              }
-      
-              // Adjust vertical position (top or bottom)
-              let newTop: number;
-              const spaceAboveMarker = markerPoint.y; // Space available above the marker
-              const spaceBelowMarker = mapHeight - markerPoint.y; // Space available below the marker
-      
-              if (spaceBelowMarker >= dialogHeight + 20) {
-                // Position dialog below the marker if enough space is available
-                newTop = markerPoint.y + mapContainer.offsetTop + 10; // Add small margin below marker
-              } else if (spaceAboveMarker >= dialogHeight + 20) {
-                // Position dialog above the marker if enough space is available
-                newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10; // Subtract margin above marker
-              } else {
-                // Default fallback: align the dialog vertically centered around the marker
-                newTop = Math.max(
-                  mapContainer.offsetTop,
-                  Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
-                );
-              }
+    
+    // Check if geolocation is available (this part remains unchanged)
 
-              console.log(newTop,'newTopnewTopnewTopnewTop');
-              
-              // Update dialog position dynamically
-              dialogRef.updatePosition({
-                top: `${newTop}px`,
-                left: `${newLeft}px`,
-              });
-            }
-          });
+    
+        // No zoom adjustment here, we leave the zoom level unchanged
+        // this.map.setView([lat, lng], 5, { animate: true });
+    
+        // Add a click event listener to the map
+        this.map.on('click', (event) => {
+          const clickLat = event.latlng.lat;
+          const clickLng = event.latlng.lng;
+    
+          // Add a new marker at the clicked location
+          const newMarker = L.marker([clickLat, clickLng], {
+            icon: L.icon({
+              iconUrl: 'assets/svg-icons/pin-location-icon.svg',
+              iconSize: [21, 26],
+            }),
+          }).addTo(this.map);
+  
+          // Bind a popup to the marker that appears when clicked
+          newMarker.bindPopup('You clicked here!').openPopup();
         });
-      });
-      
-    });
-  }
-  
-  
-  
-  
-  async getAddress(lat: number, lng: number): Promise<string> {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-    try {
-      const response: any = await this.http.get(url).toPromise();
-      return response.display_name || 'Address not found';
-    } catch (error) {
-      console.error('Error fetching address:', error);
-      return 'Error fetching address';
-    }
+    
   }
   
 
@@ -733,21 +686,54 @@ private clearUserMarker(): void {
   }
 
   // Reset maxZoom to the original map configuration
-  this.map.options.maxZoom = 10;
+  this.map.options.maxZoom = 20;
 
   // Optionally reset the zoom level to your default zoom
-  if (this.zoomLevel > 10) {
-    this.map.setZoom(10); // Adjust zoom if it exceeds maxZoom
+  if (this.zoomLevel > 20) {
+    this.map.setZoom(20); // Adjust zoom if it exceeds maxZoom
   }
 }
 
-
-//open map controller pop up
-openDialog(data: any, position: { top: string; left: string }): void {
-  this.dialog.open(MapControllersPopupComponent, {
-    width: '300px',
-    data: data,
-    position: position, // Dynamically calculated position
-  });
+toggleMapLayer(type:string) {
+  this.isGoogleLayerActive = type
+  if (this.isGoogleLayerActive ==='OpenStreetMap') {
+    // Remove Google Streets layer and add Dark Layer
+    this.map.removeLayer(this.googleStreets);
+    this.darkLayer.addTo(this.map);
+  } else {
+    // Remove Dark Layer and add Google Streets layer
+    this.map.removeLayer(this.darkLayer);
+    this.googleStreets.addTo(this.map);
+  }
+  
 }
+
+onDateRangeChanged(event: { startDate: string, endDate: string }) {
+  const formattedStartDate = dayjs(event.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+  const formattedENdDate = dayjs(event.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+  this.startDate = formattedStartDate;
+  this.endDate = formattedENdDate;
+  console.log('Start Date:', this.startDate);
+  console.log('End Date:', this.endDate);
+}
+
+// Handle the dropdown toggle event from the child
+handleDropdownToggle(state: boolean) {
+  this.showLayers = false
+  this.isDropdownOpen = state;
+}
+
+handleLayersToggle(state:boolean){
+  this.isDropdownOpen = false
+  this.showLayers = state;
+}
+
+closeDropdown() {
+  console.log('aaaaaaaaaa');
+  
+  this.isDropdownOpen = false;
+  this.showLayers = false
+}
+
+
 }

@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
@@ -39,27 +39,43 @@ const year = today.getFullYear();
 })
 
 export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
-  startDate: dayjs.Dayjs = dayjs(); // Initialize with current date
-  endDate: dayjs.Dayjs = dayjs().add(0, 'days'); // Initialize with 1 day later
+  @Input() startDate: dayjs.Dayjs = dayjs(); // Initialize with current date
+  @Input() endDate: dayjs.Dayjs = dayjs().add(0, 'days'); // Initialize with 1 day later
   selectedDate: Date | null = null; // Initialize with today's date
   dateRange: { start: Date | null; end: Date | null } = { start: null, end: null };
   selectedRange: { start: Date | null; end: Date | null } = { start: null, end: null };
   maxDate:dayjs.Dayjs = dayjs();
   isSelectingStart = true;
   currentUtcTime:dayjs.Dayjs = dayjs().utc();
+  dateRangeForm: FormGroup;
   @ViewChild('startDateInput') startDateInput!: ElementRef<HTMLInputElement>;
   ngOnInit(): void {
- 
+    console.log(this.data,'sssssssssssssssss');
+    
+    if (this.data.startDate && this.data.endDate) {
+      this.startDate = dayjs(this.data.startDate).utc();
+      this.endDate = dayjs(this.data.endDate).utc();
+      this.updateFormValues();
+    }
   }
-  dateRangeForm: FormGroup;
+
   onSubmit() {
     console.log('Selected Date Range:', this.dateRangeForm.value.dateRange);
   }
 
-  constructor(public dialogRef: MatDialogRef<DatepickerDailogComponent>,private fb: FormBuilder) {
-    this.dateRangeForm = this.fb.group({
-      dateRange: [''],  // Bind this to the date range picker
-    });
+  constructor(public dialogRef: MatDialogRef<DatepickerDailogComponent>,private fb: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data: any) {
+      this.dateRangeForm = this.fb.group({
+        startDate: [
+          this.startDate.format('MM.DD.YYYY HH:mm [UTC]'),
+          [Validators.required, this.validateDate.bind(this), this.validateNotFutureDate.bind(this)],
+        ],
+        endDate: [
+          this.endDate.format('MM.DD.YYYY HH:mm [UTC]'),
+          [Validators.required, this.validateDate.bind(this), this.validateNotFutureDate.bind(this), this.validateEndAfterStart.bind(this)],
+        ],
+      });
+
   }
   ngAfterViewInit(): void {
     
@@ -75,8 +91,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   
       // Get the current UTC time in HH:mm UTC format
       //  this.currentUtcTime = dayjs().utc().format('HH:mm [UTC]');
-      console.log('Start Date in UTC:', this.startDate.format('YYYY-MM-DD HH:mm [UTC]'));
-      console.log('End Date in UTC:', this.endDate.format('YYYY-MM-DD HH:mm [UTC]'));
+      console.log('Start Date in UTC:', this.startDate.format('MM.DD.YYYY HH:mm [UTC]'));
+      console.log('End Date in UTC:', this.endDate.format('MM.DD.YYYY HH:mm [UTC]'));
       console.log('Current UTC Time:', this.currentUtcTime);
   
       // Optional: Automatically apply the date range
@@ -86,9 +102,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
   autoApplyDateRange() {
     console.log('Auto Applying Date Range with Time:', this.startDate.format('MM.DD.YYYY'), this.endDate.format('MM.DD.YYYY'));
-    if (this.startDateInput && this.startDateInput.nativeElement) {
-      this.startDateInput.nativeElement.click();
-    }
+   
   }
   // Helper method to format the date as MM.DD.YYYY
   formatDate(date: any): string {
@@ -180,6 +194,151 @@ setDateRange(range: string): void {
     }
   }
 
+   // Method to update the form values from the startDate and endDate
+   updateFormValues() {
+    this.dateRangeForm.patchValue({
+      startDate: this.startDate.format('MM.DD.YYYY HH:mm [UTC]'),
+      endDate: this.endDate.format('MM.DD.YYYY HH:mm [UTC]')
+    });
+  }
+ // Helper method to get controls safely
+  get startDateControl(): FormControl {
+    return this.dateRangeForm?.get('startDate') as FormControl;
+  }
+
+  get endDateControl(): FormControl {
+    return this.dateRangeForm?.get('endDate') as FormControl;
+  }
+
+
+  // Custom validation: Validate if the date is not in the future
+  validateNotFutureDate(control: FormControl) {
+    const inputDate = dayjs(control?.value, 'MM.DD.YYYY HH:mm [UTC]', true).utc();
+    if (inputDate.isAfter(this.maxDate)) {
+      return { futureDate: true };
+    }
+    return null;
+  }
+
+  // Custom validation: Validate if the end date is greater than or equal to the start date
+  validateEndAfterStart(control: FormControl) {
+    const endDate = dayjs(control?.value, 'MM.DD.YYYY HH:mm [UTC]', true).utc();
+    const startDate = dayjs(this.dateRangeForm?.get('startDate')?.value, 'MM.DD.YYYY HH:mm [UTC]', true).utc();
+  
+    if (startDate.isValid() && endDate.isValid() && endDate.isBefore(startDate)) {
+      return { endBeforeStart: true };
+    }
+    return null;
+  }
+
+  // Custom validation: Validate the date format
+  validateDate(control: FormControl) {
+    const isValid = dayjs(control.value, 'MM.DD.YYYY HH:mm [UTC]', true).isValid();
+    if (!isValid) {
+      return { invalidDateFormat: true };
+    }
+    return null;
+  }
+
+
+ // Method triggered when the user types a date manually
+ onInputChange(field: 'startDate' | 'endDate', event: any) {
+  const inputElement = event.target as HTMLInputElement;
+  const inputValue = inputElement.value;
+
+  // Parse the entered value
+  const parsedDate = dayjs(inputValue, 'MM.DD.YYYY HH:mm [UTC]', true);
+
+  // Temporarily update the form control value to reflect user input
+  if (field === 'startDate') {
+    this.dateRangeForm.get('startDate')?.setValue(inputValue, { emitEvent: false });
+  } else if (field === 'endDate') {
+    this.dateRangeForm.get('endDate')?.setValue(inputValue, { emitEvent: false });
+  }
+
+  // Apply validation logic
+  if (!parsedDate.isValid()) {
+    // Set validation error for invalid date format
+    this.dateRangeForm.get(field)?.setErrors({ invalidDateFormat: true });
+    return;
+  }
+
+  // Check for future date
+  if (parsedDate.isAfter(this.maxDate)) {
+    this.dateRangeForm.get(field)?.setErrors({ futureDate: true });
+    return;
+  }
+
+  // Additional validation for startDate ≤ endDate
+  if (field === 'startDate') {
+    const endDate = dayjs(this.dateRangeForm.get('endDate')?.value, 'MM.DD.YYYY HH:mm [UTC]', true);
+    if (endDate.isValid() && parsedDate.isAfter(endDate)) {
+      this.dateRangeForm.get(field)?.setErrors({ startAfterEnd: true });
+      return;
+    }
+  } else if (field === 'endDate') {
+    const startDate = dayjs(this.dateRangeForm.get('startDate')?.value, 'MM.DD.YYYY HH:mm [UTC]', true);
+    if (startDate.isValid() && parsedDate.isBefore(startDate)) {
+      this.dateRangeForm.get(field)?.setErrors({ endBeforeStart: true });
+      return;
+    }
+  }
+
+  // Clear errors if all validations pass
+  this.dateRangeForm.get(field)?.setErrors(null);
+}
+
+onInputBlur(field: 'startDate' | 'endDate') {
+  const control = this.dateRangeForm.get(field);
+  const inputValue = control?.value;
+  const parsedDate = dayjs(inputValue, 'MM.DD.YYYY HH:mm [UTC]', true);
+
+  if (!parsedDate.isValid()) {
+    // Reset to the last valid value if the date is invalid
+    if (field === 'startDate') {
+      control?.setValue(this.startDate.format('MM.DD.YYYY HH:mm [UTC]'), { emitEvent: false });
+    } else if (field === 'endDate') {
+      control?.setValue(this.endDate.format('MM.DD.YYYY HH:mm [UTC]'), { emitEvent: false });
+    }
+    return;
+  }
+
+  // Check for future dates
+  if (parsedDate.isAfter(this.maxDate)) {
+    if (field === 'startDate') {
+      control?.setValue(this.startDate.format('MM.DD.YYYY HH:mm [UTC]'), { emitEvent: false });
+    } else if (field === 'endDate') {
+      control?.setValue(this.endDate.format('MM.DD.YYYY HH:mm [UTC]'), { emitEvent: false });
+    }
+    return;
+  }
+
+  // Validate startDate ≤ endDate
+  if (field === 'startDate') {
+    const endDate = dayjs(this.dateRangeForm.get('endDate')?.value, 'MM.DD.YYYY HH:mm [UTC]', true);
+    if (endDate.isValid() && parsedDate.isAfter(endDate)) {
+      control?.setValue(this.startDate.format('MM.DD.YYYY HH:mm [UTC]'), { emitEvent: false });
+      return;
+    }
+    // Update the valid startDate
+    this.startDate = parsedDate.utc();
+  } else if (field === 'endDate') {
+    const startDate = dayjs(this.dateRangeForm.get('startDate')?.value, 'MM.DD.YYYY HH:mm [UTC]', true);
+    if (startDate.isValid() && parsedDate.isBefore(startDate)) {
+      control?.setValue(this.endDate.format('MM.DD.YYYY HH:mm [UTC]'), { emitEvent: false });
+      return;
+    }
+    // Update the valid endDate
+    this.endDate = parsedDate.utc();
+  }
+}
+
+
+updateCalendar() {
+  // Logic to refresh the calendar view
+  this.startDate = dayjs(this.startDate).utc(); // Ensures the startDate is in UTC format
+  this.endDate = dayjs(this.endDate).utc(); // Ensures the endDate is in UTC format
+}
 
   
 }
