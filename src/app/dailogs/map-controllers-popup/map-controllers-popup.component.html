@@ -139,7 +139,7 @@
                 <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Most recent</span>
             <div class="flex items-center gap-[5px] self-stretch">
                 <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{data?.markerData?.newest_info?.cloud_cover?.toFixed(3)}}%</span>
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{data?.markerData?.newest_info?.cloud_cover.toFixed(3)}}%</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
                 </span>
@@ -150,8 +150,77 @@
     
       
    </div>
-  } @else if (data.type === 'shape') {
-    
+  } @else if (data.type === 'vendor') {
+    <div class="flex p-[15px] relative flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40">
+      <span class="w-[240px] h-[300px] flex justify-center items-center"
+      >
+      <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url" />
+      </span>
+      <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+            <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
+            <span class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite()">
+                <img src="/assets/svg-icons/vector-icon.svg" alt="" />
+            </span>          
+        </div>
+      </div>
+      <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.address}}</span>
+            <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.vendorData?.address)">
+                <img src="/assets/svg-icons/copy-icon.svg" alt="" />
+            </span>          
+        </div>
+     </div>
+     <div class="flex flex-col items-start gap-[5px] self-stretch">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
+          <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
+              <img src="/assets/svg-icons/poi-icon.svg" alt="" />
+          </span>          
+      </div>
+    </div>
+
+    <div class="flex flex-col items-start gap-[5px] self-stretch">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime)}}</span>
+          <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
+              <img src="/assets/svg-icons/calender-icon.svg" alt="" />
+          </span>          
+      </div>
+    </div>
+    <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.type}}</span>
+        <span class="h-[15px] w-[15px] cursor-pointer">
+         @if (data?.vendorData?.type ==='Night') {
+          <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+         } @else {
+          <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+         }
+      </span>  
+      </div>    
+      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name != 'skyfi' ? data?.vendorData?.cloud_cover.toFixed(3) : 'SAR'}}%</span>
+        <span class="h-[15px] w-[15px] cursor-pointer">
+          <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
+      </span>  
+      </div>         
+  </div>
+  @if (isHovered) {
+    <div 
+    (mouseout)="toggleHover(false)"
+    class="fixed top-1/2 left-1/2 z-50 transform -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg rounded-lg">
+    <span class="w-[720px] h-[569px] block">
+      <img class="w-full h-full object-cover" [src]="data?.vendorData?.presigned_url" alt="Large Preview">
+    </span>
+  </div>
+  } 
+    </div>
   } @else {
     
   }
