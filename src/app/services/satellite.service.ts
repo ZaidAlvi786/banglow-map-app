@@ -40,4 +40,7 @@ export class SatelliteService extends BaseService {
   addSite(data: any): Observable<any> {
     return this.post(createUrl("/add-site"), data);
   }
+  addGroupSite(data: any): Observable<any> {
+    return this.post(createUrl("/add-group-site"), data);
+  }
 }
