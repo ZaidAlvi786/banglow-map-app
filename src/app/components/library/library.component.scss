@@ -1,86 +1,172 @@
-#library::ng-deep{
-    .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline .mdc-notched-outline__notch{
-        border-color: #4A5863 !important;
-        border-right: none !important;
-      }
-      .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading{
-        border-color: #4A5863 !important;
-      }
-      .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing{
-        border-color: #4A5863 !important;
-      }
-      .mdc-floating-label{
-        color: #4A5863 !important;
-        font-weight: 700 !important;
-        font-size: 12px !important;
-      }
-      
+#library::ng-deep {
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+    .mdc-notched-outline
+    .mdc-notched-outline__notch {
+    border-color: #4a5863 !important;
+    border-right: none !important;
+  }
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
+    border-color: #4a5863 !important;
+  }
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+    .mdc-notched-outline__trailing {
+    border-color: #4a5863 !important;
+  }
+  .mdc-floating-label {
+    color: #4a5863 !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+  }
 }
-::ng-deep{
-    .mat-mdc-menu-panel{
-        background-color: #20272D !important;
-        width: 350px !important;
-        max-width: 350px !important;
-        box-shadow: 5px 5px 5px 0px #0000001A !important;
-    }
-    .cdk-overlay-connected-position-bounding-box{
-        top: 185px !important;
-        left: 235px !important;
-        width: 350px !important;
+::ng-deep {
+  .mat-mdc-menu-panel {
+    background-color: #20272d !important;
+    width: 350px !important;
+    max-width: 350px !important;
+    box-shadow: 5px 5px 5px 0px #0000001a !important;
+  }
+  .cdk-overlay-connected-position-bounding-box {
+    top: 150px !important;
+    left: 235px !important;
+    width: 350px !important;
+  }
+  .cdk-overlay-pane {
+    width: 100%;
+  }
+  .mdc-checkbox
+    .mdc-checkbox__native-control:enabled:checked
+    ~ .mdc-checkbox__background {
+    background-color: #fcca40 !important;
+    border-color: #fcca40 !important;
+  }
+  .mdc-label {
+    color: #abb7c0 !important;
+    font-size: 14px !important;
+    line-height: 18px !important;
+    font-weight: 500 !important;
+  }
+  .mdc-checkbox
+    .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not(
+      [data-indeterminate="true"]
+    )
+    ~ .mdc-checkbox__background {
+    border-color: #4a5863 !important;
+  }
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+  .mat-mdc-form-field-infix {
+    display: flex !important;
+  }
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+    .mdc-text-field__input {
+    color: #4a5863 !important;
+  }
+  .mat-form-field-label {
+    color: #4a5863 !important;
+  }
+  .group-name {
+    font-weight: 500;
+    color: #b0bec5;
+  }
 
-    }
-    .cdk-overlay-pane{
-        width: 100%;
-    }
-    .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background{
-        background-color: #FCCA40 !important;
-        border-color: #FCCA40 !important;
-    }
-    .mdc-label{
-        color: #ABB7C0 !important;
-        font-size: 14px !important;
-        line-height: 18px !important;
-        font-weight: 500 !important;
-    }
-    .mdc-checkbox .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background{
-        border-color: #4A5863 !important;
-    }
-    .mat-mdc-form-field-subscript-wrapper{
-        display: none !important;
-    }
-    .mat-mdc-form-field-infix{
-        display: flex !important;
-    }
-    .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input{
-        color: #4A5863 !important;
-    }
-    .mat-form-field-label{
-        color: #4A5863 !important;
-    }
-    .group-name {
-        font-weight: 500;
-        color: #b0bec5;
-      }
-      
-      .nested-list {
-        padding-left: 20px; /* Indent nested items */
-      }
-      
-      mat-list-item {
-        height: 48px;
-        color: #cfd8dc;
-      }
-      
-      .mat-icon {
-        color: #ffd54f; /* Yellow color for folder icons */
-      }
-      
-      .mat-nav-list .mat-list-item {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Divider lines */
-      }
-      
-      .mat-list-item:hover {
-        background-color: rgba(255, 255, 255, 0.05); /* Hover effect */
-      }
-      
+  .nested-list {
+    padding-left: 20px; /* Indent nested items */
+  }
+
+  mat-list-item {
+    height: 48px;
+    color: #cfd8dc;
+  }
+
+  .mat-icon {
+    color: #ffd54f; /* Yellow color for folder icons */
+  }
+
+  .mat-nav-list .mat-list-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Divider lines */
+  }
+
+  .mat-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.05); /* Hover effect */
+  }
 }
+
+.custom-progress-container {
+  position: relative;
+  height: 28px;
+  width: 16px;
+  background-color: #2d343d; /* Background of the container */
+  border-radius: 5px; /* Rounded corners */
+  overflow: hidden; /* Ensure no overflow for the bar */
+}
+
+.custom-progress-bar {
+  position: absolute;
+  bottom: 0; /* Start from the bottom */
+  width: 100%; /* Full width of the container */
+  background-color: #22f57a; /* Default bar color */
+  border-radius: 5px 5px 0 0; /* Rounded corners at the top */
+  transition: height 0.3s ease-in-out; /* Smooth animation for height changes */
+}
+
+#custom_table ::ng-deep .mat-mdc-table {
+  min-width: 100%;
+  border: 0;
+  border-spacing: 0;
+  table-layout: auto;
+  white-space: normal;
+  background-color: transparent;
+}
+
+#custom_table ::ng-deep tbody {
+  background-color: #191e22 !important;
+}
+#custom_table ::ng-deep .mdc-data-table__cell,
+.mdc-data-table__header-cell {
+  padding: 0 1px;
+}
+#custom_table ::ng-deep .mat-mdc-row {
+  height: inherit !important;
+}
+
+.single_browse {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.all_wrap {
+  display: flex;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 30px 15px;
+  align-self: stretch;
+  flex-wrap: wrap;
+}
+
+/* Style the entire scrollbar */
+::-webkit-scrollbar {
+  width: 7px; /* Horizontal scrollbar width */
+  height: 7px; /* Vertical scrollbar height */
+}
+
+/* Style the scrollbar track */
+::-webkit-scrollbar-track {
+  background: #20272d;
+  border-radius: 10px;
+}
+
+/* Style the scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  // background: #20272d;
+  background: #ABB7C0;
+  border-radius: 10px;
+}
+
+/* Change the thumb color on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+

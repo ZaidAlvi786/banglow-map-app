@@ -4,10 +4,13 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  input,
   Input,
   NgZone,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -21,17 +24,36 @@ import { FormsModule } from "@angular/forms";
   templateUrl: "./header.component.html",
   styleUrl: "./header.component.scss",
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit,OnChanges {
   @Input() toggleDrawer?: () => void;
   @Output() toggleEvent = new EventEmitter<string>();
-
+  @Input() drawerStatus:any
   @ViewChild("searchInput", { static: true }) searchInput!: ElementRef;
   @Output() searchEvent = new EventEmitter<google.maps.places.PlaceResult>();
 
   private autocomplete!: google.maps.places.Autocomplete;
+  private _isDrawerOpen: boolean = false;
 
+  @Input()
+  set isDrawerOpen(value: boolean) {
+    this._isDrawerOpen = value;
+   
+  }
+
+  get isDrawerOpen(): boolean {
+    return this._isDrawerOpen;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isDrawerOpen']) {
+      if(changes['isDrawerOpen'].currentValue == false){
+        this.toggleType =''
+  
+      }
+    }
+    
+  }
   private ngZone = inject(NgZone);
-  isDrawerOpen: boolean = false;
   searchQuery: string = "";
 toggleType:string=''
   ngOnInit(): void {
@@ -39,7 +61,9 @@ toggleType:string=''
   }
 
   onToggleDrawer(type: string) {
+    
     this.isDrawerOpen = !this.isDrawerOpen;
+   
     if(this.isDrawerOpen){
       this.toggleType = type;
     } else {
@@ -49,10 +73,13 @@ toggleType:string=''
     if (this.toggleDrawer) {
       this.toggleDrawer();
       this.toggleEvent.emit(type);
+     
     }
   }
 
   private initializeAutocomplete() {
+    console.log('rrrrrrrrrrrrrr');
+    
     const input = this.searchInput.nativeElement;
     this.autocomplete = new google.maps.places.Autocomplete(input, {
       types: ["geocode"], // You can adjust this to `['establishment']` or other types

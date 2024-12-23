@@ -5,22 +5,31 @@
   >
     <div
       class=""
-      [ngClass]="isGoogleLayerActive ==='OpenStreetMap' ? 'bg-[#131f07]  z-30' : ' z-30'"
+      [ngClass]="isGoogleLayerActive ==='OpenStreetMap' ? 'bg-[#131f07]  z-30 h-full' : ' z-30 h-full'"
     >
-      <div class="fixed top-0 z-30" (click)="closeDropdown()">
+      <div id="header" class="fixed top-0 z-30" (click)="closeDropdown()">
         <app-header
           [toggleDrawer]="toggleDrawer.bind(this)"
           (toggleEvent)="handleToggleEvent($event)"
           (searchEvent)="onSearchLocation($event)"
+          [isDrawerOpen]="isDrawerOpen"
+          
         ></app-header>
       </div>
-      <mat-drawer
-        #drawer
-        class="!bg-primaryBg mt-[55px] !block !z-50 !h-screen !w-[805px]"
-        mode="side"
-      >
-        <app-sidebar-drawer [type]="type"></app-sidebar-drawer>
-      </mat-drawer>
+      <div class="relative">
+        <mat-drawer  #drawer class="!bg-primaryBg !top-[40px] !block !z-[999999999999] library !w-[820px]" mode="side">
+         @if (drawer._animationState === 'open') {
+          <div class="z-[999999999999] h-full">
+          <app-sidebar-drawer (closeSidebar)="toggleDrawer()" (notifyParent)="receiveData($event)" [polygon_wkt]="polygon_wkt" [type]="type" [endDate]="endDate" [startDate]="startDate"></app-sidebar-drawer>
+          </div>
+         } 
+        </mat-drawer>
+        @if (OpenEventCalendar) {
+          <div class="absolute z-[1000000] text-secondaryText left-[820px]" >
+            <app-map-calendar></app-map-calendar>
+          </div>
+        }
+      </div>
       <div (click)="closeDropdown()"
         #mapContainer
         id="mapContainer"

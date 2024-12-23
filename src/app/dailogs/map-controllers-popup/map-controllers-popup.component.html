@@ -152,6 +152,16 @@
    </div>
   } @else if (data.type === 'vendor') {
     <div class="flex p-[15px] relative flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40">
+      <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime)}}</span>
+            <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
+                <img src="/assets/svg-icons/calender-icon.svg" alt="" />
+            </span>          
+        </div>
+      </div>
+      
       <span class="w-[240px] h-[300px] flex justify-center items-center"
       >
       <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url" />
@@ -166,30 +176,26 @@
         </div>
       </div>
       <div class="flex flex-col items-start gap-[5px] self-stretch">
-        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.address}}</span>
-            <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.vendorData?.address)">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">Lat: {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}} Lon:{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
+            <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.vendorData?.coordinates_record?.coordinates[0])">
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
         </div>
      </div>
+     <div class="flex flex-col items-start gap-[5px] self-stretch">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{formatToThreeDecimalPlaces(data?.vendorData?.resolution)}}</span>         
+      </div>
+    </div>
      <div class="flex flex-col items-start gap-[5px] self-stretch">
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
           <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
           <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
               <img src="/assets/svg-icons/poi-icon.svg" alt="" />
-          </span>          
-      </div>
-    </div>
-
-    <div class="flex flex-col items-start gap-[5px] self-stretch">
-      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
-      <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime)}}</span>
-          <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
-              <img src="/assets/svg-icons/calender-icon.svg" alt="" />
           </span>          
       </div>
     </div>
@@ -205,7 +211,7 @@
       </span>  
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name != 'skyfi' ? data?.vendorData?.cloud_cover.toFixed(3) : 'SAR'}}%</span>
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name != 'skyfi' ? roundOff(data?.vendorData?.cloud_cover) : 'SAR' }}%</span>
         <span class="h-[15px] w-[15px] cursor-pointer">
           <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
       </span>  
