@@ -1,0 +1,26 @@
+<div class="w-[268px] h-[100vh] overflow-auto bg-primaryBg p-[15px]">
+  <!-- Title -->
+  <div class="flex justify-between items-center pb-[15px]">
+    <p class="text-sm m-0">Working</p>
+    <img (click)="closeEventCalendar()" class="cursor-pointer" src="assets/svg-icons/drawer-toggle-icon.svg" />
+  </div>
+
+  @for (item of calendarsData; track $index) {
+      <div class="border-secondaryBg border pt-[15px]">
+        <p class="text-center">{{item?.month}}</p>
+        <div class="pt-5">
+          <ngx-daterangepicker-material
+            (choosedDate)="choosedDate($event)"
+            [linkedCalendars]="false"
+            [locale]="{ format: 'YYYY-MM-DD' }"
+            [autoApply]="true"
+            [showDropdowns]="true"
+            [startDate]="startDate"
+            [endDate]="endDate"
+            [singleDatePicker]="true"
+          >
+          </ngx-daterangepicker-material>
+        </div>
+      </div>
+  }
+</div>

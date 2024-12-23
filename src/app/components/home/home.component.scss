@@ -74,3 +74,8 @@
     border-radius: 5px !important;
   }
 }
+
+
+::ng-deep.leaflet-container img.leaflet-image-layer{
+  object-fit: cover !important;
+}

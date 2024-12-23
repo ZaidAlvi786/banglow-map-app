@@ -271,9 +271,10 @@ export class MapControllersPopupComponent implements OnInit {
 
   copyToClipboard(data: any): void {
     if (data) {
+      const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
       const inputElement = document.createElement('input');
-      inputElement.value = data;
+      inputElement.value = `${text?.lat.toFixed(4)} ${text?.lon.toFixed(4)}`;
       document.body.appendChild(inputElement);
       inputElement.select();
       document.execCommand('copy');
@@ -299,4 +300,52 @@ export class MapControllersPopupComponent implements OnInit {
    toggleHover(state: boolean): void {
     this.isHovered = state;
   }
+
+  roundOff(value: number): number {
+    return Math.round(value);
+  }
+
+  getPolygonCenter(coordinates: number[][]): { lat: number; lon: number } | null {
+    if (!Array.isArray(coordinates) || coordinates.length === 0) {
+      console.error('Invalid or empty coordinates array');
+      return null;
+    }
+  
+    const validCoordinates = coordinates.filter(([lon, lat]) => 
+      typeof lon === 'number' && typeof lat === 'number'
+    );
+  
+    if (validCoordinates.length === 0) {
+      console.error('No valid coordinates found');
+      return null;
+    }
+  
+    let totalLat = 0;
+    let totalLon = 0;
+  
+    validCoordinates.forEach(([lon, lat]) => {
+      totalLat += lat;
+      totalLon += lon;
+    });
+    console.log(totalLat / validCoordinates.length,'totalLat / numPointstotalLat / numPointstotalLat / numPoints',totalLon / validCoordinates.length)
+  
+    return {
+      lat: totalLat / validCoordinates.length,
+      lon: totalLon / validCoordinates.length,
+    };
+  }
+  
+  formatToThreeDecimalPlaces(value: string): string {
+    // Check if the string ends with "m"
+
+    // Extract the numeric part and parse it as a float
+    const numericPart = parseFloat(value.slice(0, -1));
+    // Format the numeric part to 3 decimal places
+    const formattedNumber = numericPart.toFixed(2);
+
+    // Reattach the "m" unit and return
+    return `${formattedNumber}m`;
+}
+
+
 }
