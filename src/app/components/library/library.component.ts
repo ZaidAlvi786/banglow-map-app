@@ -210,20 +210,27 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         next: (resp) => {
           console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
           this.dataSource = resp.data
-          
+          setTimeout(() => {
+            this.setDynamicHeight();
+            window.addEventListener('resize', this.setDynamicHeight.bind(this))
+        }, 300); 
         },
         error: (err) => {
           console.log("err getPolyGonData: ", err);
         },
       });
     }
-    this.setDynamicHeight();
-    window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    
   }
 
   ngAfterViewInit(): void {
-    this.setDynamicHeight();
-    window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    if(this.dataSource ){
+      setTimeout(() => {
+        this.setDynamicHeight();
+        window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    }, 300); 
+    }
+   
   }
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
@@ -247,7 +254,13 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
 
   selectPreviewMethod(type: "table" | "browse") {
+    window.removeEventListener('resize', this.setDynamicHeight.bind(this));
     this.viewType = type;
+    setTimeout(() => {
+      this.setDynamicHeight();
+      window.addEventListener('resize', this.setDynamicHeight.bind(this))
+  }, 300); 
+   
   }
 
   openImagePreviewDialog(index:any) {
@@ -537,7 +550,36 @@ expandedData(data:any,expandedElement:any){
 
 setDynamicHeight(): void {
   // Get the height of the elements above
-  const header = document.getElementById('header');
+  if(this.viewType === "table"){
+    const header = document.getElementById('header');
+    const analyticsData = document.getElementById('analyticsData');
+    const notFound = document.getElementById('not_found');
+    const custom = document.getElementById('custom');
+    const container = document.getElementById('container');
+    
+    // Calculate the total height of all the above elements
+    const totalHeight = [
+      header,
+      analyticsData,
+      notFound,
+      custom,
+      container
+    ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
+  
+    // Get the height of the viewport
+    const viewportHeight = window.innerHeight;
+    // Calculate the remaining height for the target div
+    const remainingHeight = viewportHeight - totalHeight-126;
+  
+    // Get the content div and apply the calculated height
+    const contentDiv = this.el.nativeElement.querySelector('.content');
+    
+    if (contentDiv) {
+      
+      this.renderer.setStyle(contentDiv, 'height', `${remainingHeight}px`);
+    }
+  } else {
+    const header = document.getElementById('header');
   const analyticsData = document.getElementById('analyticsData');
   const notFound = document.getElementById('not_found');
   const custom = document.getElementById('custom');
@@ -556,13 +598,16 @@ setDynamicHeight(): void {
   const viewportHeight = window.innerHeight;
 
   // Calculate the remaining height for the target div
-  const remainingHeight = viewportHeight - totalHeight - 400;
+  const remainingHeight = viewportHeight - totalHeight -126 ;
 
   // Get the content div and apply the calculated height
-  const contentDiv = this.el.nativeElement.querySelector('.content');
+  const contentDiv = this.el.nativeElement.querySelector('.browser-content');
+
   if (contentDiv) {
     this.renderer.setStyle(contentDiv, 'height', `${remainingHeight}px`);
   }
+  }
+  
 }
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener

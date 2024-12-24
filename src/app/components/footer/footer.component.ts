@@ -42,7 +42,7 @@ export class FooterComponent {
   @Input() showLayers:boolean = false;
   @Output() toggleLayersEvent: EventEmitter<boolean> = new EventEmitter<boolean>();  // To send state back to parent
   private _snackBar = inject(MatSnackBar);
-  @Input() ActiveLayer:string ='OpenStreetMap';
+  @Input() ActiveLayer:string ='OpenStreetMapDark';
   // EventEmitter to send the close event to the parent
   constructor(private dialog: MatDialog){
      const now = dayjs().utc();
@@ -65,7 +65,7 @@ export class FooterComponent {
   
   selectOption(option:any) {
     this.selectedOption = option;
-    this.isDropdownOpen = false;
+    // this.isDropdownOpen = false;
     this.drawTypeSelected.emit(option.value);
   }
 

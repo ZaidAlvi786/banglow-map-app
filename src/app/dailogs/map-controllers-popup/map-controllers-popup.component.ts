@@ -290,7 +290,7 @@ export class MapControllersPopupComponent implements OnInit {
 
   getDateTimeFormat(dateTime: string) {
     if (dateTime) {
-      return moment(dateTime, 'YYYY-MM-DD HH:mm:ss')?.format('YYYY-MM-DD HH:mm:ss')
+      return moment(dateTime, 'YYYY-MM-DD    HH:mm:ss')?.format('YYYY-MM-DD     HH:mm:ss');
 
     }
     return '';

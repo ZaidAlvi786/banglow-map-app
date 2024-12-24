@@ -79,10 +79,21 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
     'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
     {
       maxZoom: 20,
+      attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
     }
   )
-  isGoogleLayerActive: string = 'OpenStreetMap'; // Track the current layer
+  googlestreetDarkLayer: L.TileLayer = L.tileLayer(
+    'http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', // 'y' for hybrid layer
+    {
+      maxZoom: 20,
+      attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>',
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    }
+);
+
+
+  isGoogleLayerActive: string = 'OpenStreetMapDark'; // Track the current layer
    currentAction: string | null = null; // Tracks the current active action
   private userMarker: L.Marker | null = null; // Store the user marker reference
   private activeDrawTool: L.Draw.Polyline | L.Draw.Polygon | null = null; // Track active drawing tool
@@ -260,7 +271,8 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
       const geoJSON = layer.toGeoJSON();
       console.log('GeoJSON of created feature: ', geoJSON);
     });
-  
+  this.map.off('add')
+  this.map.off('click')
     // if (navigator.geolocation) {
     //   navigator.geolocation.getCurrentPosition(
     //     (position) => {
@@ -330,96 +342,113 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
 
   //map shape drawing function
   setDrawType(type: any): void {
-    
     console.log("Selected Draw Type:", type);
-    this.currentAction = null
-    if(this.polygon){
-      // this.map.clearAllEventListeners();
-      this.map.off('click')
-      // this.clearExtraShapes();
-      this.map.removeLayer(this.polygon);
-    }
-   
-    this.map.off('click');
-    // Remove any existing event listeners or drawing layers
-    this.map.off(L.Draw.Event.CREATED);
-    if (this.markerHandler) {
-      this.markerHandler.disable();  // Disable the marker tool
-      console.log("Marker tool has been disabled.");
+    this.currentAction = null;
+
+    // Remove existing shapes and event listeners
+    if (this.polygon) {
+        this.map.off('layeradd');
+        this.map.removeLayer(this.polygon);
+        this.map.off('click');
+        this.drawLayer.clearLayers();
+        this.clearExtraShapes();
     }
 
-    // Clear any existing shapes from the map
+    // Remove any existing drawing events
+    this.map.off(L.Draw.Event.CREATED);
+    this.map.off('draw:drawstart'); // Remove tooltip for drawing
+    this.map.off('draw:drawstop');
+
+    // Disable any active draw handler
+    if (this.drawHandler) {
+        this.drawHandler.disable();
+        console.log("Previous draw handler disabled.");
+    }
+
+    // Clear existing layers
     if (this.drawLayer) {
-      this.drawLayer.clearLayers();
-      this.clearExtraShapes();
+        this.drawLayer.clearLayers();
+        this.clearExtraShapes();
     }
 
     // Define options for the specific shape type
     let drawHandler: any;
 
     if (type === 'Polygon') {
-      drawHandler = new L.Draw.Polygon(this.map as L.DrawMap, {
-        showArea: true,
-        shapeOptions: {
-          color: '#ff6666',
-        },
-      });
+        console.log('Starting Polygon drawing...');
+        drawHandler = new L.Draw.Polygon(this.map as L.DrawMap, {
+            showArea: true,
+            shapeOptions: {
+                color: '#ff6666',
+            },
+        });
     } else if (type === 'Circle') {
-      drawHandler = new L.Draw.Circle(this.map as L.DrawMap, {
-        shapeOptions: {
-          color: '#3399ff',
-        },
-      });
+        console.log('Starting Circle drawing...');
+        drawHandler = new L.Draw.Circle(this.map as L.DrawMap, {
+            shapeOptions: {
+                color: '#3399ff',
+            },
+        });
     } else if (type === 'Box') {
-      drawHandler = new L.Draw.Rectangle(this.map as L.DrawMap, {
-        shapeOptions: {
-          color: '#66cc66',
-        },
-      });
+        console.log('Starting Rectangle (Box) drawing...');
+        drawHandler = new L.Draw.Rectangle(this.map as L.DrawMap, {
+            shapeOptions: {
+                color: '#66cc66',
+            },
+        });
     }
 
     if (drawHandler) {
-      // Start the drawing process immediately
-      drawHandler.enable();
+        // Start the drawing process immediately
+        drawHandler.enable();
+        this.drawHandler = drawHandler; // Store the handler for later use
 
-      // Add an event listener for when the shape is created
-      this.map.on(L.Draw.Event.CREATED, (event: any) => {
-        const layer = event.layer; // The drawn layer
-        this.drawLayer.addLayer(layer); // Add to the feature group
+        // Add an event listener for when the shape is created
+        this.map.on(L.Draw.Event.CREATED, (event: any) => {
+            const layer = event.layer; // The drawn layer
+            this.drawLayer.addLayer(layer); // Add to the feature group
 
-        console.log("Drawn Layer Type:", event.layerType);
+            console.log("Drawn Layer Type:", event.layerType);
 
-        if (event.layerType === 'polygon' && type === 'Polygon') {
-          const coordinates = (layer as L.Polygon).getLatLngs();
-          console.log('Polygon Coordinates:', type);
-          const geoJSON = layer.toGeoJSON();
-          const bounds = (layer as L.Polygon).getBounds();
-          
-          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
-        } else if (event.layerType === 'circle' && type ==='Circle') {
-          const center = (layer as L.Circle).getLatLng();
-          const radius = (layer as L.Circle).getRadius();
-          console.log('Circle Center:', center);
-          console.log('Circle Radius:', radius);
-        } else if (event.layerType === 'rectangle' && type === 'Box') {
-          const bounds = (layer as L.Rectangle).getBounds();
-          console.log('Rectangle Bounds:', bounds);
-          const geoJSON = layer.toGeoJSON();
-          this.getPolygonFromCoordinates({geometry:geoJSON?.geometry},bounds);
-        }
+            if (event.layerType === 'polygon' && type === 'Polygon') {
+                const coordinates = (layer as L.Polygon).getLatLngs();
+                console.log('Polygon Coordinates:', coordinates);
+                const geoJSON = layer.toGeoJSON();
+                const bounds = (layer as L.Polygon).getBounds();
 
-        // Disable the draw handler after the shape is created
-        drawHandler.disable();
-        type = null;
-      });
+                this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+            } else if (event.layerType === 'circle' && type === 'Circle') {
+                const center = (layer as L.Circle).getLatLng();
+                const radius = (layer as L.Circle).getRadius();
+                console.log('Circle Center:', center);
+                console.log('Circle Radius:', radius);
+            } else if (event.layerType === 'rectangle' && type === 'Box') {
+                const bounds = (layer as L.Rectangle).getBounds();
+                console.log('Rectangle Bounds:', bounds);
+                const geoJSON = layer.toGeoJSON();
+                this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+            }
 
-      // Normalize map interaction and handle panning
-      
-      this.drawHandler = drawHandler;
+            // Disable the draw handler after the shape is created
+            drawHandler.disable();
+            this.map.off(L.Draw.Event.CREATED); // Remove the event listener
+            type = null;
+
+            console.log("Drawing disabled after shape creation.");
+        });
+
+        // Add event listener to remove tooltip when drawing starts/stops
+        this.map.on('draw:drawstart', () => {
+            console.log("Drawing started...");
+        });
+        this.map.on('draw:drawstop', () => {
+            console.log("Drawing stopped...");
+        });
     } else {
-      console.error("Invalid draw type specified.");
+        console.error("Invalid draw type specified.");
     }
 }
+
 
   showSatelliteWithinPolygon(bounds: L.LatLngBounds): void {
     // Define the satellite image URL (or any other map layer)
@@ -495,64 +524,69 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
     const latLngs = polygonCoordinates.map((coord: [number, number]) => [
-      coord[1],
-      coord[0],
+        coord[1],
+        coord[0],
     ]);
   
     let color = '#eff24d';
-    let fillColor = '#eff24d';
     if (data.vendor_name === 'planet') {
-      color = '#55FF00';
+        color = '#55FF00';
     } else if (data.vendor_name === 'blacksky') {
-      color = '#FFFF00';
+        color = '#FFFF00';
     } else if (data.vendor_name === 'maxar') {
-      color = '#FFAA00';
+        color = '#FFAA00';
     } else if (data.vendor_name === 'airbus') {
-      color = '#0070FF';
+        color = '#0070FF';
     } else if (data.vendor_name === 'skyfi') {
-      color = '#A900E6';
+        color = '#A900E6';
     } else {
-      color = '#FF00C5';
+        color = '#FF00C5';
     }
   
     // Add the polygon to the map
     const polygon = L.polygon(latLngs, {
-      color: color, // Border color
-      fillColor: color, // Fill color
-      fillOpacity: 0.5, // Fill opacity
+        color: color, // Border color
+        fillColor: color, // Fill color
+        fillOpacity: 0.5, // Fill opacity
     }).addTo(this.map);
-  console.log(polygon,'polygonpolygonpolygonpolygon');
+    console.log(polygon, 'Polygon added');
   
     // Attach the click event to open the component dialog
     polygon.on('click', (event: L.LeafletMouseEvent) => {
-      const clickedPosition = event.latlng; // Get the clicked position
+        const clickedPosition = event.latlng; // Get the clicked position
   
-      // Convert clicked position to pixel position relative to the map
-      const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
-      let queryParams ={
-        page_number: '1',
-        page_size: '100',
-        start_date:'',
-        end_date: '',
-        vendor_id:data.vendor_id
-      }
-      let vendorData
-      this.satelliteService.getDataFromPolygon('',queryParams).subscribe({
-        next: (resp) => {
-          console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          vendorData = resp.data[0]
-          this.openDialogAtPosition(polygon, vendorData);
-        },
-        error: (err) => {
-          console.log("err getPolyGonData: ", err);
-        },
-      });
-      // Open the Angular Material Dialog at the calculated position
-     
+        // Convert clicked position to pixel position relative to the map
+        const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
+        let queryParams = {
+            page_number: '1',
+            page_size: '100',
+            start_date: '',
+            end_date: '',
+            vendor_id: data.vendor_id
+        };
+        this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+            next: (resp) => {
+                console.log(resp, 'Data received');
+                const vendorData = resp.data[0];
+                this.openDialogAtPosition(polygon, vendorData);
+            },
+            error: (err) => {
+                console.error("Error fetching polygon data: ", err);
+            },
+        });
     });
   
+    // Add the polygon to the extra shapes layer
     this.extraShapesLayer?.addLayer(polygon);
-  }
+  
+    // Explicitly disable the draw handler
+    if (this.drawHandler && this.drawHandler._toolbars && this.drawHandler._toolbars.draw) {
+        this.drawHandler._toolbars.draw.disable(); // Disables drawing
+    }
+  
+    console.log('Drawing tools disabled');
+}
+
   
 
   private clearExtraShapes(): void {
@@ -1083,14 +1117,29 @@ private clearUserMarker(): void {
 
 toggleMapLayer(type:string) {
   this.isGoogleLayerActive = type
-  if (this.isGoogleLayerActive ==='OpenStreetMap') {
+  if (this.isGoogleLayerActive ==='OpenStreetMapLight') {
     // Remove Google Streets layer and add Dark Layer
     this.map.removeLayer(this.googleStreets);
+    this.map.removeLayer(this.darkLayer)
+    this.map.removeLayer(this.googlestreetDarkLayer)
+    this.lightLayer.addTo(this.map);
+  } else if(this.isGoogleLayerActive === 'OpenStreetMapDark') {
+    // Remove Dark Layer and add Google Streets layer
+    this.map.removeLayer(this.googleStreets);
+    this.map.removeLayer(this.lightLayer)
+    this.map.removeLayer(this.googlestreetDarkLayer)
     this.darkLayer.addTo(this.map);
-  } else {
+  }else if(this.isGoogleLayerActive === 'GoogleStreetMapLight') {
     // Remove Dark Layer and add Google Streets layer
     this.map.removeLayer(this.darkLayer);
+    this.map.removeLayer(this.lightLayer)
+    this.map.removeLayer(this.googlestreetDarkLayer)
     this.googleStreets.addTo(this.map);
+  } else {
+    this.map.removeLayer(this.darkLayer);
+    this.map.removeLayer(this.lightLayer)
+    this.map.removeLayer(this.googleStreets)
+    this.googlestreetDarkLayer.addTo(this.map);
   }
   
 }
@@ -1174,9 +1223,11 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
     };
 
     position = {
-      top: `${polygonPoint.y + mapContainer.offsetTop}px`,
+      top: `-100px`,
       left: `${polygonPoint.x + mapContainer.offsetLeft + 20}px`,
     };
+    console.log(polygonPoint.y,'polygonPointpolygonPointpolygonPointpolygonPointpolygonPoint',mapContainer.offsetTop);
+    
   }
 
   // Open the dialog with the calculated position
@@ -1213,10 +1264,16 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
         const spaceBelow = mapHeight - polygonPoint.y;
 
         if (spaceBelow >= dialogHeight + 20) {
-          newTop = polygonPoint.y + mapContainer.offsetTop + 30;
+          console.log(polygonPoint.y,'kkkkkkkkkkk',mapContainer.offsetTop);
+          
+          newTop = polygonPoint.y + mapContainer.offsetTop ;
         } else if (spaceAbove >= dialogHeight + 20) {
+          console.log('bbbbbbbbbbbb');
+          
           newTop = polygonPoint.y + mapContainer.offsetTop - dialogHeight - 40;
         } else {
+          console.log('ttttttttttttt');
+          
           newTop = Math.max(
             mapContainer.offsetTop,
             Math.min(polygonPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight - 20)
@@ -1224,7 +1281,7 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
         }
 
         dialogRef.updatePosition({
-          top: `${newTop}px`,
+         
           left: `${newLeft}px`,
         });
       }

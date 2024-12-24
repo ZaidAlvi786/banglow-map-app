@@ -1,31 +1,33 @@
 <div class="flex justify-between items-end gap-[250px]">
   <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
-    <div class="border-r border-custom-border px-[15px]" [ngClass]="!selectedOption? 'w-[150px]':'w-[70px]'">
+    <div class="border-r border-custom-border px-[15px] w-[205px]">
 
-      <ul *ngIf="isDropdownOpen" class="absolute  h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0" [ngClass]="!selectedOption? 'w-[150px]':'w-[70px]'">
+      <!-- <ul *ngIf="isDropdownOpen" class="absolute  h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0" [ngClass]="!selectedOption? 'w-[150px]':'w-[70px]'">
         <li *ngFor="let option of options" (click)="selectOption(option)"
           class="border-b h-[50px] last:border-b-0 border-solid border-custom-border">
           <span class="flex items-center justify-center h-full w-full"><img [src]="option.image"
               alt="{{ option.label }}" /></span>
         </li>
-      </ul>
-      <div class="h-[50px] cursor-pointer" (click)="toggleDropdown()">
+      </ul> -->
+      <div class="h-[50px] cursor-pointer" >
         <div class=" w-full gap-2 items-center flex h-full">
-          @if (!selectedOption) {
+         
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Select shape</span>
-          }@else {
-            <span class="shadow-custom-light flex items-center justify-center">
-              <img class="object-none h-[15px]" height="16" width="16" [src]="selectedOption?.image" alt="{{ selectedOption?.label }}" />
+            <div *ngFor="let option of options" class="flex">
+              <span  class="flex gap-[5px] items-center justify-center" [ngClass]="selectedOption?.value === option?.value ? 'border border-solid border-yellow rounded-[5px]':''" >
+                <img class="object-cover w-[40px] h-[30px]" height="30" width="30" [src]="option?.image" alt="{{ option?.label }}" (click)="selectOption(option)" />
               </span>
-          }
+            </div>
+            
           
-          <span>
+          
+          <!-- <span>
             <svg width="9" height="6" viewBox="0 0 9 6" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M4.84976 0.159138L8.85512 4.55918C9.04829 4.77139 9.04829 5.11544 8.85512 5.32763L8.38796 5.84082C8.19511 6.05267 7.88257 6.05308 7.68927 5.84173L4.49999 2.35462L1.31073 5.84175C1.11743 6.0531 0.804888 6.0527 0.612043 5.84085L0.144881 5.32765C-0.0482938 5.11544 -0.0482938 4.77139 0.144881 4.55921L4.15024 0.159161C4.3434 -0.0530499 4.65658 -0.0530497 4.84976 0.159138Z"
                 fill="#ABB7C0" />
             </svg>
-          </span>
+          </span> -->
         </div>
       </div>
 
@@ -55,15 +57,23 @@
       </span>
     </div>
     <div class="flex items-center px-[15px] gap-3 w-[70px] h-[50px] relative">
-      <ul *ngIf="showLayers" class="absolute w-[150px] font-Barlow h-[100px] rounded-[5px] bg-primaryBg -top-[103px] left-0">
-        <li (click)="selectedLayer('OpenStreetMap')" [ngClass]="ActiveLayer === 'OpenStreetMap' ? 'bg-yellow text-main-highlight rounded-t-[5px]':'text-secondaryText'"
+      <ul *ngIf="showLayers" class="absolute w-[170px] font-Barlow h-auto rounded-[5px] bg-primaryBg -top-[205px] left-0">
+        <li (click)="selectedLayer('OpenStreetMapLight')" [ngClass]="ActiveLayer === 'OpenStreetMapLight' ? 'bg-yellow text-main-highlight rounded-t-[5px]':'text-secondaryText'"
           class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium">
-          <span class="flex items-center justify-center h-full w-full">OpenStreetMap</span>
+          <span class="flex items-center px-2 h-full w-full">OpenStreetMap street</span>
         </li>
-        <li (click)="selectedLayer('GoogleStreetMap')" [ngClass]="ActiveLayer === 'GoogleStreetMap' ? 'bg-yellow text-main-highlight rounded-b-[5px]':'text-secondaryText'"
+        <li (click)="selectedLayer('OpenStreetMapDark')" [ngClass]="ActiveLayer === 'OpenStreetMapDark' ? 'bg-yellow text-main-highlight':'text-secondaryText'"
         class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
-        <span class="flex items-center justify-center h-full w-full">GoogleStreetMap</span>
+        <span class="flex items-center px-2 h-full w-full">OpenStreetMap dark</span>
       </li>
+        <li (click)="selectedLayer('GoogleStreetMapLight')" [ngClass]="ActiveLayer === 'GoogleStreetMapLight' ? 'bg-yellow text-main-highlight':'text-secondaryText'"
+        class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
+        <span class="flex items-center px-2 h-full w-full">GoogleStreetMap street</span>
+      </li>
+      <li (click)="selectedLayer('GoogleStreetMapDark')" [ngClass]="ActiveLayer === 'GoogleStreetMapDark' ? 'bg-yellow text-main-highlight rounded-b-[5px]':'text-secondaryText'"
+      class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
+      <span class="flex items-center px-2  h-full w-full">GoogleStreetMap dark</span>
+    </li>
       </ul>
       <div class="flex items-center gap-3 cursor-pointer" (click)="layerDropdown()">
       <span  class="cursor-pointer">
