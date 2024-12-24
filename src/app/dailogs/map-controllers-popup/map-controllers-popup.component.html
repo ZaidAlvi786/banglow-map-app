@@ -162,23 +162,14 @@
         </div>
       </div>
       
-      <span class="w-[240px] h-[300px] flex justify-center items-center"
+      <span class="w-[240px] max-h-[300px] flex justify-center items-center"
       >
       <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url" />
       </span>
       <div class="flex flex-col items-start gap-[5px] self-stretch">
-        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
-        <div class="flex items-center gap-[15px] self-stretch w-full">
-            <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
-            <span class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite()">
-                <img src="/assets/svg-icons/vector-icon.svg" alt="" />
-            </span>          
-        </div>
-      </div>
-      <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">Lat: {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}} Lon:{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}}  {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.vendorData?.coordinates_record?.coordinates[0])">
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
@@ -190,6 +181,22 @@
           <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{formatToThreeDecimalPlaces(data?.vendorData?.resolution)}}</span>         
       </div>
     </div>
+    <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{formatToThreeDecimalPlaces(data?.vendorData?.resolution)}}</span>         
+        </div> 
+      </div>    
+      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+        <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+          <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendor</span>
+          <div class="flex items-center gap-[15px] self-stretch w-full">
+            <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name}}</span>
+          </div>
+        <!-- </div> -->
+      </div>         
+  </div>
      <div class="flex flex-col items-start gap-[5px] self-stretch">
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
@@ -211,7 +218,7 @@
       </span>  
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name != 'skyfi' ? roundOff(data?.vendorData?.cloud_cover) : 'SAR' }}%</span>
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'umbra' ? roundOff(data?.vendorData?.cloud_cover) : 'SAR' }}%</span>
         <span class="h-[15px] w-[15px] cursor-pointer">
           <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
       </span>  

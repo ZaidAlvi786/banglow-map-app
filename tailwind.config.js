@@ -27,7 +27,8 @@ module.exports = {
         primary: '#1D2428',
         secondary: '#293237',
         'custom-border': '#272F34',
-        'custom-secondary': '#4A5863'
+        'custom-secondary': '#4A5863',
+        'yellow': '#FCCA40'
       },
       boxShadow: {
         'custom-black': '0px 2px 1px 0px rgba(0, 0, 0, 0.5)', // #00000080 in RGBA

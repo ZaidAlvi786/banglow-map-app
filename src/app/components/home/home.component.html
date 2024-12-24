@@ -1,11 +1,11 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
   <div 
     class="h-screen min-h-[700px] relative"
-    [ngClass]="isGoogleLayerActive === 'OpenStreetMap' ? '!bg-[#234436]' : ' z-30'"
+    [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? '!bg-[#234436]' : ' z-30'"
   >
     <div
       class=""
-      [ngClass]="isGoogleLayerActive ==='OpenStreetMap' ? 'bg-[#131f07]  z-30 h-full' : ' z-30 h-full'"
+      [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? 'bg-[#131f07]  z-30 h-full' : ' z-30 h-full'"
     >
       <div id="header" class="fixed top-0 z-30" (click)="closeDropdown()">
         <app-header
@@ -34,7 +34,7 @@
         #mapContainer
         id="mapContainer"
         class="map h-full absolute"
-        [ngClass]="isGoogleLayerActive !== 'OpenStreetMap' ? 'z-0' : 'opacity-50'"
+        [ngClass]="isGoogleLayerActive !== 'OpenStreetMapDark' &&  isGoogleLayerActive !== 'GoogleStreetMapDark' ? 'z-0' : 'opacity-50'"
       ></div>
       <div
         class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]"
