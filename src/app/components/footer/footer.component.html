@@ -1,6 +1,6 @@
 <div class="flex justify-between items-end gap-[250px]">
   <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
-    <div class="border-r border-custom-border px-[15px] w-[205px]">
+    <div class="border-r border-custom-border px-[15px] w-[120px]">
 
       <!-- <ul *ngIf="isDropdownOpen" class="absolute  h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0" [ngClass]="!selectedOption? 'w-[150px]':'w-[70px]'">
         <li *ngFor="let option of options" (click)="selectOption(option)"
@@ -12,7 +12,6 @@
       <div class="h-[50px] cursor-pointer" >
         <div class=" w-full gap-2 items-center flex h-full">
          
-            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Select shape</span>
             <div *ngFor="let option of options" class="flex">
               <span  class="flex gap-[5px] items-center justify-center" [ngClass]="selectedOption?.value === option?.value ? 'border border-solid border-yellow rounded-[5px]':''" >
                 <img class="object-cover w-[40px] h-[30px]" height="30" width="30" [src]="option?.image" alt="{{ option?.label }}" (click)="selectOption(option)" />
@@ -57,10 +56,10 @@
       </span>
     </div>
     <div class="flex items-center px-[15px] gap-3 w-[70px] h-[50px] relative">
-      <ul *ngIf="showLayers" class="absolute w-[170px] font-Barlow h-auto rounded-[5px] bg-primaryBg -top-[205px] left-0">
+      <ul *ngIf="showLayers" class="absolute w-[170px] font-Barlow h-auto rounded-[5px] bg-primaryBg -top-[255px] left-0">
         <li (click)="selectedLayer('OpenStreetMapLight')" [ngClass]="ActiveLayer === 'OpenStreetMapLight' ? 'bg-yellow text-main-highlight rounded-t-[5px]':'text-secondaryText'"
           class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium">
-          <span class="flex items-center px-2 h-full w-full">OpenStreetMap street</span>
+          <span class="flex items-center px-2 h-full w-full">OpenStreetMap</span>
         </li>
         <li (click)="selectedLayer('OpenStreetMapDark')" [ngClass]="ActiveLayer === 'OpenStreetMapDark' ? 'bg-yellow text-main-highlight':'text-secondaryText'"
         class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
@@ -68,11 +67,15 @@
       </li>
         <li (click)="selectedLayer('GoogleStreetMapLight')" [ngClass]="ActiveLayer === 'GoogleStreetMapLight' ? 'bg-yellow text-main-highlight':'text-secondaryText'"
         class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
-        <span class="flex items-center px-2 h-full w-full">GoogleStreetMap street</span>
+        <span class="flex items-center px-2 h-full w-full">Google Street Map</span>
       </li>
       <li (click)="selectedLayer('GoogleStreetMapDark')" [ngClass]="ActiveLayer === 'GoogleStreetMapDark' ? 'bg-yellow text-main-highlight rounded-b-[5px]':'text-secondaryText'"
       class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
-      <span class="flex items-center px-2  h-full w-full">GoogleStreetMap dark</span>
+      <span class="flex items-center px-2  h-full w-full">Google Satellite</span>
+    </li>
+    <li (click)="selectedLayer('hybridLayer')" [ngClass]="ActiveLayer === 'hybridLayer' ? 'bg-yellow text-main-highlight rounded-b-[5px]':'text-secondaryText'"
+      class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium" >
+      <span class="flex items-center px-2  h-full w-full">Google Hybrid</span>
     </li>
       </ul>
       <div class="flex items-center gap-3 cursor-pointer" (click)="layerDropdown()">

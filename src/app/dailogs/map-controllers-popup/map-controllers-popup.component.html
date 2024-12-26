@@ -175,12 +175,6 @@
             </span>          
         </div>
      </div>
-     <div class="flex flex-col items-start gap-[5px] self-stretch">
-      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
-      <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{formatToThreeDecimalPlaces(data?.vendorData?.resolution)}}</span>         
-      </div>
-    </div>
     <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
@@ -197,15 +191,7 @@
         <!-- </div> -->
       </div>         
   </div>
-     <div class="flex flex-col items-start gap-[5px] self-stretch">
-      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
-      <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
-          <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
-              <img src="/assets/svg-icons/poi-icon.svg" alt="" />
-          </span>          
-      </div>
-    </div>
+    
     <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.type}}</span>
@@ -218,11 +204,20 @@
       </span>  
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'umbra' ? roundOff(data?.vendorData?.cloud_cover) : 'SAR' }}%</span>
-        <span class="h-[15px] w-[15px] cursor-pointer">
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' : 'SAR' }}</span>
+        <span class="h-[15px] flex w-[15px] cursor-pointer">
           <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
       </span>  
       </div>         
+  </div>
+  <div class="flex flex-col items-start gap-[5px] self-stretch">
+    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
+    <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
+        <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
+            <img src="/assets/svg-icons/poi-icon.svg" alt="" />
+        </span>          
+    </div>
   </div>
   @if (isHovered) {
     <div 
