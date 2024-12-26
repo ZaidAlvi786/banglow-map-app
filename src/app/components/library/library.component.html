@@ -118,7 +118,7 @@
                     Oldest
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{getHumanReadableDateDifference(analyticsData?.oldest_date)}}
+                    {{getFormattedDate(analyticsData?.oldest_date)}}
                 </span>
             </div>
             <div
@@ -127,7 +127,7 @@
                     Newest
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{getHumanReadableDateDifference(analyticsData?.newest_info?.acquisition_datetime)}}
+                    {{getFormattedDate(analyticsData?.newest_info?.acquisition_datetime)}}
                 </span>
             </div>
             <div
@@ -177,7 +177,7 @@
                     <div class="custom-progress-bar" [ngStyle]="{ height: getValue(level.current_count,analyticsData?.total_count) + '%', background: '#ABB7C0' }">
                     </div>
                 </div>
-                <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level.key }}Days</span>
+                <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level.key }} Days</span>
                 <span class="flex text-sm font-semibold leading-[18px]"
                     [ngStyle]="{ color: level.current_count >=level.previous_count ?'#22F57A':'#F52222' }">
                     {{ level.percentage_change.toFixed(3) }}%
@@ -195,7 +195,7 @@
 
 
     <div class="bg-secondaryBg w-full relative" id="custom_table" >
-        <div id="container" class="flex m-[20px] justify-between items-center">
+        <div id="container" [ngClass]="dataSource.length ? 'mb-[70px]': '' " class="flex m-[20px] justify-between items-center">
             <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                 <button (click)="selectPreviewMethod('table')"
@@ -261,7 +261,7 @@
                 <table mat-table [dataSource]="dataSource" multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg">
                 <ng-container matColumnDef="selectDate">
-                    <th mat-header-cell *matHeaderCellDef class="w-[202px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef class="w-[245px] p-[10px] text-secondaryText font-semibold">
                         <mat-checkbox (change)="$event ? toggleAllRows() : null"
                             [checked]="selection.hasValue() && isAllSelected()"
                             [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="'Select All'">
@@ -339,22 +339,33 @@
                         <div class="example-element-detail"
                             [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
                             <div class="p-7 flex">
-                                <div class="image">
+                                <div class="image relative bg-secondary-heiglight rounded-[5px]">
                                     <img [src]="element?.presigned_url" alt="">
+                                    <img class="absolute cursor-pointer right-[20px] bottom-[15px]" src="assets/svg-icons/image-zoom-icon.svg" alt="" (click)="expandedData(element,expandedElement)" />
                                 </div>
                                 <div class="detail px-3">
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Name:
-                                        </span> <span class="text-secondaryText">{{element?.vendor_id}}</span> </div>
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date:
+                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Vendor:
+                                        </span> <span class="text-secondaryText">{{element?.vendor_name}}</span> </div>
+                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date Time:
                                         </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
-                                        </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div>
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Cloud
-                                            cover: </span> <span class="text-secondaryText">{{ element?.cloud_cover ? element.cloud_cover.toFixed(3):0}}%</span>
+                                        <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Day of Week:
+                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
+                                        <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Image ID:
+                                        </span> <span class="text-secondaryText">{{element?.vendor_id}}</span> </div>
+                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
+                                        </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div> -->
+                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Cloud Cover:
+                                             </span> <span class="text-secondaryText">{{ element?.vendor_name !== 'capella' && element?.vendor_name !== 'umbra' ? roundOff(element?.cloud_cover)+'%' : 'SAR' }}</span>
                                     </div>
+                                    <!-- <div class="flex py-2"> <span
+                                        class="text-secondary-heiglight font-semibold">Constellation: </span> <span
+                                        class="text-secondaryText">{{element?.resolution}}</span> </div> -->
                                     <div class="flex py-2"> <span
-                                            class="text-secondary-heiglight font-semibold">Resolution: </span> <span
-                                            class="text-secondaryText">{{element?.resolution}}</span> </div>
+                                            class="text-secondary-heiglight font-semibold">Platform: </span> <span
+                                            class="text-secondaryText">{{element?.sensor}}</span> </div>
+                                            <div class="flex py-2"> <span
+                                                class="text-secondary-heiglight font-semibold">GSD: </span> <span
+                                                class="text-secondaryText">{{element?.resolution}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Area:
                                         </span> <span class="text-secondaryText">{{element?.area}}km²</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Geo
@@ -373,7 +384,7 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
                     class="hover:bg-secondaryHighlight cursor-pointer"
-                    (click)="expandedElement = expandedElement === row ? null : row;expandedData(row,expandedElement)">
+                    (click)="expandedElement = expandedElement === row ? null : row;">
                 </tr>
 
                 <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>

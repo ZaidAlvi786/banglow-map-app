@@ -13,6 +13,7 @@
           (toggleEvent)="handleToggleEvent($event)"
           (searchEvent)="onSearchLocation($event)"
           [isDrawerOpen]="isDrawerOpen"
+          [toggleType]="type"
           
         ></app-header>
       </div>
@@ -34,7 +35,11 @@
         #mapContainer
         id="mapContainer"
         class="map h-full absolute"
-        [ngClass]="isGoogleLayerActive !== 'OpenStreetMapDark' &&  isGoogleLayerActive !== 'GoogleStreetMapDark' ? 'z-0' : 'opacity-50'"
+        [ngClass]="{
+          'z-0': isGoogleLayerActive !== 'OpenStreetMapDark' && isGoogleLayerActive !== 'GoogleStreetMapDark',
+          'opacity-50': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
+          'ml-[820px] w-fill-available': type === 'library'
+        }"        
       ></div>
       <div
         class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]"

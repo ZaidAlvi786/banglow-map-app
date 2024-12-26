@@ -55,7 +55,7 @@ export class HeaderComponent implements OnInit,OnChanges {
   }
   private ngZone = inject(NgZone);
   searchQuery: string = "";
-toggleType:string=''
+@Input() toggleType:string=''
   ngOnInit(): void {
     this.initializeAutocomplete();
   }
@@ -72,7 +72,7 @@ toggleType:string=''
     
     if (this.toggleDrawer) {
       this.toggleDrawer();
-      this.toggleEvent.emit(type);
+      this.toggleEvent.emit(this.toggleType);
      
     }
   }
