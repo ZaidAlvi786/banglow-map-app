@@ -149,6 +149,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Input() endDate:any
   @Input() startDate:any
+  imageData:any
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -540,13 +541,17 @@ onKeyPress(event: KeyboardEvent): void {
 }
 
 expandedData(data:any,expandedElement:any){
+ 
   console.log(expandedElement,'expandedElementexpandedElementexpandedElement');
-  if(expandedElement !== null){
+  if(this.imageData !== expandedElement.id){
+    this.imageData = expandedElement.id
     this.notifyParent.emit(data)
   } else {
+    this.imageData = null
     this.notifyParent.emit(null)
   }
 }
+
 
 setDynamicHeight(): void {
   // Get the height of the elements above
@@ -611,6 +616,10 @@ setDynamicHeight(): void {
 }
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
+}
+
+roundOff(value: number): number {
+  return Math.round(value);
 }
 
 }
