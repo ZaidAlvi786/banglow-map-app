@@ -40,6 +40,9 @@ import dayjs from "dayjs";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { GroupsListComponent } from "../../common/groups-list/groups-list.component";
 import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
+import { MapControllersPopupComponent } from "../../dailogs/map-controllers-popup/map-controllers-popup.component";
+import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 
 export class Group {
   name?: string;
@@ -48,18 +51,21 @@ export class Group {
 }
 
 export interface PeriodicElement {
-  select: boolean;
-  Date: string;
-  time: string;
-  Sensor: string;
-  Vendor: string;
-  Cover: string;
-  Resolution: string;
-  type: string;
-  Id: string;
-  sun_elevation: string;
+  acquisition_datetime: string;  // Store date as string, but we'll sort it as Date
+  sensor: string;
   area: number;
-  geo_reference: boolean;
+  cloud_cover: number;
+  coordinates_record: { type: string; coordinates: any[] };
+  georeferenced: any;
+  id: number;
+  image_uploaded: boolean;
+  presigned_url: string;
+  resolution: string;
+  sun_elevation: number;
+  type: string;
+  vendor_id: string;
+  vendor_name: string;
+  [key: string]: string | number | boolean | any;
 }
 
 
@@ -79,7 +85,8 @@ export interface PeriodicElement {
     MatListModule,
     MatIconModule,
     MatTableModule,
-    GroupsListComponent
+    GroupsListComponent,
+    MatSortModule
 ],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
@@ -100,7 +107,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() closeDrawer = new EventEmitter<boolean>();
   @Input() polygon_wkt:any;
   //#endregion
-
+  @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   //#region variables
   renderGroup!: TemplateRef<any> | null;
   checked: boolean = false;
@@ -118,7 +125,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   ];
 
   expandedElement: PeriodicElement | null = null;
-  dataSource :any=[];
+  dataSource = new MatTableDataSource<any>(/* your data source */);
   displayedColumns: string[] = [
     "selectDate",
     "Sensor",
@@ -149,12 +156,17 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Input() endDate:any
   @Input() startDate:any
-  imageData:any
+  selectedRow:any = null;
+  imageData:any;
+  @ViewChild(MatSort) sort!: MatSort;
+  originalData: any[] = [];
+  selectedZone:string = 'UTC'
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
      private satelliteService:SatelliteService,
-     private el: ElementRef, private renderer: Renderer2
+     private el: ElementRef, private renderer: Renderer2,
+     private cdr:ChangeDetectorRef
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -210,7 +222,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
         next: (resp) => {
           console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-          this.dataSource = resp.data
+          this.dataSource.data = resp.data
+          this.originalData = [...this.dataSource.data];
           setTimeout(() => {
             this.setDynamicHeight();
             window.addEventListener('resize', this.setDynamicHeight.bind(this))
@@ -231,8 +244,75 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         window.addEventListener('resize', this.setDynamicHeight.bind(this))
     }, 300); 
     }
-   
+    this.dataSource.sort = this.sort;
+    console.log(this.dataSource,'sortsortsortsortsort');
+    this.sort?.sortChange.subscribe((sortState) => {
+      console.log('Sorting changed:', sortState);
+      console.log('Sorted Data:', this.dataSource.filteredData);
+      this.sortData()
+    });
+    
+    
   }
+
+  sortData() {
+    this.expandedElement = null
+    const activeColumn = this.sort.active;
+    const direction = this.sort.direction;
+
+    if (!activeColumn || direction === '') {
+      return;
+    }
+
+    console.log(activeColumn,'activeColumnactiveColumnactiveColumn');
+    
+    const sortedData = this.dataSource.data.sort((a, b) => {
+      let compareResult = 0;
+
+      if (activeColumn === 'selectDate') {
+        const dateA = new Date(a.acquisition_datetime).getTime();
+        const dateB = new Date(b.acquisition_datetime).getTime();
+       
+        
+        
+        compareResult = dateA > dateB ? 1 : dateA < dateB ? -1 : 0;
+      } else if (activeColumn === 'Sensor') {
+        const sensorA = a.sensor.toLowerCase();
+        const sensorB = b.sensor.toLowerCase();
+        compareResult = sensorA.localeCompare(sensorB);
+        console.log(sensorA,'dateAdateAdateAdateA');
+        console.log(sensorB,'dateBdateBdateBdateBdateB');
+      }
+      console.log(compareResult,'compareResultcompareResultcompareResult');
+      
+
+      return direction === 'asc' ? compareResult : -compareResult;
+    });
+    console.log(this.expandedElement,'aaaaaaaaaaaaaaaaaaaa');
+    
+    // Update the dataSource with the sorted data
+    this.dataSource.data = sortedData;
+    this.dataSource._updateChangeSubscription();
+    this.expandedElement = null
+    console.log('Sorted Data:', this.dataSource.data.length);
+    this.cdr.detectChanges()
+  }
+
+  resetSorting() {
+    // Reset the dataSource to the original unsorted data
+    this.dataSource.data = [...this.originalData];
+  
+    // Reset the sorting state
+    this.sort.direction = '';
+    this.sort.active = '';
+  
+    // Update the table
+    this.dataSource._updateChangeSubscription();
+  
+    // Trigger change detection if needed
+    this.cdr.detectChanges();
+  }
+
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
@@ -266,9 +346,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   openImagePreviewDialog(index:any) {
     const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "880px",
-      maxHeight:'694px',
+      width: "auto",
+      maxHeight:'auto',
       data:  {images:this.dataSource, currentIndex:index} ,
+      panelClass: "custom-preview",
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -328,7 +409,11 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
 
   getFormattedDate(date: Date): string {
-      return dayjs(date).format('MM.DD.YYYY');
+    if (this.selectedZone =='UTC') {
+      return dayjs(date).utc().format('MM.DD.YYYY'); // Format for UTC
+    } else {
+      return dayjs(date).local().format('MM.DD.YYYY'); // Format for local time
+    }
   }
   formatUtcTime(payload: string | Date): string {
     // If payload is a string, convert it to Date first
@@ -339,13 +424,18 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       throw new Error('Invalid date passed');
     }
   
-    // Get the UTC hours and minutes
-    const hours = date.getUTCHours().toString().padStart(2, '0');
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+    // Get the hours and minutes based on the desired time zone
+    const hours = this.selectedZone =='UTC' ? date.getUTCHours() : date.getHours();
+    const minutes = this.selectedZone =='UTC' ? date.getUTCMinutes() : date.getMinutes();
   
-    // Return formatted time in "HH:mm UTC" format
-    return `${hours}:${minutes} UTC`;
+    // Format the hours and minutes with leading zeros
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+  
+    // Return formatted time, appending "UTC" if in UTC
+    return `${formattedHours}:${formattedMinutes}${this.selectedZone =='UTC' ? ' UTC' : ''}`;
   }
+  
   imageHoverView(data:any){
     console.log(data,'datadatadatadatadatadata');
     
@@ -362,7 +452,17 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         next: (resp) => {
           console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
           this.vendorData = resp.data[0]
-          
+          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+              width: `300px`,
+              height: 'auto',
+              data: { type: 'vendor', vendorData: this.vendorData },
+              panelClass: 'checkbox-dialog',
+            });
+            dialogRef.afterClosed().subscribe((result) => {
+              console.log('Dialog closed', result);
+              this.selectedRow = null;
+              this.vendorData = null;
+            });
         },
         error: (err) => {
           console.log("err getPolyGonData: ", err);
@@ -540,6 +640,7 @@ onKeyPress(event: KeyboardEvent): void {
   this.searchInput.next(inputValue);
 }
 
+// On table row expand click
 expandedData(data:any,expandedElement:any){
  
   console.log(expandedElement,'expandedElementexpandedElementexpandedElement');
@@ -552,7 +653,14 @@ expandedData(data:any,expandedElement:any){
   }
 }
 
+//Table Row hover event Emit
+onRowHover(data:any){
 
+    this.rowHoveredData.emit(data)
+  
+}
+
+//Setting Dynamic Height
 setDynamicHeight(): void {
   // Get the height of the elements above
   if(this.viewType === "table"){
@@ -618,8 +726,52 @@ ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
 }
 
+// Round off value
 roundOff(value: number): number {
   return Math.round(value);
+}
+
+// On checkbox change
+onCheckboxChange(row: any) {
+  console.log(row,'imageHoverViewimageHoverViewimageHoverViewimageHoverViewimageHoverView');
+  
+  if (this.selectedRow === row) {
+    // Uncheck the currently selected checkbox
+    this.selectedRow = null;
+  } else {
+    console.log('lllllllllllll');
+    
+    // Select the new checkbox
+    this.selectedRow = row;
+    const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+      width: `300px`,
+      height: 'auto',
+      data: { type: 'vendor', vendorData: this.selectedRow },
+      panelClass: 'checkbox-dialog',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Dialog closed', result);
+      this.selectedRow = null;
+      this.vendorData = null;
+    });
+  }
+}
+
+//Time Zone Change
+selectedTimeZone(zone: string){
+  this.selectedZone = zone;
+  this.cdr.detectChanges();
+}
+
+//Get Day of Week
+getDayOfWeek(date: Date): string {
+  if (this.selectedZone === 'UTC') {
+    // Get day of the week in UTC
+    return dayjs(date).utc().format('dddd');
+  } else {
+    // Get day of the week in local time
+    return dayjs(date).local().format('dddd');
+  }
 }
 
 }

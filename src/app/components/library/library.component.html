@@ -154,7 +154,7 @@
                     Most recent
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
-                    {{getHumanReadableDateDifference(analyticsData?.newest_info?.acquisition_datetime)}}
+                    {{getFormattedDate(analyticsData?.newest_info?.acquisition_datetime)}}
                 </span>
             </div>
             <div
@@ -163,7 +163,7 @@
                     Most recent clear
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
-                    {{getHumanReadableDateDifference(analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime)}}
+                    {{getFormattedDate(analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime)}}
                 </span>
             </div>
         </div>
@@ -180,7 +180,7 @@
                 <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level.key }} Days</span>
                 <span class="flex text-sm font-semibold leading-[18px]"
                     [ngStyle]="{ color: level.current_count >=level.previous_count ?'#22F57A':'#F52222' }">
-                    {{ level.percentage_change.toFixed(3) }}%
+                    {{roundOff(level.percentage_change)}}%
                     <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
                         alt="up_icon" class="ml-1" />
                 </span>
@@ -195,13 +195,13 @@
 
 
     <div class="bg-secondaryBg w-full relative" id="custom_table" >
-        <div id="container" [ngClass]="dataSource.length ? 'mb-[70px]': '' " class="flex m-[20px] justify-between items-center">
+        <div id="container" [ngClass]="dataSource?.data?.length ? 'mb-[70px]': '' " class="flex m-[20px] justify-between items-center">
             <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                 <button (click)="selectPreviewMethod('table')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                     [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image library
-                    {{dataSource?.length}}</button>
+                    {{dataSource?.data?.length}}</button>
                 <button (click)="selectPreviewMethod('browse')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                     [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse</button>
@@ -209,10 +209,12 @@
             <div class="Menu">
                 <div class="flex">
                     <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                        <button
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px] rounded-[19px] px-[20px] text-secondaryText bg-secondaryBg">UTC</button>
-                        <button
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px] rounded-[19px] px-[20px] text-secondary-heiglight">Local
+                        <button (click)="selectedTimeZone('UTC')"
+                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px] text-secondary-heiglight rounded-[19px] px-[20px] "
+                            [ngClass]="selectedZone ==='UTC'?' bg-secondaryBg':''">UTC</button>
+                        <button (click)="selectedTimeZone('local')"
+                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px] text-secondary-heiglight rounded-[19px] px-[20px]"
+                            [ngClass]="selectedZone ==='local'?' bg-secondaryBg':''">Local
                             time</button>
                     </div>
                     <button class="py-[9px] px-[20px] my-0 ml-[8px] rounded-[19px] bg-primaryBg"><img
@@ -226,17 +228,20 @@
                         } </button>
                 </div>
             </div>
+            <div class="flex justify-end" *ngIf="dataSource.data.length ">
+                <span class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer" (click)="resetSorting()"> Reset Sorting</span>
+             </div>
         </div>
 
         @if (viewType=='browse') {
         <div class="w-[820px] overflow-auto browser-content">
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
-               
-                <div *ngFor="let item of dataSource; let index = index" class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
+               @if(dataSource?.data?.length){
+                <div *ngFor="let item of dataSource.data; let index = index" class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
                     <div class="flex flex-col">
                         <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (click)="openImagePreviewDialog(index)">
                             @if (item?.presigned_url) {
-                                <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-cover">
+                                <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
                             } @else {
                                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image not found</span>
                             }
@@ -252,19 +257,26 @@
                         </div>
                     </div>
                 </div>
+               } @else {
+                <div class="w-full flex justify-center items-center">
+                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
+                </div>
+               }
+                
                 
             </div>
         </div>
         }@else {
         <div class="w-[820px] overflow-auto content ">
-            @if (dataSource.length) {
-                <table mat-table [dataSource]="dataSource" multiTemplateDataRows
-                class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg">
+            @if (dataSource) {
+                <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
+                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
+                </div>
+                <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
+                class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg" [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
                 <ng-container matColumnDef="selectDate">
-                    <th mat-header-cell *matHeaderCellDef class="w-[245px] p-[10px] text-secondaryText font-semibold">
-                        <mat-checkbox (change)="$event ? toggleAllRows() : null"
-                            [checked]="selection.hasValue() && isAllSelected()"
-                            [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="'Select All'">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[245px] p-[10px] text-secondaryText font-semibold">
+                        <mat-checkbox class="cursor-default" [aria-label]="'Select All'">
                         </mat-checkbox>
                         Date
                     </th>
@@ -272,7 +284,7 @@
                     
                     >
                         <mat-checkbox (click)="$event.stopPropagation()"
-                            (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
+                        (change)="onCheckboxChange(row)" [checked]="selectedRow === row"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
                         <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row?.acquisition_datetime)}}</span>
@@ -280,7 +292,7 @@
                 </ng-container>
 
                 <ng-container matColumnDef="Sensor">
-                    <th mat-header-cell *matHeaderCellDef class="w-[100px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[100px] p-[10px] text-secondaryText font-semibold">
                         Sensor</th>
                     <td mat-cell *matCellDef="let row" class="w-[100px] p-[10px] text-secondaryText">{{ row?.sensor }}
                     </td>
@@ -296,7 +308,7 @@
                 <ng-container matColumnDef="Cover">
                     <th mat-header-cell *matHeaderCellDef class="w-[60px] p-[10px] text-secondaryText font-semibold">
                         Cover</th>
-                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{row.cloud_cover ?row?.cloud_cover.toFixed(3):0}}%</td>
+                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="Resolution">
@@ -318,7 +330,7 @@
                     <td mat-cell *matCellDef="let row" class="w-[150px] p-[10px] text-secondaryText">
                         <div class="flex">
                             <span class="w-[100px] truncate">{{ row?.vendor_id }}</span>
-                            <span><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
+                            <span (click)="expandedData(row,expandedElement)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
                         </div>
                     </td>
                 </ng-container>
@@ -335,13 +347,13 @@
                 </ng-container>
 
                 <ng-container matColumnDef="expandedDetail">
-                    <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+                    <td  mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
                         <div class="example-element-detail"
                             [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                            <div class="p-7 flex">
+                            <div class="p-7 flex" *ngIf="expandedElement !== null">
                                 <div class="image relative bg-secondary-heiglight rounded-[5px]">
                                     <img [src]="element?.presigned_url" alt="">
-                                    <img class="absolute cursor-pointer right-[20px] bottom-[15px]" src="assets/svg-icons/image-zoom-icon.svg" alt="" (click)="expandedData(element,expandedElement)" />
+                                    <img class="absolute cursor-pointer right-[20px] bottom-[15px]" src="assets/svg-icons/image-zoom-icon.svg" alt="" />
                                 </div>
                                 <div class="detail px-3">
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Vendor:
@@ -349,7 +361,7 @@
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date Time:
                                         </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Day of Week:
-                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Image ID:
                                         </span> <span class="text-secondaryText">{{element?.vendor_id}}</span> </div>
                                     <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
@@ -384,7 +396,9 @@
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
                     class="hover:bg-secondaryHighlight cursor-pointer"
-                    (click)="expandedElement = expandedElement === row ? null : row;">
+                    (click)="expandedElement = expandedElement === row ? null : row;"
+                    (mouseover)="onRowHover(row)"
+                    (mouseout)="onRowHover(null)">
                 </tr>
 
                 <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>

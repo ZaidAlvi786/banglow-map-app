@@ -1,4 +1,4 @@
-<div class="flex justify-between items-end gap-[250px]">
+<div class="flex justify-between items-end " [ngClass]="drawStatus === 'open'? 'gap-[10px]':'gap-[250px]'">
   <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
     <div class="border-r border-custom-border px-[15px] w-[120px]">
 
@@ -31,8 +31,8 @@
       </div>
 
     </div>
-    <div class="w-fit gap-[15px] items-center px-[15px] flex border-r border-custom-border h-full cursor-pointer" (click)="openDateDailog()">
-      <div class="flex gap-[15px] min-w-[284px] text-secondaryText text-xs font-bold"  *ngIf="startDate && endDate">
+    <div class="w-fit gap-[10px] items-center px-[10px] flex border-r border-custom-border h-full cursor-pointer" (click)="openDateDailog()">
+      <div class="flex gap-[10px] min-w-[260px] text-secondaryText text-xs font-bold"  *ngIf="startDate && endDate">
         <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
           <span>{{startDate}}</span>
           <span class="text-secondary-heiglight">{{startTime}}</span>
@@ -55,7 +55,7 @@
 
       </span>
     </div>
-    <div class="flex items-center px-[15px] gap-3 w-[70px] h-[50px] relative">
+    <div class="flex items-center px-[10px] gap-[10px] w-[55px] h-[50px] relative">
       <ul *ngIf="showLayers" class="absolute w-[170px] font-Barlow h-auto rounded-[5px] bg-primaryBg -top-[255px] left-0">
         <li (click)="selectedLayer('OpenStreetMapLight')" [ngClass]="ActiveLayer === 'OpenStreetMapLight' ? 'bg-yellow text-main-highlight rounded-t-[5px]':'text-secondaryText'"
           class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium">
@@ -78,7 +78,7 @@
       <span class="flex items-center px-2  h-full w-full">Google Hybrid</span>
     </li>
       </ul>
-      <div class="flex items-center gap-3 cursor-pointer" (click)="layerDropdown()">
+      <div class="flex items-center gap-[10px] cursor-pointer" (click)="layerDropdown()">
       <span  class="cursor-pointer">
         <img src="assets/svg-icons/layer-icon.svg" alt="pin location icon" />
       </span>
@@ -95,7 +95,7 @@
   </div>
   <div class="w-[545px] flex h-[35px] bg-primaryBg rounded-[5px] shadow-custom-black" (click)="closeDropdown()">
     <div class=" px-[10px] w-[329px] gap-[10px] items-center flex border-r border-custom-border h-full">
-      <div class="flex gap-3 w-[300px] items-center">
+      <div class="flex gap-[10px] w-[300px] items-center">
         <div class="flex gap-2 items-center w-[280px]">
           <div class="flex gap-1 z-30 relative min-w-[138px] font-semibold text-xs leading-[14.4px]"><span
               class="uppercase text-secondaryText">Latitude</span><span

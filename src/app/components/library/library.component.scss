@@ -95,6 +95,11 @@
     width: 100%;
     top: 503px;
   }
+  th {
+    .mdc-checkbox {
+      opacity: 0 !important;
+    }
+  }
   
 }
 
@@ -175,4 +180,39 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+::ng-deep .custom-preview{
+  .mat-mdc-dialog-surface {
+    border-radius: 10px !important;
+    background-color: #20272D !important;
+  }
+  .mat-mdc-dialog-container{
+    resize: both !important;
+    overflow: auto;
+    min-width: 600px !important;  /* Set minimum width */
+    min-height: 500px !important;  /* Set minimum height */
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+}
+::ng-deep.custom-preview.mat-mdc-dialog-containe{
+  resize: both;
+  overflow: auto;
+  min-width: 500px;  /* Set minimum width */
+  min-height: 500px;  /* Set minimum height */
+  width: 880px;  /* Initial width */
+  height: 694px;  /* Initial height */
+}
+
+::ng-deep .checkbox-dialog{
+  position: absolute !important;
+  left: 45px !important;
+  .mat-mdc-dialog-surface{
+    border-radius: 10px !important;
+    background-color: #20272D !important;
+  }
+  
+  
+}
+
 
