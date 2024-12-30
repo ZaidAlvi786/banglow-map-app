@@ -21,7 +21,7 @@
         <mat-drawer  #drawer class="!bg-primaryBg !top-[40px] !block !z-[999999999999] library !w-[820px]" mode="side">
          @if (drawer._animationState === 'open') {
           <div class="z-[999999999999] h-full">
-          <app-sidebar-drawer (closeSidebar)="toggleDrawer()" (notifyParent)="receiveData($event)" [polygon_wkt]="polygon_wkt" [type]="type" [endDate]="endDate" [startDate]="startDate"></app-sidebar-drawer>
+          <app-sidebar-drawer (closeSidebar)="toggleDrawer()" (notifyParent)="receiveData($event)" (rowHoveredData)="highLightShape($event)" [polygon_wkt]="polygon_wkt" [type]="type" [endDate]="endDate" [startDate]="startDate"></app-sidebar-drawer>
           </div>
          } 
         </mat-drawer>
@@ -38,13 +38,13 @@
         [ngClass]="{
           'z-0': isGoogleLayerActive !== 'OpenStreetMapDark' && isGoogleLayerActive !== 'GoogleStreetMapDark',
           'opacity-50': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
-          'ml-[820px] w-fill-available': type === 'library'
+          'ml-[820px] !w-fill-available': drawer._animationState === 'open'
         }"        
       ></div>
       <div
         class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]"
       >
-        <div class="relative z-50 w-full">
+        <div class="relative z-50 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
           <app-footer #childComponent
             (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"
@@ -60,6 +60,7 @@
             (toggleDropdownEvent)="handleDropdownToggle($event)"
             (toggleLayersEvent)="handleLayersToggle($event)"
             [showLayers]="showLayers"
+            [drawStatus]="drawer._animationState"
           ></app-footer>
         </div>
       </div>

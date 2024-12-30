@@ -43,6 +43,7 @@ export class FooterComponent {
   @Output() toggleLayersEvent: EventEmitter<boolean> = new EventEmitter<boolean>();  // To send state back to parent
   private _snackBar = inject(MatSnackBar);
   @Input() ActiveLayer:string ='OpenStreetMapDark';
+  @Input()drawStatus:any
   // EventEmitter to send the close event to the parent
   constructor(private dialog: MatDialog){
      const now = dayjs().utc();

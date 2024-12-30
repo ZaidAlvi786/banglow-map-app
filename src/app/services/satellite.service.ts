@@ -43,4 +43,8 @@ export class SatelliteService extends BaseService {
   addGroupSite(data: any): Observable<any> {
     return this.post(createUrl("/add-group-site"), data);
   }
+
+  getPolygonCalenderDays(data:any): Observable<any> {
+    return this.post(createUrl("/get-polygon-selection-acquisition-calender-days-frequency"),data)
+  }
 }

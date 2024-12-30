@@ -116,7 +116,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   polygon_wkt:any;
   isDrawerOpen:boolean = false;
   imageOverlay: L.ImageOverlay | undefined;
-  polygon:any
+  polygon:any;
+  leftMargin:any
+  private highlightedPolygon: L.Polygon | null = null;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -136,7 +138,21 @@ hybridLayer:L.TileLayer = L.tileLayer(
     if (isPlatformBrowser(this.platformId)) {
       this.initMap();
     }
-    this.sharedService.isOpenedEventCalendar$.subscribe((state) => this.OpenEventCalendar = state);
+    
+    
+    this.sharedService.isOpenedEventCalendar$.subscribe((state) => {this.OpenEventCalendar = state
+      console.log(this.polygon_wkt,'isOpenedEventCalendarisOpenedEventCalendarisOpenedEventCalendar',state);
+      // if(state){
+      //    const payload = {
+      //   polygon_wkt: this.polygon_wkt
+      // }
+      //   this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+      //     next: (resp) => {
+      //       console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+            
+      //     }})
+      // }
+    });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
   }
@@ -207,9 +223,9 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Add the polygon to the map
     this.polygon = L.polygon(polygonCoordinates, {
-      color: '#66cc66', // Border color
+      color: 'rgba(102, 204, 102, 0.8)', // Border color
       fillColor: 'rgba(102, 204, 102, 0.1)', // Fill color with opacity
-      weight: 2, // Border thickness
+      weight: 1, // Border thickness
     }).addTo(this.map);
   
     // Calculate the bounds of the polygon
@@ -252,6 +268,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Adjust view to clamp latitude if necessary
     this.map.on('move', () => {
+      const mapSize = this.map.getSize(); // Get the map viewport size
+      // const mapViewportWidth = mapSize.x; // Extract the width
+      
+     
       const center = this.map.getCenter();
       const lat = Math.max(-90, Math.min(90, center.lat));
       const lng = center.lng; // Allow longitude wrapping
@@ -266,6 +286,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       // Custom click functionality can go here
     });
   
+
     // Add event listener for when a shape is created
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       const layer = event.layer;
@@ -275,13 +296,10 @@ hybridLayer:L.TileLayer = L.tileLayer(
       const bounds = layer.getBounds();
   
       // Fit the map to the bounds of the new shape
-      this.map.fitBounds(bounds, {
-        padding: [200, 200], // Ensure borders are visible
-      });
-  
-      // Move the map center to the center of the new shape
-      const center = bounds.getCenter();
-      this.map.setView(center, this.map.getZoom(), { animate: true });
+     
+      
+      
+      
   
       // Debugging: Log GeoJSON of the created feature
       const geoJSON = layer.toGeoJSON();
@@ -289,18 +307,18 @@ hybridLayer:L.TileLayer = L.tileLayer(
     });
   
     // Re-fit bounds on window resize to maintain visibility of shapes
-    window.addEventListener('resize', () => {
-      if (this.drawLayer.getBounds) {
-        const bounds = this.drawLayer.getBounds();
-        this.map.fitBounds(bounds, {
-          padding: [200, 200],
-        });
+    // window.addEventListener('resize', () => {
+    //   if (this.drawLayer.getBounds) {
+    //     const bounds = this.drawLayer.getBounds();
+    //     this.map.fitBounds(bounds, {
+    //       padding: [200, 200],
+    //     });
   
-        // Center the map on the shape after resizing
-        const center = bounds.getCenter();
-        this.map.setView(center, this.map.getZoom(), { animate: true });
-      }
-    });
+    //     // Center the map on the shape after resizing
+    //     const center = bounds.getCenter();
+    //     this.map.setView(center, this.map.getZoom(), { animate: true });
+    //   }
+    // });
   
     // Geolocation support
     if (navigator.geolocation) {
@@ -383,6 +401,14 @@ hybridLayer:L.TileLayer = L.tileLayer(
       this.isDrawerOpen = !this.isDrawerOpen
       this.drawer.toggle();
       this.handleDropdownToggle(this.isDrawerOpen)
+      if(this.drawer._animationState =='void'){
+        const mapContainer = this.mapContainer.nativeElement;
+        mapContainer.style.marginLeft = `0px`;
+
+      } else{
+        const mapContainer = this.mapContainer.nativeElement;
+        mapContainer.style.marginLeft = `${this.leftMargin}px`;
+      }
     }
   }
 
@@ -426,6 +452,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
             showArea: true,
             shapeOptions: {
                 color: '#ff6666',
+                fillColor: 'rgba(102, 204, 102, 0.1)',
+                weight:1
             },
         });
     } else if (type === 'Circle') {
@@ -433,6 +461,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
         drawHandler = new L.Draw.Circle(this.map as L.DrawMap, {
             shapeOptions: {
                 color: '#3399ff',
+                fillColor: 'rgba(102, 204, 102, 0.1)',
+                weight:1
             },
         });
     } else if (type === 'Box') {
@@ -440,6 +470,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
         drawHandler = new L.Draw.Rectangle(this.map as L.DrawMap, {
             shapeOptions: {
                 color: '#66cc66',
+                fillColor: 'rgba(102, 204, 102, 0.1)',
+                weight:1
             },
         });
     }
@@ -581,9 +613,39 @@ hybridLayer:L.TileLayer = L.tileLayer(
           if(!this.isDrawerOpen){
             this.toggleDrawer()
             this.type = 'library'
+            
+
+  // Find the .leaflet-interactive element
+  
             // this.type === 'library'? this.parentZoomLevel = 5: this.parentZoomLevel=4;
             // this.onZoomLevelChange(this.parentZoomLevel)
           }
+          setTimeout(() => {
+       
+            if(this.drawer?._animationState === 'open'){
+              const mapContainer = this.mapContainer.nativeElement;
+             console.log("Map viewport width:", this.map.getSize());
+             const containerElement = this.mapContainer.nativeElement;
+             containerElement.style.marginLeft = '820px'
+             const interactiveElement = mapContainer.querySelector('.leaflet-interactive');
+             console.log(interactiveElement,'interactiveElementinteractiveElementinteractiveElementinteractiveElement');
+             const mapViewportWidth = containerElement.offsetWidth;
+             // Get the width if the element exists
+             if (interactiveElement && mapViewportWidth) {
+               const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
+               console.log('Width of leaflet-interactive:', width);
+             const  marginLeft = mapViewportWidth - width;
+             this.leftMargin = marginLeft
+             containerElement.style.marginLeft = marginLeft >= 403 ?`${marginLeft}px`: '403px';
+             }
+               // Get element width
+               
+       
+               // Get computed styles
+               console.log('Map viewport width:', mapViewportWidth);
+               
+           }
+           }, 800);
           
         }
       },
@@ -602,27 +664,29 @@ hybridLayer:L.TileLayer = L.tileLayer(
         coord[0],
     ]);
   
-    let color = '#eff24d';
-    if (data.vendor_name === 'planet') {
-        color = '#55FF00';
-    } else if (data.vendor_name === 'blacksky') {
-        color = '#FFFF00';
-    } else if (data.vendor_name === 'maxar') {
-        color = '#FFAA00';
-    } else if (data.vendor_name === 'airbus') {
-        color = '#0070FF';
-    } else if (data.vendor_name === 'skyfi') {
-        color = '#A900E6';
-    } else {
-        color = '#FF00C5';
-    }
+    let color = 'rgba(239, 242, 77, 0.8)'; // Default color with 50% opacity
+if (data.vendor_name === 'planet') {
+    color = 'rgba(85, 255, 0, 0.8)'; // Green with 50% opacity
+} else if (data.vendor_name === 'blacksky') {
+    color = 'rgba(255, 255, 0, 0.8)'; // Yellow with 50% opacity
+} else if (data.vendor_name === 'maxar') {
+    color = 'rgba(255, 170, 0, 0.8)'; // Orange with 50% opacity
+} else if (data.vendor_name === 'airbus') {
+    color = 'rgba(0, 112, 255, 0.8)'; // Blue with 50% opacity
+} else if (data.vendor_name === 'skyfi') {
+    color = 'rgba(169, 0, 230, 0.8)'; // Purple with 50% opacity
+} else {
+    color = 'rgba(255, 0, 197, 0.8)'; // Pink with 50% opacity
+}
+
     
   
     // Add the polygon to the map
     const polygon = L.polygon(latLngs, {
         color: color, // Border color
         fillColor: color, // Fill color
-        fillOpacity: 0.5, // Fill opacity
+        fillOpacity: 0.1, // Fill opacity
+        weight:1
     }).addTo(this.map);
     console.log(polygon, 'Polygon added');
   
@@ -1408,7 +1472,7 @@ receiveData(data: any) {
    
 
     // Add a polygon overlay to visualize the shape (optional)
-    L.polygon(coordinates, { color: 'red', weight: 2 }).addTo(this.map);
+   
     this.map.fitBounds(bounds,{maxZoom: 13,padding: [50, 50]});
       // Ensure the map is centered at the midpoint of the image bounds with a specific zoom level
       const appliedZoom = this.map.getZoom();
@@ -1452,5 +1516,62 @@ setDynamicHeight(): void {
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
 }
+
+highLightShape(data: any): void {
+  console.log(data, 'highLightShape');
+
+  // If data is null or invalid, remove the highlighted polygon
+  if (!data || !data.coordinates_record?.coordinates) {
+    if (this.highlightedPolygon) {
+      this.map.removeLayer(this.highlightedPolygon); // Remove the polygon from the map
+      this.highlightedPolygon = null; // Clear the reference
+    }
+    return; // Exit the method
+  }
+
+  // Remove the existing polygon if one is already highlighted
+  if (this.highlightedPolygon) {
+    this.map.removeLayer(this.highlightedPolygon);
+  }
+
+  // Extract the coordinates and map them to Leaflet's LatLng format
+  const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+    new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+  );
+
+  // Determine the color based on the vendor name
+  let color = '#eff24d'; // Default color
+  switch (data.vendor_name) {
+    case 'planet':
+      color = '#55FF00';
+      break;
+    case 'blacksky':
+      color = '#FFFF00';
+      break;
+    case 'maxar':
+      color = '#FFAA00';
+      break;
+    case 'airbus':
+      color = '#0070FF';
+      break;
+    case 'skyfi':
+      color = '#A900E6';
+      break;
+    default:
+      color = '#FF00C5';
+      break;
+  }
+
+  // Create a new polygon
+  this.highlightedPolygon = L.polygon(coordinates, {
+    color: color, // Outline color
+    fillColor: color, // Fill color
+    fillOpacity: 0.5, // Adjust opacity as needed
+  });
+
+  // Add the polygon to the map
+  this.highlightedPolygon.addTo(this.map); // Replace `this.map` with your Leaflet map variable
+}
+
 
 }
