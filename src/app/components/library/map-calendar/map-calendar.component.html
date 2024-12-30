@@ -5,7 +5,7 @@
     <img (click)="closeEventCalendar()" class="cursor-pointer" src="assets/svg-icons/drawer-toggle-icon.svg" />
   </div>
 
-  @for (item of calendarsData; track $index) {
+  <!-- @for (item of calendarsData; track $index) {
       <div class="border-secondaryBg border pt-[15px]">
         <p class="text-center">{{item?.month}}</p>
         <div class="pt-5">
@@ -22,5 +22,32 @@
           </ngx-daterangepicker-material>
         </div>
       </div>
-  }
+  } -->
+  <div *ngFor="let month of calendarData" class="month">
+    <div class="month-header">{{ month.name }}</div>
+    
+    <!-- Weekday Labels -->
+    <div class="weekday-labels">
+      <div *ngFor="let day of weekDays" class="weekday">
+        {{ day }}
+      </div>
+    </div>
+
+    <div class="weeks">
+      <div *ngFor="let week of month.weeks" class="week">
+        <div
+          *ngFor="let day of week"
+          [ngClass]="getDayClass(day)"
+          class="day relative group"
+        >
+          {{ day.date }}
+          <div *ngIf="day.value>0" class="group-hover:inline-flex min-w-[112px] w-fit absolute hidden font-Barlow p-[15px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+            <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(day)}}</span>
+            <span class="text-secondaryText text-sm font-medium leading-[18px]">{{day.value}} images available</span>
+            <span class="text-yellow pt-[15px] border-t border-t-solid border-t-custom-border text-xs font-bold leading-[18px]">Browse images</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -14,7 +14,8 @@ export class SidebarDrawerComponent implements OnInit {
   @Output() closeSidebar = new EventEmitter<boolean>();
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Input() endDate:any
-  @Input() startDate:any
+  @Input() startDate:any;
+  @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   ngOnInit(): void {
     console.log(this.polygon_wkt,'polygon_wktpolygon_wkt');
     
@@ -24,5 +25,9 @@ export class SidebarDrawerComponent implements OnInit {
   }
   handleData(data: any) {
     this.notifyParent.emit(data);
+  }
+
+  highlightData(data:any){
+    this.rowHoveredData.emit(data)
   }
 }

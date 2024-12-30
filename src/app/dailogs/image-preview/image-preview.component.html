@@ -1,23 +1,23 @@
-<div class="dialog-content bg-secondaryBg p-4">
+<div class="dialog-content  bg-secondaryBg p-[15px]">
     <div class="flex flex-col">
-        <div class="max-h-[694px] bg-secondary-heiglight flex justify-center items-center">
+        <div class="resizable-image bg-secondary-heiglight flex justify-center items-center">
             @if (data.images[currentIndex].presigned_url) {
-                <img  [src]="data.images[currentIndex]?.presigned_url" alt="Preview" class="max-h-[595px] object-none w-full">
+                <img  [src]="data.images[currentIndex]?.presigned_url" alt="Preview" class="resizable-image object-contain w-full">
             } @else {
                 <span class="text-lg leading-6 font-semibold text-secondary-heiglight">Image not found</span>
             }
         </div>
 
-        <div class="flex bg-primaryBg p-5 items-center justify-between font-Barlow">
-            <div class="flex">
-                <div class="flex w-[50px] items-center justify-between">
-                    <span class="cursor-pointer"><img src="assets/svg-icons/left-arrow-icon.svg" alt="" (click)="previousImage()"></span>
-                    <span class="cursor-pointer"><img src="assets/svg-icons/right-arrow-icon.svg" alt="" (click)="nextImage()"></span>
+        <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
+            <div class="flex gap-[15px]">
+                <div class="flex gap-[15px] h-[20px] items-center justify-between">
+                    <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/left-arrow-icon.svg" alt="" (click)="previousImage()"></span>
+                    <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/right-arrow-icon.svg" alt="" (click)="nextImage()"></span>
                 </div>
                 
-                <div class="flex ml-5">
-                    <span class="text-secondaryText font-medium">{{getFormattedDate(data.images[currentIndex]?.acquisition_datetime) || '10/13/2024'}}</span>
-                    <span class="ml-5 text-secondaryText font-medium">{{formatUtcTime(data.images[currentIndex]?.acquisition_datetime) || '19.37.15 UTC'}}</span>
+                <div class="flex gap-[15px]">
+                    <span class="text-secondaryText font-medium leading-[18px]">{{getFormattedDate(data.images[currentIndex]?.acquisition_datetime) || '10/13/2024'}}</span>
+                    <span class=" text-secondaryText font-medium leading-[18px]">{{formatUtcTime(data.images[currentIndex]?.acquisition_datetime) || '19.37.15 UTC'}}</span>
                 </div>
             </div>
             <div>

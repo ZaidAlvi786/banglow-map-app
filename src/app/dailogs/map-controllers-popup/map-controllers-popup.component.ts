@@ -274,7 +274,7 @@ export class MapControllersPopupComponent implements OnInit {
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
       const inputElement = document.createElement('input');
-      inputElement.value = `${text?.lat.toFixed(4)} ${text?.lon.toFixed(4)}`;
+      inputElement.value = `${text?.lat.toFixed(4)}',' ${text?.lon.toFixed(4)}`;
       document.body.appendChild(inputElement);
       inputElement.select();
       document.execCommand('copy');
@@ -282,7 +282,7 @@ export class MapControllersPopupComponent implements OnInit {
 
       // Optionally alert the user
 
-      this.snackBar.open('Address copied to clipboard!', 'Ok', {
+      this.snackBar.open('Copied successfully!', 'Ok', {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
     }
@@ -347,5 +347,11 @@ export class MapControllersPopupComponent implements OnInit {
     return `${formattedNumber}m`;
 }
 
+getDayOfWeek(date: Date): string {
+  
+    // Get day of the week in local time
+    return dayjs(date).utc().format('dddd');
+  
+}
 
 }
