@@ -1,8 +1,8 @@
 <div class="dialog-content  bg-secondaryBg p-[15px]">
     <div class="flex flex-col">
         <div class="resizable-image bg-secondary-heiglight flex justify-center items-center">
-            @if (data.images[currentIndex].presigned_url) {
-                <img  [src]="data.images[currentIndex]?.presigned_url" alt="Preview" class="resizable-image object-contain w-full">
+            @if (data.images.data[currentIndex].presigned_url) {
+                <img  [src]="data?.images?.data[currentIndex]?.presigned_url" alt="Preview" class="resizable-image object-contain w-full">
             } @else {
                 <span class="text-lg leading-6 font-semibold text-secondary-heiglight">Image not found</span>
             }
@@ -16,8 +16,8 @@
                 </div>
                 
                 <div class="flex gap-[15px]">
-                    <span class="text-secondaryText font-medium leading-[18px]">{{getFormattedDate(data.images[currentIndex]?.acquisition_datetime) || '10/13/2024'}}</span>
-                    <span class=" text-secondaryText font-medium leading-[18px]">{{formatUtcTime(data.images[currentIndex]?.acquisition_datetime) || '19.37.15 UTC'}}</span>
+                    <span class="text-secondaryText font-medium leading-[18px]">{{getFormattedDate(data?.images?.data[currentIndex]?.acquisition_datetime) || '10/13/2024'}}</span>
+                    <span class=" text-secondaryText font-medium leading-[18px]">{{formatUtcTime(data?.images?.data[currentIndex]?.acquisition_datetime) || '19.37.15 UTC'}}</span>
                 </div>
             </div>
             <div>

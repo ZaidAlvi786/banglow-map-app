@@ -27,7 +27,7 @@
         </mat-drawer>
         @if (OpenEventCalendar) {
           <div class="absolute z-[1000000] text-secondaryText left-[820px]" >
-            <app-map-calendar></app-map-calendar>
+            <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate" [calendarApiData]="calendarApiData"></app-map-calendar>
           </div>
         }
       </div>
