@@ -119,6 +119,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   polygon:any;
   leftMargin:any
   private highlightedPolygon: L.Polygon | null = null;
+  calendarApiData:any;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -140,8 +141,32 @@ hybridLayer:L.TileLayer = L.tileLayer(
     }
     
     
-    this.sharedService.isOpenedEventCalendar$.subscribe((state) => {this.OpenEventCalendar = state
-      console.log(this.polygon_wkt,'isOpenedEventCalendarisOpenedEventCalendarisOpenedEventCalendar',state);
+    this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
+
+    if(state){
+      if(this.polygon_wkt ){
+        const payload = {
+          polygon_wkt: this.polygon_wkt,
+          start_date: this.startDate,
+          end_date: this.endDate
+        }
+        
+        // Start the loader
+       
+      
+        this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          next: (resp) => {
+            
+            this.calendarApiData = resp.data;
+            this.OpenEventCalendar = state
+          },
+          error: (err) => {
+            console.error('Error fetching calendar data', err);
+            // Hide loader on error
+           
+          },
+          
+        });
       // if(state){
       //    const payload = {
       //   polygon_wkt: this.polygon_wkt
@@ -152,7 +177,11 @@ hybridLayer:L.TileLayer = L.tileLayer(
             
       //     }})
       // }
-    });
+    }
+    } else{
+      this.OpenEventCalendar = state
+    }
+     });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
   }
@@ -404,6 +433,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       if(this.drawer._animationState =='void'){
         const mapContainer = this.mapContainer.nativeElement;
         mapContainer.style.marginLeft = `0px`;
+        this.sharedService.setIsOpenedEventCalendar(false);
 
       } else{
         const mapContainer = this.mapContainer.nativeElement;
@@ -1468,18 +1498,38 @@ receiveData(data: any) {
     this.imageOverlay.addTo(this.map);
 
     // Center the map view on the image while ensuring it's fully visible
-    const padding = { paddingTopLeft: [50, 50], paddingBottomRight: [50, 50] };
+    // const padding = { paddingTopLeft: [50, 50], paddingBottomRight: [50, 50] };
    
 
     // Add a polygon overlay to visualize the shape (optional)
-   
+    setTimeout(() => {
+       
+      if(this.drawer?._animationState === 'open'){
+        const mapContainer = this.mapContainer.nativeElement;
+      
+       const containerElement = this.mapContainer.nativeElement;
+       containerElement.style.marginLeft = '820px'
+       const interactiveElement = mapContainer.querySelector('.leaflet-interactive');
+      
+       const mapViewportWidth = containerElement.offsetWidth;
+       // Get the width if the element exists
+       if (interactiveElement && mapViewportWidth) {
+         const width = interactiveElement.getBoundingClientRect().width; // Or use interactiveElement.offsetWidth
+         
+       const  marginLeft = mapViewportWidth - width;
+       this.leftMargin = marginLeft
+       containerElement.style.marginLeft = marginLeft >= 403 ?`${marginLeft}px`: '403px';
+       }
+         
+     }
+     }, 800);
     this.map.fitBounds(bounds,{maxZoom: 13,padding: [50, 50]});
       // Ensure the map is centered at the midpoint of the image bounds with a specific zoom level
-      const appliedZoom = this.map.getZoom();
-console.log("Applied Zoom Level:", appliedZoom);
-      const imageCenter = bounds.getNorthEast();
-      const imageSIze = bounds.getSouthWest()
-      this.map.setView(imageCenter, appliedZoom,{ animate: true },);
+      // const appliedZoom = this.map.getZoom();
+      // const imageCenter = bounds.getNorthEast();
+      // const imageSIze = bounds.getSouthWest()
+      // this.map.setView(imageCenter, appliedZoom,{ animate: true },);
+     
   } else {
     // Handle case where there are no coordinates or the overlay needs to be removed
     if (this.imageOverlay) {

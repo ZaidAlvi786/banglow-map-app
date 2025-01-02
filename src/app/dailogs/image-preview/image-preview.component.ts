@@ -25,7 +25,7 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   currentIndex:any;
   ngOnInit(): void {
     this.currentIndex = this.data.currentIndex;
-    console.log("dialog dat: ", this.data);
+    console.log("dialog dat: ", this.data.images.data);
   }
 
   ngAfterViewInit() {
@@ -59,12 +59,12 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
       if (this.currentIndex > 0) {
         this.currentIndex--;
       } else {
-        this.currentIndex = this.data.images.length - 1; // Wrap around to the last image
+        this.currentIndex = this.data.images.data.length - 1; // Wrap around to the last image
       }
     }
   
     nextImage() {
-      if (this.currentIndex < this.data.images.length - 1) {
+      if (this.currentIndex < this.data.images.data.length - 1) {
         this.currentIndex++;
       } else {
         this.currentIndex = 0; // Wrap around to the first image

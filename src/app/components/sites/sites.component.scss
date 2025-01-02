@@ -1,0 +1,94 @@
+
+  #rename::ng-deep {
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline
+      .mdc-notched-outline__notch {
+      border-color: #4a5863 !important;
+      border-right: none !important;
+    }
+    .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
+      border-color: #4a5863 !important;
+    }
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline__trailing {
+      border-color: #4a5863 !important;
+    }
+    .mdc-floating-label {
+      color: #4a5863 !important;
+      font-weight: 700 !important;
+      font-size: 12px !important;
+    }
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    .mat-mdc-form-field-infix {
+      display: flex !important;
+    }
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-text-field__input {
+      color: #4a5863 !important;
+    }
+    .mat-form-field-label {
+      color: #4a5863 !important;
+    }
+  }
+  ::ng-deep {
+    .mat-mdc-menu-panel {
+      background-color: #20272d !important;
+      box-shadow: 5px 5px 5px 0px #0000001a !important;
+    }
+    
+    .mdc-label {
+      color: #abb7c0 !important;
+      font-size: 14px !important;
+      line-height: 18px !important;
+      font-weight: 500 !important;
+    }
+    .mdc-checkbox
+      .mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not(
+        [data-indeterminate="true"]
+      )
+      ~ .mdc-checkbox__background {
+      border-color: #4a5863 !important;
+    }
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+    .mat-mdc-form-field-infix {
+      display: flex !important;
+    }
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-text-field__input {
+      color: #4a5863 !important;
+    }
+    .mat-form-field-label {
+      color: #4a5863 !important;
+    }
+    .apexcharts-heatmap-series rect {
+     stroke: black !important; /* Set border color here (e.g., black) */
+    }
+    
+    /* To prevent border from being applied to the last cell in each row */
+    .apexcharts-heatmap-series rect:nth-child(4n) {
+      stroke: transparent !important; /* Remove border for the last column in each row (adjust 4n to your column count) */
+    }
+   
+    
+  }
+
+  ::ng-deep .mat-mdc-menu-panel {
+      max-width: 350px !important;
+    }
+
+    #loader ::ng-deep{
+      .ngx-overlay{
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        background-color: transparent !important;
+        width: 820px !important;
+      }
+      .ngx-foreground-spinner{
+        position: relative !important;
+      }
+    }

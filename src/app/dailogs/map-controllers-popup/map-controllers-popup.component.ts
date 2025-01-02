@@ -354,4 +354,20 @@ getDayOfWeek(date: Date): string {
   
 }
 
+//Getting time in Day sessions
+getTimePeriod(datetime: string): string {
+  const date = new Date(datetime); // Parse the ISO string to a Date object
+  const hours = date.getHours(); // Get the hour (0-23)
+
+  if (hours >= 5 && hours < 11) {
+    return "Morning";
+  } else if (hours >= 11 && hours < 16) {
+    return "Midday";
+  } else if (hours >= 16 && hours < 21) {
+    return "Evening";
+  } else {
+    return "Overnight";
+  }
+}
+
 }

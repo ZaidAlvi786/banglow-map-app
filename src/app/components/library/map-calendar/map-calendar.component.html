@@ -1,7 +1,7 @@
 <div class="w-[268px] h-[100vh] overflow-auto bg-primaryBg p-[15px]">
   <!-- Title -->
-  <div class="flex justify-between items-center pb-[15px]">
-    <p class="text-sm m-0">Working</p>
+  <div class="flex justify-end items-center pb-[15px]">
+    <!-- <p class="text-sm m-0">Working</p> -->
     <img (click)="closeEventCalendar()" class="cursor-pointer" src="assets/svg-icons/drawer-toggle-icon.svg" />
   </div>
 
@@ -23,7 +23,7 @@
         </div>
       </div>
   } -->
-  <div *ngFor="let month of calendarData" class="month">
+  <div *ngFor="let month of calendarData" class="month border border-solid border-custom-border">
     <div class="month-header">{{ month.name }}</div>
     
     <!-- Weekday Labels -->
@@ -37,12 +37,12 @@
       <div *ngFor="let week of month.weeks" class="week">
         <div
           *ngFor="let day of week"
-          [ngClass]="getDayClass(day)"
+          [ngStyle]="{'background-color': day?.backgroundValue,'color':day.colorValue?day.colorValue:'#ffffff'}"
           class="day relative group"
         >
           {{ day.date }}
-          <div *ngIf="day.value>0" class="group-hover:inline-flex min-w-[112px] w-fit absolute hidden font-Barlow p-[15px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
-            <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(day)}}</span>
+          <div *ngIf="day.value>0" class="group-hover:inline-flex min-w-[185px] left-0 z-[9999999999] w-max absolute hidden font-Barlow p-[15px] top-[30px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+            <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(month.name,day)}}</span>
             <span class="text-secondaryText text-sm font-medium leading-[18px]">{{day.value}} images available</span>
             <span class="text-yellow pt-[15px] border-t border-t-solid border-t-custom-border text-xs font-bold leading-[18px]">Browse images</span>
           </div>

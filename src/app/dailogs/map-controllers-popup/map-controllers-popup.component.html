@@ -203,7 +203,7 @@
     
     <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.type}}</span>
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
         <span class="h-[15px] w-[15px] cursor-pointer">
          @if (data?.vendorData?.type ==='Night') {
           <img src="/assets/svg-icons/sunny-icon.svg" alt="" />

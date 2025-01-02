@@ -215,4 +215,17 @@
   
 }
 
+#loader ::ng-deep{
+  .ngx-overlay{
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    background-color: transparent !important;
+    width: 820px !important;
+  }
+  .ngx-foreground-spinner{
+    position: relative !important;
+  }
+}
+
 
