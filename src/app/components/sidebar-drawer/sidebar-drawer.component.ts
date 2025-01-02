@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { LibraryComponent } from "../library/library.component";
+import { SitesComponent } from "../sites/sites.component";
 
 @Component({
   selector: "app-sidebar-drawer",
   standalone: true,
-  imports: [LibraryComponent],
+  imports: [LibraryComponent,SitesComponent],
   templateUrl: "./sidebar-drawer.component.html",
   styleUrl: "./sidebar-drawer.component.scss",
 })

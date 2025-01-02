@@ -1,18 +1,43 @@
-import { HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpHandlerFn, HttpParams, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { finalize, Observable } from 'rxjs';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
+import { LoadingService } from '../../services/loading.service';
 
 export const LoadingInterceptor = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const ngxLoader = inject(NgxUiLoaderService);
-  ngxLoader.start();
+  const  mainLoader=inject(LoadingService)
+  function convertHttpParamsToPlainObject(params: HttpParams): Record<string, string | string[]> {
+    const paramObj: Record<string, string | string[]> = {};
+    params.keys().forEach(key => {
+      const values = params.getAll(key);
+      // Handle null case by assigning an empty string or any default value
+      paramObj[key] = values ? (values.length === 1 ? values[0] : values) : '';
+    });
+    return paramObj;
+  }
+  
+  // Example usage
+  const apiParams = req.params as HttpParams; // Assuming `req.params` is an HttpParams instance
+  const plainParams = convertHttpParamsToPlainObject(apiParams);
+  const paramString = JSON.stringify(plainParams);
+  let params= JSON.stringify(req.params);
+  
+  if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
+    mainLoader.setValue(true)
+    ngxLoader.start();
+   
+  } else {
+    mainLoader.setValue(false)
+  }
 
   return next(req).pipe(
     finalize(() => {
       ngxLoader.stop();
+      mainLoader.setValue(false)
     })
   );
 };
