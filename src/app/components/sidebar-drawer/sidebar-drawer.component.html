@@ -1,6 +1,6 @@
 <div class="h-full overflow-hidden">
     @if (type=='library') {  <div>
-        <app-library [endDate]="endDate" [startDate]="startDate" (closeDrawer)="closeDrawer($event)" (rowHoveredData)="highlightData($event)" (notifyParent)="handleData($event)" [polygon_wkt]="polygon_wkt"></app-library>
+        <app-library [endDate]="endDate" [zoomed_wkt]="zoomed_wkt" [startDate]="startDate" (closeDrawer)="closeDrawer($event)" (rowHoveredData)="highlightData($event)" (notifyParent)="handleData($event)" [polygon_wkt]="polygon_wkt"></app-library>
     </div>
 } @else if(type === 'Sites'){
     <app-sites (closeDrawer)="closeDrawer($event)"></app-sites>

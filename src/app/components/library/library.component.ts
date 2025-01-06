@@ -45,6 +45,8 @@ import { MatSort, MatSortModule, Sort } from "@angular/material/sort";
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import moment from "moment";
 import { NgxUiLoaderModule, NgxUiLoaderService } from "ngx-ui-loader";
+import { DateFormatPipe } from "../../pipes/date-format.pipe";
+import { log } from "console";
 
 export class Group {
   name?: string;
@@ -89,7 +91,8 @@ export interface PeriodicElement {
     MatTableModule,
     GroupsListComponent,
     MatSortModule,
-    NgxUiLoaderModule
+    NgxUiLoaderModule,
+    DateFormatPipe
 ],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
@@ -157,8 +160,52 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   searchInput = new Subject<string>();
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
-  @Input() endDate:any
-  @Input() startDate:any
+  private _startDate: any;
+  private _endDate: any;
+
+  @Input()
+  set startDate(value: any) {
+    if (value !== this._startDate) {
+      this._startDate = value;
+      console.log('startDate updated:', this._startDate);
+      let queryParams ={
+        page_number: '1',
+        page_size: '16',
+        start_date:this.startDate,
+        end_date: this.endDate,
+        source: 'library',
+        
+      }
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+      if (this.polygon_wkt) {
+        setTimeout(() => {
+          this.loader = true
+          this.ngxLoader.start(); // Start the loader
+          this.getSatelliteCatalog(payload,queryParams)
+         },300)
+      }
+      // Add logic to handle the updated value, e.g., update calculations or UI
+    }
+  }
+
+  get startDate(): any {
+    return this._startDate;
+  }
+
+  @Input()
+  set endDate(value: any) {
+    if (value !== this._endDate) {
+      this._endDate = value;
+      console.log('endDate updated:', this._endDate);
+      // Add logic to handle the updated value, e.g., validate the date range
+    }
+  }
+
+  get endDate(): any {
+    return this._endDate;
+  }
   selectedRow:any = null;
   imageData:any;
   @ViewChild(MatSort) sort!: MatSort;
@@ -166,7 +213,56 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   selectedZone:string = 'UTC'
   @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
   page_size = '16';
+  perPageSize= 16;
+  page_number = '1';
   loader:boolean = false;
+  private _zoomed_wkt: string ='';
+  zoomed_captures_count:number ;
+  private debounceTimeout: any;
+  selectedObjects:any[]
+  @Input()
+set zoomed_wkt(value: string) {
+  if (value !== this._zoomed_wkt) {
+    this._zoomed_wkt = value;
+    console.log('librarylibrarylibrarylibrarylibrary', this.page_size);
+
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout); // Clear the existing timeout if any
+    }
+
+    this.debounceTimeout = setTimeout(() => {
+      if (this._zoomed_wkt !== '') {
+        let queryParams = {
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          zoomed_wkt: this._zoomed_wkt
+        };
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        };
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.getSatelliteCatalog(payload, queryParams);
+        
+      }
+    }, 600);
+     // Debounce time: 600ms
+  }
+  this.setDynamicHeight();
+  window.addEventListener('resize', this.setDynamicHeight.bind(this))
+  const div = this.scrollableDiv?.nativeElement;
+  this.canTriggerAction = true
+  div.addEventListener('wheel', this.handleWheelEvent);
+  console.log('valuevaluevaluevaluevalue', value);
+}
+  
+  get zoomed_wkt(): string {
+    return this._zoomed_wkt;
+  }
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -220,7 +316,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         page_size: '16',
         start_date:this.startDate,
         end_date: this.endDate,
-        source: 'library'
+        source: 'library',
+        
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -251,7 +348,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       console.log('Sorted Data:', this.dataSource.filteredData);
       this.sortData(); // Will only be called once after the debounce time
     });
-    const div = this.scrollableDiv.nativeElement;
+    const div = this.scrollableDiv?.nativeElement;
 
     // Add scroll event listener
   
@@ -288,6 +385,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         const payload = {
           wkt_polygon: this.polygon_wkt
         }
+        this.loader = true
+      this.ngxLoader.start(); // Start the loader
        
         this.getSatelliteCatalog(payload,queryParams)
         
@@ -311,6 +410,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         const payload = {
           wkt_polygon: this.polygon_wkt
         }
+        this.loader = true
+      this.ngxLoader.start(); // Start the loader
         this.getSatelliteCatalog(payload,queryParams)
       } else if (activeColumn === 'Vendor') {
         // const sensorA = a.sensor.toLowerCase();
@@ -330,6 +431,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         const payload = {
           wkt_polygon: this.polygon_wkt
         }
+        this.loader = true
+      this.ngxLoader.start(); // Start the loader
         this.getSatelliteCatalog(payload,queryParams)
       }
      
@@ -346,15 +449,21 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
-        this.dataSource.data = resp.data
+        this.dataSource.data = resp.data.map((item, idx) => ({
+          ...item,
+          index: idx
+        }));
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.total_records
+        this.zoomed_captures_count = resp.zoomed_captures_count
         this.loader = false
         this.ngxLoader.stop();
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener('resize', this.setDynamicHeight.bind(this))
-      }, 300); 
+          const div = this.scrollableDiv?.nativeElement;
+          div.addEventListener('wheel', this.handleWheelEvent);
+      }, 800); 
       },
       error: (err) => {
         this.loader = false
@@ -378,6 +487,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+    this.loader = true
+      this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,queryParams)
   }
 
@@ -409,7 +520,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     setTimeout(() => {
       this.setDynamicHeight();
       window.addEventListener('resize', this.setDynamicHeight.bind(this))
-      const div = this.scrollableDiv.nativeElement;
+      const div = this.scrollableDiv?.nativeElement;
       div.addEventListener('wheel', this.handleWheelEvent);
   }, 300); 
    
@@ -481,9 +592,9 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   getFormattedDate(date: Date): string {
     if (this.selectedZone =='UTC') {
-      return dayjs(date).utc().format('MM.DD.YYYY'); // Format for UTC
+      return dayjs(date).utc().format('YYYY.MM.DD'); // Format for UTC
     } else {
-      return dayjs(date).local().format('MM.DD.YYYY'); // Format for local time
+      return dayjs(date).local().format('YYYY.MM.DD'); // Format for local time
     }
   }
   formatUtcTime(payload: string | Date): string {
@@ -712,17 +823,32 @@ onKeyPress(event: KeyboardEvent): void {
 }
 
 // On table row expand click
-expandedData(data:any){
-  let expandedElement = data
-  console.log(expandedElement,'expandedElementexpandedElementexpandedElement');
-  if(this.imageData !== expandedElement.id){
-    this.imageData = expandedElement.id
-    this.notifyParent.emit(data)
-  } else {
-    this.imageData = null
-    this.notifyParent.emit(null)
+expandedData(data: any) {
+  let expandedElement = data;
+  console.log(expandedElement, 'expandedElementexpandedElementexpandedElement');
+
+  // Initialize the array if it doesn't exist
+  if (!this.selectedObjects) {
+    this.selectedObjects = [];
   }
+
+  // Check if the object with the given ID already exists in the array
+  const index = this.selectedObjects.findIndex(obj => obj.id === expandedElement.id);
+
+  if (index === -1) {
+    // If the object does not exist, push it to the array
+    this.selectedObjects.push(expandedElement);
+  } else {
+    // If the object exists, remove it from the array
+    this.selectedObjects.splice(index, 1);
+  }
+
+  // Emit the updated array
+  this.notifyParent.emit(this.selectedObjects);
+
+  console.log(this.selectedObjects, 'Updated selectedObjects array');
 }
+
 
 //Table Row hover event Emit
 onRowHover(data:any){
@@ -795,7 +921,7 @@ setDynamicHeight(): void {
 }
 ngOnDestroy(): void {
   window.removeEventListener('resize', this.setDynamicHeight.bind(this));  // Clean up event listener
-  const div = this.scrollableDiv.nativeElement;
+  const div = this.scrollableDiv?.nativeElement;
 
     // Remove all listeners to avoid memory leaks
    
@@ -854,27 +980,28 @@ private isAtBottom = false;
 
 //Scroll to bottom event 
 private handleWheelEvent = (event: WheelEvent): void => {
-  const div = this.scrollableDiv.nativeElement;
+  const div = this.scrollableDiv?.nativeElement;
+
 
   // Detect if at the bottom
-  const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight;
-
+  const isAtBottom = div.scrollTop + div.clientHeight+0.5 >= div.scrollHeight;
   // Only trigger if at the bottom and trying to scroll down
   if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
     if (!this.isAtBottom) {
       this.isAtBottom = true; // Lock the event trigger
       //  this.customAction('Scroll beyond bottom');
-      let num = parseInt(this.page_size, 10)
-    let  new_pageSize = num + 16 ;
-    this.page_size = new_pageSize.toString()
-    console.log(this.page_size,'new_pageSizenew_pageSizenew_pageSize');
-    if(this.page_size<=this.total_count){
+      let num = parseInt(this.page_number, 10)
+    let  new_pageNumber = num + 1 ;
+    this.page_number = new_pageNumber.toString()
+    console.log(this.page_number,'new_pageSizenew_pageSizenew_pageSize',this.zoomed_captures_count);
+    if(this.dataSource.data.length<this.total_count){
       let queryParams ={
-        page_number: '1',
+        page_number: this.page_number,
         page_size: this.page_size,
         start_date:this.startDate,
         end_date: this.endDate,
-        source: 'library'
+        source: 'library',
+        zoomed_wkt:this._zoomed_wkt
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -884,8 +1011,12 @@ private handleWheelEvent = (event: WheelEvent): void => {
 
   this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
     next: (resp) => {
-      console.log(resp, 'queryParamsqueryParamsqueryParamsqueryParams');
-      this.dataSource.data = resp.data;
+     
+      const data = resp.data.map((item, idx) => ({
+        ...item,
+        index: idx
+      }));
+      this.dataSource.data = this.dataSource.data.concat(data);
       this.originalData = [...this.dataSource.data];
       
       setTimeout(() => {
@@ -915,18 +1046,38 @@ private handleWheelEvent = (event: WheelEvent): void => {
 
 //Getting time in Day sessions
 getTimePeriod(datetime: string): string {
-  const date = new Date(datetime); // Parse the ISO string to a Date object
-  const hours = date.getHours(); // Get the hour (0-23)
+  if(this.selectedZone == 'UTC'){
+    const utcDate = dayjs(datetime).utc();
 
-  if (hours >= 5 && hours < 11) {
-    return "Morning";
-  } else if (hours >= 11 && hours < 16) {
-    return "Midday";
-  } else if (hours >= 16 && hours < 21) {
-    return "Evening";
+    // Get the hour in UTC
+    const hours = utcDate.hour();
+  
+    // Determine the time period based on the UTC hour
+    if (hours >= 5 && hours < 11) {
+      return "Morning";
+    } else if (hours >= 11 && hours < 16) {
+      return "Midday";
+    } else if (hours >= 16 && hours < 21) {
+      return "Evening";
+    } else {
+      return "Overnight";
+    }
   } else {
-    return "Overnight";
+    const date = new Date(datetime); // Parse the ISO string to a Date object
+    const hours = date.getHours(); // Get the hour (0-23)
+  
+    if (hours >= 5 && hours < 11) {
+      return "Morning";
+    } else if (hours >= 11 && hours < 16) {
+      return "Midday";
+    } else if (hours >= 16 && hours < 21) {
+      return "Evening";
+    } else {
+      return "Overnight";
+    }
   }
+  // Convert the datetime to UTC using dayjs
+  
 }
 
 //Formated Date into YYYY-MM-DD
@@ -937,5 +1088,49 @@ getDateTimeFormat(dateTime: string) {
     }
     return '';
   }
+
+  isRowSelected(id: any): boolean {
+    return this.selectedObjects?.some(obj => obj.id === id);
+  }
+  //Copy Table row data 
+  copyData(data: any) {
+    const { acquisition_datetime,sensor, vendor_name, vendor_id, centroid } = data;
+    if (!centroid || !Array.isArray(centroid)) {
+      this.snackBar.open('Invalid data format!', 'Ok', { duration: 2000 });
+      return;
+    }
+  
+    const result = `${acquisition_datetime},${sensor},${vendor_name},${vendor_id},${centroid.join(",")}`;
+  
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = result;
+    tempTextArea.style.position = 'fixed'; // Avoid scrolling to view the element
+    tempTextArea.style.opacity = '0';     // Make it invisible
+    document.body.appendChild(tempTextArea);
+  
+    tempTextArea.select();
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+      
+        this.snackBar.open('Copied successfully!', 'Ok', { duration: 2000 });
+      } else {
+      
+        this.snackBar.open('Failed to copy text.', 'Retry', { duration: 2000 });
+      }
+    } catch (err) {
+     
+      this.snackBar.open('Failed to copy text.', 'Retry', { duration: 2000 });
+    }
+  
+    document.body.removeChild(tempTextArea);
+  }
+
+  trackByIndex(index: number, item: any): number {
+    console.log("indexindexindexindexindex", index);
+    
+    return index;
+  }
+  
 
 }

@@ -101,7 +101,7 @@
                     <div
                         class="flex flex-col justify-center items-start p-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent</span>
-                        <span class="text-secondaryText text-xs font-bold leading-normal">{{getFormattedDate(site?.most_recent)}}</span>
+                        <span class="text-secondaryText text-xs font-bold leading-normal">{{site?.most_recent | dateFormat}}</span>
                     </div>
                     <div
                         class="flex flex-col justify-center items-start p-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
@@ -111,12 +111,12 @@
                     <div
                         class="flex flex-col justify-center items-start p-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent</span>
-                        <span class="text-yellow text-xs font-bold leading-normal">{{getFormattedDate(site?.most_recent)}}</span>
+                        <span class="text-yellow text-xs font-bold leading-normal">{{site?.most_recent | dateFormat}}</span>
                     </div>
                     <div
                         class="flex flex-col justify-center items-start p-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent clear</span>
-                        <span class="text-yellow text-xs font-bold leading-normal">{{getFormattedDate(site?.most_recent_clear)}}</span>
+                        <span class="text-yellow text-xs font-bold leading-normal">{{site?.most_recent_clear | dateFormat}}</span>
                     </div>
                      @if (site) {
                         <div

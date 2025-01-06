@@ -1,5 +1,11 @@
 @if (data.type === 'marker' || data.type === 'polygon') {
    <div class="flex p-[15px] flex-col items-start gap-[15px] rounded-[5px] bg-primaryBg z-40">
+    <!-- <div class="flex justify-between w-full items-center">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Copy Data</span>
+      <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyData(data?.markerData)">
+        <img src="/assets/svg-icons/copy-icon.svg" alt="" />
+    </span>  
+    </div> -->
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
@@ -86,21 +92,21 @@
         
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex items-center gap-[5px] self-stretch">
-                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
-                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{formatDate(data?.markerData?.oldest_date)}}</span>
+                    <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
                 </div>
-                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Newest</span>
-                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{formatDate(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
+                    <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}</span>
                 </div>
-                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Total</span>
-                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.total_count}}</span>
+                    <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.total_count}}</span>
                 </div>
-                <div class="flex h-[60px] min-w-[61.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Avg</span>
-                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day?.toFixed(3)}}</span>
+                    <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day?.toFixed(3)}}</span>
                 </div>
             </div>
             <div class="p-[3px] flex justify-between items-center self-stretch rounded-[50px] bg-secondaryBg">
@@ -147,15 +153,37 @@
             </div>
         </div>
     </div>
+
+
+    <div class="flex flex-col items-start gap-[5px] self-stretch">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendors</span>
+      
+      <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
+          <div class="flex items-center gap-[5px] self-stretch">
+            @for (vendor of getVendors(data?.markerData?.vendor_count || {}); track vendor;let index = $index) {
+              <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                  <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px] capitalize">{{vendor}}</span>
+                  <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+              </div>
+            }
+          </div>
+      </div>
+  </div>
     
       
    </div>
   } @else if (data.type === 'vendor') {
     <div class="flex p-[15px] relative flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40">
+      <div class="flex justify-between w-full items-center">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Copy Data</span>
+        <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyData(data?.vendorData)">
+          <img src="/assets/svg-icons/copy-icon.svg" alt="" />
+      </span>  
+      </div>
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime)}}</span>
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.acquisition_datetime | dateTimeFormat}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/calender-icon.svg" alt="" />
             </span>          

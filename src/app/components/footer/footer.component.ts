@@ -7,10 +7,11 @@ import { DatepickerDailogComponent } from '../../dailogs/datepicker-dailog/datep
 import dayjs from 'dayjs';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
+import { DateFormatPipe, TimeFormatPipe } from '../../pipes/date-format.pipe';
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule,MatSliderModule,FormsModule],
+  imports: [CommonModule,MatSliderModule,FormsModule,DateFormatPipe,TimeFormatPipe],
   exportAs: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'

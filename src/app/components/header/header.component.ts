@@ -60,22 +60,28 @@ export class HeaderComponent implements OnInit,OnChanges {
     this.initializeAutocomplete();
   }
 
-  onToggleDrawer(type: string) {
-    
-    this.isDrawerOpen = !this.isDrawerOpen;
-   
-    if(this.isDrawerOpen){
-      this.toggleType = type;
-    } else {
-      this.toggleType =''
-    }
-    
+ onToggleDrawer(type: string): void {
+  // If the drawer is already open and the same type is clicked, do nothing
+  
+  if(this.toggleType !== type){
+    this.toggleType = type;
+    this.isDrawerOpen = true;
+    this.toggleEvent.emit(this.toggleType);
     if (this.toggleDrawer) {
       this.toggleDrawer();
-      this.toggleEvent.emit(this.toggleType);
-     
+    }
+  } else {
+    this.toggleType = ''
+    this.toggleEvent.emit(this.toggleType);
+    if (this.toggleDrawer) {
+      this.toggleDrawer();
     }
   }
+
+  // Update the type and ensure the drawer remains open
+ 
+}
+
 
   private initializeAutocomplete() {
     console.log('rrrrrrrrrrrrrr');
