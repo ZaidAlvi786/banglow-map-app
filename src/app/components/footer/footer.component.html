@@ -34,12 +34,12 @@
     <div class="w-fit gap-[10px] items-center px-[10px] flex border-r border-custom-border h-full cursor-pointer" (click)="openDateDailog()">
       <div class="flex gap-[10px] min-w-[260px] text-secondaryText text-xs font-bold"  *ngIf="startDate && endDate">
         <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
-          <span>{{startDate}}</span>
+          <span>{{startDate | dateFormat}}</span>
           <span class="text-secondary-heiglight">{{startTime}}</span>
         </div>
         -
         <div class="flex gap-[5px] items-center text-secondaryText text-xs font-bold">
-          <span>{{endDate}}</span>
+          <span>{{endDate | dateFormat}}</span>
           <span class="text-secondary-heiglight">{{endTime}}</span>
         </div>
       </div>

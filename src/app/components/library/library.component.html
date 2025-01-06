@@ -118,7 +118,7 @@
                     Oldest
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{getFormattedDate(analyticsData?.oldest_date)}}
+                    {{analyticsData?.oldest_date | dateFormat}}
                 </span>
             </div>
             <div
@@ -127,7 +127,7 @@
                     Newest
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{getFormattedDate(analyticsData?.newest_info?.acquisition_datetime)}}
+                    {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
                 </span>
             </div>
             <div
@@ -154,7 +154,7 @@
                     Most recent
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
-                    {{getFormattedDate(analyticsData?.newest_info?.acquisition_datetime)}}
+                    {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
                 </span>
             </div>
             <div
@@ -163,7 +163,7 @@
                     Most recent clear
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
-                    {{getFormattedDate(analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime)}}
+                    {{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | dateFormat}}
                 </span>
             </div>
         </div>
@@ -201,7 +201,7 @@
                 <button (click)="selectPreviewMethod('table')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                     [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image library
-                    {{dataSource?.data?.length}}</button>
+                    {{total_count}}</button>
                 <button (click)="selectPreviewMethod('browse')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                     [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse</button>
@@ -272,19 +272,19 @@
                 <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
                 </div>
-                <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
+                <table id="library-table" mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg" [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
                 <ng-container matColumnDef="selectDate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[245px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[185px] p-[10px] text-secondaryText font-semibold">
                         <mat-checkbox class="cursor-default" [aria-label]="'Select All'">
                         </mat-checkbox>
                         Date
                     </th>
-                    <td mat-cell *matCellDef="let row" class="w-[202px] p-[10px] flex items-center"
+                    <td mat-cell *matCellDef="let row" class="w-[185px] p-[10px] flex items-center"
                     
                     >
                         <mat-checkbox (click)="$event.stopPropagation()"
-                        (change)="onCheckboxChange(row)" [checked]="selectedRow === row"
+                        (change)="expandedData(row)" [checked]="isRowSelected(row.id)"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
                         <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row?.acquisition_datetime)}}</span>
@@ -292,23 +292,23 @@
                 </ng-container>
 
                 <ng-container matColumnDef="Sensor">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[100px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Sensor</th>
-                    <td mat-cell *matCellDef="let row" class="w-[100px] p-[10px] text-secondaryText">{{ row?.sensor }}
+                    <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.sensor }}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="Vendor">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[100px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Vendor</th>
-                    <td mat-cell *matCellDef="let row" class="w-[100px] p-[10px] text-secondaryText">{{ row?.vendor_name }}
+                    <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.vendor_name }}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="Cover">
-                    <th mat-header-cell *matHeaderCellDef class="w-[60px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef class="w-[70px] p-[10px] text-secondaryText font-semibold">
                         Cover</th>
-                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
+                    <td mat-cell *matCellDef="let row" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="Resolution">
@@ -319,18 +319,19 @@
                 </ng-container>
 
                 <ng-container matColumnDef="type">
-                    <th mat-header-cell *matHeaderCellDef class="w-[60px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef class="w-[80px] p-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="w-[60px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime) }}</td>
+                    <td mat-cell *matCellDef="let row" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime) }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="Id">
-                    <th mat-header-cell *matHeaderCellDef class="w-[100px] p-[10px] text-secondaryText font-semibold">ID
+                    <th mat-header-cell *matHeaderCellDef class="w-[165px] p-[10px] text-secondaryText font-semibold">ID
                     </th>
-                    <td mat-cell *matCellDef="let row" class="w-[150px] p-[10px] text-secondaryText">
+                    <td mat-cell *matCellDef="let row" class="w-[165px] p-[10px] text-secondaryText">
                         <div class="flex">
                             <span class="w-[100px] truncate">{{ row?.vendor_id }}</span>
                             <span (click)="$event.stopPropagation();expandedData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
+                            <span class="w-[16px] h-[16px] ml-[5px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></span>
                         </div>
                     </td>
                 </ng-container>
@@ -400,11 +401,13 @@
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-                    class="hover:bg-secondaryHighlight cursor-pointer"
-                    (click)="expandedElement = expandedElement === row ? null : row;"
-                    (mouseover)="onRowHover(row)"
-                    (mouseout)="onRowHover(null)">
+                <tr mat-row *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex" 
+                class="hover:bg-secondaryHighlight cursor-pointer"
+                [ngClass]="zoomed_captures_count > 0 && (i+1) == zoomed_captures_count  ? 'border-b-2 border-b-solid border-b-white':''"
+                (click)="expandedElement = expandedElement === row ? null : row;"
+                (mouseover)="onRowHover(row)"
+                (mouseout)="onRowHover(null)"
+               >
                 </tr>
 
                 <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
