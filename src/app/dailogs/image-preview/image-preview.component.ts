@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -9,11 +10,12 @@ import {
 } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import dayjs from "dayjs";
+import { DateFormatPipe, TimeFormatPipe } from "../../pipes/date-format.pipe";
 
 @Component({
   selector: "app-image-preview",
   standalone: true,
-  imports: [],
+  imports: [CommonModule,DateFormatPipe,TimeFormatPipe],
   templateUrl: "./image-preview.component.html",
   styleUrl: "./image-preview.component.scss",
 })

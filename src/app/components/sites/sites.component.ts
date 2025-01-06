@@ -11,11 +11,22 @@ import dayjs from 'dayjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { NgxUiLoaderModule, NgxUiLoaderService } from 'ngx-ui-loader';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
 
 @Component({
   selector: 'app-sites',
   standalone: true,
-  imports: [MatInputModule, NgApexchartsModule, MatMenuModule, CommonModule, MatInputModule, MatFormFieldModule, ReactiveFormsModule, FormsModule, NgxUiLoaderModule],
+  imports: [MatInputModule,
+    NgApexchartsModule, 
+    MatMenuModule, 
+    CommonModule, 
+    MatInputModule, 
+    MatFormFieldModule, 
+    ReactiveFormsModule, 
+    FormsModule, 
+    NgxUiLoaderModule,
+    DateFormatPipe
+  ],
   templateUrl: './sites.component.html',
   styleUrl: './sites.component.scss'
 })
@@ -140,8 +151,8 @@ export class SitesComponent implements OnInit, AfterViewInit {
         this.loader = false
         this.ngxLoader.stop();
         const colorRanges = this.generateUniqueColorRanges(this.sitesData);
-        console.log(colorRanges,'colorRangescolorRangescolorRangescolorRanges');
-        
+        console.log(colorRanges, 'colorRangescolorRangescolorRangescolorRanges');
+
         this.options = {
           chart: {
             height: 105,
@@ -159,11 +170,11 @@ export class SitesComponent implements OnInit, AfterViewInit {
               columnWidth: '21px',
               rowHeight: '21px',
               colorScale: {
-                ranges:colorRanges.map(range =>({
+                ranges: colorRanges.map(range => ({
                   from: range.from,
-                to: range.to,
-                name: '',
-                color: range.color,
+                  to: range.to,
+                  name: '',
+                  color: range.color,
                 }))
               }
             },
@@ -242,8 +253,8 @@ export class SitesComponent implements OnInit, AfterViewInit {
   //Site update functionality
   updateSite(type: any, site: any) {
     let payload: any
-    console.log(site,'updateupdateupdateupdateupdate');
-    
+    console.log(site, 'updateupdateupdateupdateupdate');
+
     if (type == 'rename') {
       payload = {
         site_id: site.id,
@@ -315,24 +326,24 @@ export class SitesComponent implements OnInit, AfterViewInit {
   //On scroll site data getting
   private handleWheelEvent = (event: WheelEvent): void => {
     const div = this.scrollableDiv.nativeElement;
-    
+
     // Detect if at the bottom
     const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight;
-    console.log(isAtBottom,'qqqqqqqqqqqqqqqqqqqqqqqqqqq');
-    
+    console.log(isAtBottom, 'qqqqqqqqqqqqqqqqqqqqqqqqqqq');
+
     // Only trigger if at the bottom and trying to scroll down
     if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
       console.log('sssssssssssssssssssss');
-      
+
       if (!this.isAtBottom) {
         this.isAtBottom = true; // Lock the event trigger
         //  this.customAction('Scroll beyond bottom');
-       
-        
+
+
         this.per_page = this.per_page + 12;
         this.per_page > this.total_count ? this.per_page = this.total_count : this.per_page
-        console.log(this.per_page,'per_pageper_pageper_pageper_pageper_page');
-        
+        console.log(this.per_page, 'per_pageper_pageper_pageper_pageper_page');
+
         if (this.per_page <= this.total_count) {
 
 
@@ -369,19 +380,19 @@ export class SitesComponent implements OnInit, AfterViewInit {
   // Dynamically generate colors using HSL
   generateColor(): string {
     let color: string;
-  
+
     // Keep generating random colors until a new one is found
     do {
       const hue = Math.floor(Math.random() * 360); // Random hue between 0 and 360
       const saturation = 70; // Vibrant colors (can be adjusted)
       const lightness = 50; // Balanced brightness (can be adjusted)
-      
+
       color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     } while (this.usedColors.has(color)); // Keep generating until a unique color is found
-  
+
     // Store the new color to avoid using it again
     this.usedColors.add(color);
-  
+
     return color;
   }
 

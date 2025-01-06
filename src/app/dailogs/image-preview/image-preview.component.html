@@ -16,8 +16,8 @@
                 </div>
                 
                 <div class="flex gap-[15px]">
-                    <span class="text-secondaryText font-medium leading-[18px]">{{getFormattedDate(data?.images?.data[currentIndex]?.acquisition_datetime) || '10/13/2024'}}</span>
-                    <span class=" text-secondaryText font-medium leading-[18px]">{{formatUtcTime(data?.images?.data[currentIndex]?.acquisition_datetime) || '19.37.15 UTC'}}</span>
+                    <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.data[currentIndex]?.acquisition_datetime | dateFormat}}</span>
+                    <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.acquisition_datetime | timeFormat}}</span>
                 </div>
             </div>
             <div>

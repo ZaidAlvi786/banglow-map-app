@@ -16,6 +16,7 @@ import { GroupsListComponent } from '../../common/groups-list/groups-list.compon
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import moment from 'moment';
+import { DateFormatPipe, DateTimeFormatPipe } from '../../pipes/date-format.pipe';
 
 export class Group {
   name?: string;
@@ -37,7 +38,9 @@ export class Group {
     MatCheckboxModule,
     MatListModule,
     MatIconModule,
-    GroupsListComponent
+    GroupsListComponent,
+    DateFormatPipe,
+    DateTimeFormatPipe
   ],
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']
@@ -270,6 +273,8 @@ export class MapControllersPopupComponent implements OnInit {
   }
 
   copyToClipboard(data: any): void {
+    console.log(data,'datadatadatadatadatadatadatadatadata');
+    
     if (data) {
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
@@ -286,6 +291,7 @@ export class MapControllersPopupComponent implements OnInit {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
     }
+    
   }
 
   getDateTimeFormat(dateTime: string) {
@@ -357,17 +363,56 @@ getDayOfWeek(date: Date): string {
 //Getting time in Day sessions
 getTimePeriod(datetime: string): string {
   const date = new Date(datetime); // Parse the ISO string to a Date object
-  const hours = date.getHours(); // Get the hour (0-23)
-
-  if (hours >= 5 && hours < 11) {
-    return "Morning";
-  } else if (hours >= 11 && hours < 16) {
-    return "Midday";
-  } else if (hours >= 16 && hours < 21) {
-    return "Evening";
-  } else {
-    return "Overnight";
-  }
+    const hours = date.getHours(); // Get the hour (0-23)
+  
+    if (hours >= 5 && hours < 11) {
+      return "Morning";
+    } else if (hours >= 11 && hours < 16) {
+      return "Midday";
+    } else if (hours >= 16 && hours < 21) {
+      return "Evening";
+    } else {
+      return "Overnight";
+    }
 }
+
+//Copy thumbnail data to clipboard
+copyData(data: any) {
+  const { acquisition_datetime,sensor, vendor_name, vendor_id, centroid } = data;
+  if (!centroid || !Array.isArray(centroid)) {
+    this.snackBar.open('Invalid data format!', 'Ok', { duration: 2000 });
+    return;
+  }
+
+  const result = `${acquisition_datetime},${sensor},${vendor_name},${vendor_id},${centroid.join(",")}`;
+
+  const tempTextArea = document.createElement('textarea');
+  tempTextArea.value = result;
+  tempTextArea.style.position = 'fixed'; // Avoid scrolling to view the element
+  tempTextArea.style.opacity = '0';     // Make it invisible
+  document.body.appendChild(tempTextArea);
+
+  tempTextArea.select();
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+    
+      this.snackBar.open('Copied successfully!', 'Ok', { duration: 2000 });
+    } else {
+     
+      this.snackBar.open('Failed to copy text.', 'Retry', { duration: 2000 });
+    }
+  } catch (err) {
+   
+    this.snackBar.open('Failed to copy text.', 'Retry', { duration: 2000 });
+  }
+
+  document.body.removeChild(tempTextArea);
+}
+
+getVendors(vendorCount) {
+    return Object.keys(vendorCount) || [];
+}
+
 
 }
