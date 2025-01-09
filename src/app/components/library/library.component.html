@@ -1,4 +1,6 @@
 <div class="flex h-full flex-col gap-3 z-[1000000000]">
+    <div class="flex">
+        <div class="flex flex-col gap-3 !w-[820px]">
     <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
         <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
         <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeLibraryDrawer()">
@@ -476,7 +478,13 @@
               </div>
         } -->
     </div>
-   
+</div>
+    @if (isEventsOpened && calendarApiData) {
+        <div class="z-[1000000] text-secondaryText " >
+          <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate" [calendarApiData]="calendarApiData"></app-map-calendar>
+        </div>
+      }
+   </div>
 </div>
 
 <!-- (mouseover)="imageHoverView(row)"  -->

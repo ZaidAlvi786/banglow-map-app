@@ -64,6 +64,8 @@ export class HeaderComponent implements OnInit,OnChanges {
   // If the drawer is already open and the same type is clicked, do nothing
   
   if(this.toggleType !== type){
+    console.log('typetypetypetypetypetypetype: ' , type);
+    
     this.toggleType = type;
     this.isDrawerOpen = true;
     this.toggleEvent.emit(this.toggleType);

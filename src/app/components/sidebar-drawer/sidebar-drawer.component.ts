@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from "@angular/core";
 import { LibraryComponent } from "../library/library.component";
 import { SitesComponent } from "../sites/sites.component";
+import { GroupsComponent } from "../groups/groups.component";
 
 @Component({
   selector: "app-sidebar-drawer",
   standalone: true,
-  imports: [LibraryComponent,SitesComponent],
+  imports: [LibraryComponent,SitesComponent,GroupsComponent],
   templateUrl: "./sidebar-drawer.component.html",
   styleUrl: "./sidebar-drawer.component.scss",
 })
@@ -45,6 +46,8 @@ export class SidebarDrawerComponent implements OnInit {
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   // @Input() zoomed_wkt:any ='';
   ngOnInit(): void {
+    console.log(this.type,'qqqqqqqqqqqqqqqqqqqqqqqqqqqq');
+    
     // console.log(this.zoomed_wkt,'polygon_wktpolygon_wkt');
     
   }

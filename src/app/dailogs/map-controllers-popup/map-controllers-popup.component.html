@@ -154,32 +154,28 @@
         </div>
     </div>
 
-
-    <div class="flex flex-col items-start gap-[5px] self-stretch">
-      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendors</span>
-      
-      <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
-          <div class="flex items-center gap-[5px] self-stretch">
-            @for (vendor of getVendors(data?.markerData?.vendor_count || {}); track vendor;let index = $index) {
-              <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
-                  <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px] capitalize">{{vendor}}</span>
-                  <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.vendor_count?.[vendor]}}</span>
-              </div>
-            }
-          </div>
+    @if (getVendors(data?.markerData?.vendor_count || {})?.length) {
+      <div class="flex flex-col items-start gap-[5px] self-stretch">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendors</span>
+        
+        <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
+            <div class="flex items-center gap-[5px] self-stretch">
+              @for (vendor of getVendors(data?.markerData?.vendor_count || {}); track vendor;let index = $index) {
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px] capitalize">{{vendor}}</span>
+                    <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+                </div>
+              }
+            </div>
+        </div>
       </div>
-  </div>
+    }
+
     
       
    </div>
   } @else if (data.type === 'vendor') {
     <div class="flex p-[15px] relative flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40">
-      <div class="flex justify-between w-full items-center">
-        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Copy Data</span>
-        <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyData(data?.vendorData)">
-          <img src="/assets/svg-icons/copy-icon.svg" alt="" />
-      </span>  
-      </div>
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
@@ -255,6 +251,12 @@
             <img src="/assets/svg-icons/poi-icon.svg" alt="" />
         </span>          
     </div>
+  </div>
+  <div class="flex justify-between w-full items-end">
+    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Copy Data</span>
+    <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyData(data?.vendorData)">
+      <img src="/assets/svg-icons/copy-icon.svg" alt="" />
+  </span>  
   </div>
   @if (isHovered) {
     <div 

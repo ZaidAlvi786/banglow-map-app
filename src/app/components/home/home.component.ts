@@ -10,6 +10,7 @@ import {
   OnDestroy,
   Renderer2,
   ChangeDetectorRef,
+  HostListener,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -30,6 +31,7 @@ import { MapControllersPopupComponent } from '../../dailogs/map-controllers-popu
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import dayjs from 'dayjs';
+import { NgxUiLoaderService } from 'ngx-ui-loader';
 (window as any).type = undefined;
 
 
@@ -129,7 +131,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
    private http: HttpClient,
    private sharedService:SharedService,
    private el: ElementRef, private renderer: Renderer2,
-   private cdr: ChangeDetectorRef
+   private cdr: ChangeDetectorRef,
+   private ngxLoader: NgxUiLoaderService
   )
   {
     this.data = null;
@@ -161,11 +164,12 @@ hybridLayer:L.TileLayer = L.tileLayer(
       
         this.satelliteService.getPolygonCalenderDays(payload).subscribe({
           next: (resp) => {
-            
+            this.ngxLoader.stop()
             this.calendarApiData = resp.data;
             this.OpenEventCalendar = state
           },
           error: (err) => {
+            this.ngxLoader.stop()
             console.error('Error fetching calendar data', err);
             // Hide loader on error
            
@@ -362,6 +366,16 @@ hybridLayer:L.TileLayer = L.tileLayer(
          this.layercalculateVisibleWKT();
     
     });
+
+    this.map.on('dragend', () => {
+      console.log('Drag changed:', this.map.getZoom());
+
+      
+        // Get the bounds of the drawn shape
+         // Get the bounds of the drawn shape
+         this.layercalculateVisibleWKT();
+    
+    });
   
     // Re-fit bounds on window resize to maintain visibility of shapes
     // window.addEventListener('resize', () => {
@@ -479,6 +493,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       mapContainer.style.marginLeft = `0px`;
       this.sharedService.setIsOpenedEventCalendar(false);
     }
+    this.onResize()
   }
   closeDrawer(){
     this.drawer._animationState = 'void';
@@ -486,6 +501,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
       const mapContainer = this.mapContainer.nativeElement;
       mapContainer.style.marginLeft = `0px`;
       this.sharedService.setIsOpenedEventCalendar(false);
+      this.onResize()
   }
 
   //map shape drawing function
@@ -1743,6 +1759,11 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
 }
 
-
+@HostListener('window:resize', ['$event'])
+  onResize(): void {
+    if (this.map) {
+      this.map.invalidateSize();
+    }
+  }
 
 }
