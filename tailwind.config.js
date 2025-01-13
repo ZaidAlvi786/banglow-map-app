@@ -16,7 +16,8 @@ module.exports = {
         'secondary-heiglight': '#4A5863',
         'custom-green': '#22F57A',
         'main-highlight': '#453303',
-        'custom-red': '#F52222'
+        'custom-red': '#F52222',
+        'table-header': '#1D2428'
       },
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],

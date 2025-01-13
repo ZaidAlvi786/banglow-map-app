@@ -51,7 +51,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   @ViewChild('startDateInput') startDateInput!: ElementRef<HTMLInputElement>;
   ngOnInit(): void {
     console.log(this.maxDate,'sssssssssssssssss');
-    this.maxDate = this.maxDate.format(('YYYY.MM.DD HH:mm [UTC]'))
+    this.maxDate = this.maxDate.format(('YYYY-MM-DD HH:mm [UTC]'))
     if (this.data.startDate && this.data.endDate) {
       this.startDate = this.data.startDate;
       this.endDate = this.data.endDate;
@@ -67,11 +67,11 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
     @Inject(MAT_DIALOG_DATA) public data: any) {
       this.dateRangeForm = this.fb.group({
         startDate: [
-          this.startDate.format('YYYY.MM.DD HH:mm [UTC]'),
+          this.startDate.format('YYYY-MM-DD HH:mm [UTC]'),
           [Validators.required, this.validateDate.bind(this), this.validateNotFutureDate.bind(this)],
         ],
         endDate: [
-          this.endDate.format('YYYY.MM.DD HH:mm [UTC]'),
+          this.endDate.format('YYYY-MM-DD HH:mm [UTC]'),
           [Validators.required, this.validateDate.bind(this), this.validateNotFutureDate.bind(this), this.validateEndAfterStart.bind(this)],
         ],
       });
@@ -91,8 +91,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   
       // Get the current UTC time in HH:mm UTC format
       //  this.currentUtcTime = dayjs().utc().format('HH:mm [UTC]');
-      console.log('Start Date in UTC:', this.startDate.format('MM.DD.YYYY HH:mm [UTC]'));
-      console.log('End Date in UTC:', this.endDate.format('MM.DD.YYYY HH:mm [UTC]'));
+      console.log('Start Date in UTC:', this.startDate.format('YYYY-MM-DD HH:mm [UTC]'));
+      console.log('End Date in UTC:', this.endDate.format('YYYY-MM-DD HH:mm [UTC]'));
       console.log('Current UTC Time:', this.currentUtcTime);
   
       // Optional: Automatically apply the date range
@@ -101,7 +101,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   }
 
   autoApplyDateRange() {
-    console.log('Auto Applying Date Range with Time:', this.startDate.format('YYYY.MM.DD'), this.endDate.format('YYYY.MM.DD'));
+    console.log('Auto Applying Date Range with Time:', this.startDate.format('YYYY-MM-DD'), this.endDate.format('YYYY-MM-DD'));
    
   }
   // Helper method to format the date as MM.DD.YYYY
@@ -201,8 +201,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
    // Method to update the form values from the startDate and endDate
    updateFormValues() {
     this.dateRangeForm.patchValue({
-      startDate: this.startDate.format('YYYY.MM.DD HH:mm [UTC]'),
-      endDate: this.endDate.format('YYYY.MM.DD HH:mm [UTC]')
+      startDate: this.startDate.format('YYYY-MM-DD HH:mm [UTC]'),
+      endDate: this.endDate.format('YYYY-MM-DD HH:mm [UTC]')
     });
   }
  // Helper method to get controls safely
@@ -226,8 +226,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
   // Custom validation: Validate if the end date is greater than or equal to the start date
   validateEndAfterStart(control: FormControl) {
-    const endDate = dayjs(control?.value, 'YYYY.MM.DD HH:mm [UTC]', true).utc();
-    const startDate = dayjs(this.dateRangeForm?.get('startDate')?.value, 'YYYY.MM.DD HH:mm [UTC]', true).utc();
+    const endDate = dayjs(control?.value, 'YYYY-MM-DD HH:mm [UTC]', true).utc();
+    const startDate = dayjs(this.dateRangeForm?.get('startDate')?.value, 'YYYY-MM-DD HH:mm [UTC]', true).utc();
   
     if (startDate.isValid() && endDate.isValid() && endDate.isBefore(startDate)) {
       return { endBeforeStart: true };
@@ -237,7 +237,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
   // Custom validation: Validate the date format
   validateDate(control: FormControl) {
-    const isValid = dayjs(control.value, 'YYYY.MM.DD HH:mm [UTC]', true).isValid();
+    const isValid = dayjs(control.value, 'YYYY-MM-DD HH:mm [UTC]', true).isValid();
     if (!isValid) {
       return { invalidDateFormat: true };
     }
@@ -251,7 +251,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   const inputValue = inputElement.value;
 
   // Parse the entered value
-  const parsedDate = dayjs(inputValue, 'YYYY.MM.DD HH:mm [UTC]', true);
+  const parsedDate = dayjs(inputValue, 'YYYY-MM-DD HH:mm [UTC]', true);
 
   // Temporarily update the form control value to reflect user input
   if (field === 'startDate') {
@@ -275,13 +275,13 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
   // Additional validation for startDate ≤ endDate
   if (field === 'startDate') {
-    const endDate = dayjs(this.dateRangeForm.get('endDate')?.value, 'YYYY.MM.DD HH:mm [UTC]', true);
+    const endDate = dayjs(this.dateRangeForm.get('endDate')?.value, 'YYYY-MM-DD HH:mm [UTC]', true);
     if (endDate.isValid() && parsedDate.isAfter(endDate)) {
       this.dateRangeForm.get(field)?.setErrors({ startAfterEnd: true });
       return;
     }
   } else if (field === 'endDate') {
-    const startDate = dayjs(this.dateRangeForm.get('startDate')?.value, 'YYYY.MM.DD HH:mm [UTC]', true);
+    const startDate = dayjs(this.dateRangeForm.get('startDate')?.value, 'YYYY-MM-DD HH:mm [UTC]', true);
     if (startDate.isValid() && parsedDate.isBefore(startDate)) {
       this.dateRangeForm.get(field)?.setErrors({ endBeforeStart: true });
       return;
@@ -295,14 +295,14 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 onInputBlur(field: 'startDate' | 'endDate') {
   const control = this.dateRangeForm.get(field);
   const inputValue = control?.value;
-  const parsedDate = dayjs(inputValue, 'YYYY.MM.DD HH:mm [UTC]', true);
+  const parsedDate = dayjs(inputValue, 'YYYY-MM-DD HH:mm [UTC]', true);
 
   if (!parsedDate.isValid()) {
     // Reset to the last valid value if the date is invalid
     if (field === 'startDate') {
-      control?.setValue(this.startDate.format('YYYY.MM.DD HH:mm [UTC]'), { emitEvent: false });
+      control?.setValue(this.startDate.format('YYYY-MM-DD HH:mm [UTC]'), { emitEvent: false });
     } else if (field === 'endDate') {
-      control?.setValue(this.endDate.format('YYYY.MM.DD HH:mm [UTC]'), { emitEvent: false });
+      control?.setValue(this.endDate.format('YYYY-MM-DD HH:mm [UTC]'), { emitEvent: false });
     }
     return;
   }
@@ -310,26 +310,26 @@ onInputBlur(field: 'startDate' | 'endDate') {
   // Check for future dates
   if (parsedDate.isAfter(this.maxDate)) {
     if (field === 'startDate') {
-      control?.setValue(this.startDate.format('YYYY.MM.DD HH:mm [UTC]'), { emitEvent: false });
+      control?.setValue(this.startDate.format('YYYY-MM-DD HH:mm [UTC]'), { emitEvent: false });
     } else if (field === 'endDate') {
-      control?.setValue(this.endDate.format('YYYY.MM.DD HH:mm [UTC]'), { emitEvent: false });
+      control?.setValue(this.endDate.format('YYYY-MM-DD HH:mm [UTC]'), { emitEvent: false });
     }
     return;
   }
 
   // Validate startDate ≤ endDate
   if (field === 'startDate') {
-    const endDate = dayjs(this.dateRangeForm.get('endDate')?.value, 'YYYY.MM.DD HH:mm [UTC]', true);
+    const endDate = dayjs(this.dateRangeForm.get('endDate')?.value, 'YYYY-MM-DD HH:mm [UTC]', true);
     if (endDate.isValid() && parsedDate.isAfter(endDate)) {
-      control?.setValue(this.startDate.format('YYYY.MM.DD HH:mm [UTC]'), { emitEvent: false });
+      control?.setValue(this.startDate.format('YYYY-MM-DD HH:mm [UTC]'), { emitEvent: false });
       return;
     }
     // Update the valid startDate
     this.startDate = parsedDate.utc();
   } else if (field === 'endDate') {
-    const startDate = dayjs(this.dateRangeForm.get('startDate')?.value, 'YYYY.MM.DD HH:mm [UTC]', true);
+    const startDate = dayjs(this.dateRangeForm.get('startDate')?.value, 'YYYY-MM-DD HH:mm [UTC]', true);
     if (startDate.isValid() && parsedDate.isBefore(startDate)) {
-      control?.setValue(this.endDate.format('YYYY.MM.DD HH:mm [UTC]'), { emitEvent: false });
+      control?.setValue(this.endDate.format('YYYY-MM-DD HH:mm [UTC]'), { emitEvent: false });
       return;
     }
     // Update the valid endDate

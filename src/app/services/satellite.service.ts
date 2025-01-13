@@ -57,4 +57,15 @@ export class SatelliteService extends BaseService {
       data
     );
   }
+
+  getParentGroups(): Observable<any> {
+    return this.get(createUrl("/get-parent-groups-with-details"),{
+      
+    });
+  }
+  getNestedGroup(data: {group_id:any}): Observable<any> {
+    return this.get(createUrl("/get-nested-group-and-sites-by-group-id"),{
+      params:data
+    });
+  }
 }
