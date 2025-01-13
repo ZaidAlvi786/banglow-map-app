@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { GroupsListComponent } from '../../common/groups-list/groups-list.component';
 import { SatelliteService } from '../../services/satellite.service';
 import { MatInputModule } from '@angular/material/input';
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { MatMenuModule } from '@angular/material/menu';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { CommonDailogsComponent } from '../../dailogs/common-dailogs/common-dailogs.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 // export class Group {
 //   name?: string;
@@ -26,9 +30,12 @@ export class GroupsComponent implements OnInit {
   @Output() closeDrawer = new EventEmitter<boolean>();
   searchInput = new Subject<string>();
   activeIndex:number  = null;
-  nestedGroupsData:any = []
+  nestedGroupsData:any = [];
+  private _snackBar = inject(MatSnackBar);
   constructor(
     private satelliteService:SatelliteService,
+    private overlayContainer: OverlayContainer,
+    private dialog: MatDialog
   ){
     //  this.searchInput.pipe(
     //       debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -119,5 +126,74 @@ export class GroupsComponent implements OnInit {
       this.activeIndex = null
     }
    
+  }
+
+  setClass(){
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.add('custom-cdk-overlay-container');  
+  }
+
+  //Add group functionality
+
+  addGroup(type: string,group: any) {
+    let data 
+    if(type == 'addGroup'){
+      data = {type: type}
+    } else {
+      data = {type: type, parent: group.id}
+    }
+   
+   console.log(group,'sssssssssssssssssss');
+   
+   this.openDialog(data)
+  }
+
+  renameGroup(type:any,group:any){
+    const data = {type:type, group:group}
+    this.openDialog(data)
+  }
+
+  deleteGroup(type:any,group:any){
+    const data = {type:type, group:group}
+    this.openDialog(data)
+  }
+
+  openDialog(data:any){
+    const dialogRef = this.dialog.open(CommonDailogsComponent, {
+        width: '350px',
+        height: 'auto',
+        data: data,
+        panelClass: 'custom-dialog-class',
+      });
+      dialogRef.afterClosed().subscribe((result) => {
+        console.log('Dialog closed', result);
+        // this.getUpdateGroup(result)
+        this.getGroups();
+
+        this._snackBar.open('Group updated successfully.', 'Ok', {
+          duration: 2000  // Snackbar will disappear after 300 milliseconds
+        });
+      });
+  }
+
+  setNotifications(status:boolean,group:any){
+    const payload = {
+      group_id: group.id,
+      name: group?.name,
+      notification: status,
+    }
+    this.satelliteService.updateGroup(payload).subscribe({
+      next: (resp) =>{
+        // this.getUpdateGroup(resp)
+        this.getGroups()
+      }
+    })
+  }
+
+  getUpdateGroup(data) {
+    const index = this.groups.findIndex(x => x.id == data.id);
+    if (index>-1) {
+      this.groups[index] = data;
+    }
   }
 }

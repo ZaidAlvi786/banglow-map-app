@@ -1,19 +1,4 @@
 ::ng-deep{
-    .mat-mdc-menu-panel{
-        background-color: #20272D !important;
-        width: 350px !important;
-        max-width: 350px !important;
-        box-shadow: 5px 5px 5px 0px #0000001A !important;
-    }
-    .cdk-overlay-connected-position-bounding-box{
-        top: 185px !important;
-        left: 235px !important;
-        width: 350px !important;
-
-    }
-    .cdk-overlay-pane{
-        width: 100%;
-    }
     .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background{
         background-color: #FCCA40 !important;
         border-color: #FCCA40 !important;
@@ -93,4 +78,22 @@
         font-weight: 700 !important;
         font-size: 12px !important;
       }
+}
+
+::ng-deep .popup-overlay-container{
+  .mat-mdc-menu-panel{
+    background-color: #20272D !important;
+    width: 350px !important;
+    max-width: 350px !important;
+    box-shadow: 5px 5px 5px 0px #0000001A !important;
+}
+.cdk-overlay-connected-position-bounding-box{
+    top: 185px !important;
+    left: 235px !important;
+    width: 350px !important;
+
+}
+.cdk-overlay-pane{
+    width: 100%;
+}
 }

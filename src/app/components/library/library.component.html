@@ -21,7 +21,7 @@
                 <span class="text-sm font-medium leading-[18px] text-secondaryText">{{name}}</span>
                 <button mat-button
                     class="cursor-pointer hover:!bg-secondaryBg !h-[18px] !text-yellow font-semibold text-xs leading-[18px]"
-                    [matMenuTriggerFor]="menu">Save</button>
+                    [matMenuTriggerFor]="menu" (click)="setClass()">Save</button>
             </div>
             <mat-menu class="bg-primaryBg" #menu="matMenu" id="library">
                 <div class="p-[15px] flex flex-col gap-[10px]">
@@ -47,7 +47,7 @@
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
             @if(selectedGroup == null){
                 <div class="flex relative items-center gap-[15px] self-stretch w-full">
-                  <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups()"
+                  <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
                   [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
                   <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
                     <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()" >

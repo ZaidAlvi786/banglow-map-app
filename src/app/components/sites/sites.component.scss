@@ -33,10 +33,7 @@
     }
   }
   ::ng-deep {
-    .mat-mdc-menu-panel {
-      background-color: #20272d !important;
-      box-shadow: 5px 5px 5px 0px #0000001a !important;
-    }
+    
     
     .mdc-label {
       color: #abb7c0 !important;
@@ -76,10 +73,6 @@
     
   }
 
-  ::ng-deep .mat-mdc-menu-panel {
-      max-width: 350px !important;
-    }
-
     #loader ::ng-deep{
       .ngx-overlay{
         height: 100% !important;
@@ -90,5 +83,15 @@
       }
       .ngx-foreground-spinner{
         position: relative !important;
+      }
+    }
+
+    ::ng-deep .sites-overlay-container{
+      .mat-mdc-menu-panel {
+        max-width: 350px !important;
+      }
+      .mat-mdc-menu-panel {
+        background-color: #20272d !important;
+        box-shadow: 5px 5px 5px 0px #0000001a !important;
       }
     }

@@ -68,4 +68,11 @@ export class SatelliteService extends BaseService {
       params:data
     });
   }
+
+  addGroup(data:any): Observable<any> {
+    return this.post(createUrl("/add-group"),data)
+  }
+  updateGroup(data:any): Observable<any> {
+    return this.put(createUrl("/update-group"),data)
+  }
 }
