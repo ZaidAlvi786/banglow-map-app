@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import {MatSelectModule} from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import {MatSliderModule} from '@angular/material/slider';
@@ -16,7 +16,7 @@ import { DateFormatPipe, TimeFormatPipe } from '../../pipes/date-format.pipe';
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'
 })
-export class FooterComponent {
+export class FooterComponent implements OnInit {
   options = [
     { label: 'Box', value: 'Box', image: 'assets/svg-icons/rectangle-icon.svg' },
     { label: 'Polygon', value: 'Polygon', image: 'assets/svg-icons/polygon-icon.svg' },
@@ -48,14 +48,23 @@ export class FooterComponent {
   // EventEmitter to send the close event to the parent
   constructor(private dialog: MatDialog){
      const now = dayjs().utc();
-    this.startDate = now.subtract(1, 'day').startOf('day').format('MM.DD.YYYY'); 
+    this.startDate = now.subtract(1, 'day').startOf('day').format('YYYY-MM-DD'); 
     // End of the previous day
-    this.endDate = now.subtract(1, 'day').endOf('day').format('MM.DD.YYYY') ; 
+    this.endDate = now.subtract(1, 'day').endOf('day').format('YYYY-MM-DD') ; 
     this.endTime = now.subtract(1, 'day').endOf('day').format('HH:mm:ss');
     this.startTime = now.subtract(1, 'day').startOf('day').format('HH:mm:ss ');
   }
 
-
+ngOnInit(): void {
+  const now = dayjs().utc();
+  this.startDate = now.subtract(1, 'day').startOf('day').format('YYYY-MM-DD'); 
+  // End of the previous day
+  this.endDate = now.subtract(1, 'day').endOf('day').format('YYYY-MM-DD') ; 
+  this.endTime = now.subtract(1, 'day').endOf('day').format('HH:mm:ss');
+  this.startTime = now.subtract(1, 'day').startOf('day').format('HH:mm:ss ');
+  console.log(this.startDate,'startTimestartTimestartTime');
+  
+}
 
   toggleDropdown() {
     
@@ -75,19 +84,29 @@ export class FooterComponent {
   openDateDailog() {
     if(this.isDropdownOpen) this.isDropdownOpen = false;
     if(this.showLayers) this.showLayers = false;
+    console.log(this.startDate,'combinedDateTimeStringcombinedDateTimeStringcombinedDateTimeString',this.startTime );
+    const now = dayjs().utc();
+   
     const combinedDateTimeString = this.startDate && this.startTime 
     ? `${this.startDate} ${this.startTime}` 
     : null;
-    const startDate = combinedDateTimeString 
-    ? dayjs(combinedDateTimeString, 'MM.DD.YYYY HH:mm:ss') 
+    let startDate = combinedDateTimeString 
+    ? dayjs(combinedDateTimeString, 'YYYY-MM-DD HH:mm:ss') 
     : null;
+    console.log(startDate.isValid(),'combinedDateTimeStringcombinedDateTimeStringcombinedDateTimeString');
+    
+    if(startDate.isValid()){
+      startDate = startDate
+    } else {
+      startDate = now.subtract(1, 'day').startOf('day');
+    }
 
 // Combine and conditionally set endDate
     const combinedDateTimeEnding = this.endDate && this.endTime 
     ? `${this.endDate} ${this.endTime}` 
     : null;
     const endDate = combinedDateTimeEnding 
-    ? dayjs(combinedDateTimeEnding, 'MM.DD.YYYY HH:mm:ss') 
+    ? dayjs(combinedDateTimeEnding, 'YYYY-MM-DD HH:mm:ss') 
     : null;
     const dialogRef = this.dialog.open(DatepickerDailogComponent, {
       width: '470px',
@@ -100,9 +119,9 @@ export class FooterComponent {
         this.startDate = result.startDate;
         this.endDate  = result.endDate;
         this.currentUtcTime = result.currentUtcTime;
-        this.startDate = result.startDate.format('MM.DD.YYYY');
+        this.startDate = result.startDate.format('YYYY-MM-DD');
         this.startTime = result.startDate.format('HH:mm:ss');
-        this.endDate = result.endDate.format('MM.DD.YYYY');
+        this.endDate = result.endDate.format('YYYY-MM-DD');
         this.endTime = result.endDate.format('HH:mm:ss');
         this.dateRangeChanged.emit({ startDate:result.startDate , endDate:  result.endDate});
         // console.log("Date:", date);
@@ -130,7 +149,7 @@ export class FooterComponent {
 
   //Date formating
   getFormattedDate(date: Date): string {
-    return dayjs(date).format('MM.DD.YYYY');
+    return dayjs(date).format('YYYY-MM-DD');
   }
 
   //UTC format date function

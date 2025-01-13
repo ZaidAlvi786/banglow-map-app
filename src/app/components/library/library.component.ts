@@ -47,6 +47,8 @@ import moment from "moment";
 import { NgxUiLoaderModule, NgxUiLoaderService } from "ngx-ui-loader";
 import { DateFormatPipe } from "../../pipes/date-format.pipe";
 import { log } from "console";
+import { MapCalendarComponent } from "./map-calendar/map-calendar.component";
+import { stat } from "fs";
 
 export class Group {
   name?: string;
@@ -92,7 +94,8 @@ export interface PeriodicElement {
     GroupsListComponent,
     MatSortModule,
     NgxUiLoaderModule,
-    DateFormatPipe
+    DateFormatPipe,
+    MapCalendarComponent
 ],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
@@ -170,7 +173,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       console.log('startDate updated:', this._startDate);
       let queryParams ={
         page_number: '1',
-        page_size: '16',
+        page_size: '20',
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
@@ -212,14 +215,16 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   originalData: any[] = [];
   selectedZone:string = 'UTC'
   @ViewChild('scrollableDiv') scrollableDiv!: ElementRef<HTMLDivElement>;
-  page_size = '16';
-  perPageSize= 16;
+  page_size = '20';
+  perPageSize= 20;
   page_number = '1';
   loader:boolean = false;
   private _zoomed_wkt: string ='';
   zoomed_captures_count:number ;
   private debounceTimeout: any;
-  selectedObjects:any[]
+  selectedObjects:any[];
+  calendarApiData:any;
+  OpenEventCalendar:boolean=false;
   @Input()
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
@@ -256,8 +261,11 @@ set zoomed_wkt(value: string) {
   window.addEventListener('resize', this.setDynamicHeight.bind(this))
   const div = this.scrollableDiv?.nativeElement;
   this.canTriggerAction = true
-  div.addEventListener('wheel', this.handleWheelEvent);
-  console.log('valuevaluevaluevaluevalue', value);
+  if (div) {
+    div.addEventListener('wheel', this.handleWheelEvent);
+    console.log('valuevaluevaluevaluevalue', value);
+  }
+ 
 }
   
   get zoomed_wkt(): string {
@@ -313,7 +321,7 @@ set zoomed_wkt(value: string) {
       })
       let queryParams ={
         page_number: '1',
-        page_size: '16',
+        page_size: '20',
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
@@ -375,7 +383,7 @@ set zoomed_wkt(value: string) {
         // const dateB = new Date(b.acquisition_datetime).getTime();
         let queryParams ={
           page_number: '1',
-          page_size: '16',
+          page_size: '20',
           start_date:this.startDate,
           end_date: this.endDate,
           source: 'library',
@@ -400,7 +408,7 @@ set zoomed_wkt(value: string) {
         // console.log(sensorB,'dateBdateBdateBdateBdateB');
         let queryParams ={
           page_number: '1',
-          page_size: '16',
+          page_size: '20',
           start_date:this.startDate,
           end_date: this.endDate,
           source: 'library',
@@ -421,7 +429,7 @@ set zoomed_wkt(value: string) {
         // console.log(sensorB,'dateBdateBdateBdateBdateB');
         let queryParams ={
           page_number: '1',
-          page_size: '16',
+          page_size: '20',
           start_date:this.startDate,
           end_date: this.endDate,
           source: 'library',
@@ -477,7 +485,7 @@ set zoomed_wkt(value: string) {
     // Reset the dataSource to the original unsorted data
     let queryParams ={
       page_number: '1',
-      page_size: '16',
+      page_size: '20',
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
@@ -544,6 +552,37 @@ set zoomed_wkt(value: string) {
   calendarEventsOpen() {
     this.isEventsOpened = !this.isEventsOpened;
     this.sharedService.setIsOpenedEventCalendar(this.isEventsOpened);
+   
+    setTimeout(() => {
+      if(this.isEventsOpened){
+        if(this.polygon_wkt ){
+          const payload = {
+            polygon_wkt: this.polygon_wkt,
+            start_date: this.startDate,
+            end_date: this.endDate
+          }
+          
+          // Start the loader
+         
+        
+          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+            next: (resp) => {
+              this.ngxLoader.stop()
+              this.calendarApiData = resp.data;
+             
+            },
+            error: (err) => {
+              this.ngxLoader.stop()
+              console.error('Error fetching calendar data', err);
+              // Hide loader on error
+             
+            },
+            
+          });
+      }
+      }
+    },300)
+
   }
 
   //calculate newest and oldest in days week months or year
