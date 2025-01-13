@@ -17,6 +17,7 @@ import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import moment from 'moment';
 import { DateFormatPipe, DateTimeFormatPipe } from '../../pipes/date-format.pipe';
+import { OverlayContainer } from '@angular/cdk/overlay';
 
 export class Group {
   name?: string;
@@ -66,7 +67,7 @@ export class MapControllersPopupComponent implements OnInit {
   siteData: any;
   isHovered:boolean = false;
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
-    private satelliteService: SatelliteService,) {
+    private satelliteService: SatelliteService,private overlayContainer: OverlayContainer) {
     // Apply debounceTime to the Subject and switch to the latest observable (API call)
     this.searchInput.pipe(
       debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -414,5 +415,30 @@ getVendors(vendorCount) {
     return Object.keys(vendorCount) || [];
 }
 
+//Get time in local and utc time zone functionality
+getTime(datetime:any,type:any){
+  if (type === 'utc') {
+    // Get UTC time
+    const utcDate = dayjs(datetime).utc();
+    const utcTime = utcDate.format('HH:mm'); // Format as 'HH:mm'
+  
+    return `${utcTime}`;
+  } else {
+    // Get local time
+    const localDate = new Date(datetime);
+    const localHours = localDate.getHours().toString().padStart(2, '0');
+    const localMinutes = localDate.getMinutes().toString().padStart(2, '0');
+    const localTime = `${localHours}:${localMinutes}`; // Format as 'HH:mm'
+  
+    return `${localTime}`;
+  }
+  
+}
+
+setClass(){
+  const containerElement = this.overlayContainer.getContainerElement();
+  containerElement.classList.add('popup-overlay-container');
+ 
+}
 
 }

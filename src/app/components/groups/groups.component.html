@@ -5,7 +5,7 @@
             <input matInput placeholder="Groups" (keyup)="onKeyPress($event)"
                 class="outline-none bg-secondaryBg w-full placeholder:text-secondary-heiglight text-secondary-heiglight text-xs leading-[18px] font-bold" />
         </span>
-        <span class="text-yellow text-xs min-w-[90px] font-bold leading-[18px] cursor-pointer">+ Add new group</span>
+        <span class="text-yellow text-xs min-w-[90px] font-bold leading-[18px] cursor-pointer" (click)="addGroup('addGroup','')">+ Add new group</span>
         <div class="flex items-center">
             <span class="px-[15px] py-[5px] cursor-pointer bg-primaryBg rounded-[50px] min-w-[44px] !h-[24px] flex justify-center items-center gap-[10px] self-stretch">
                 <img src="assets/svg-icons/search-icon.svg" class="w-[14px] h-[14px]" />
@@ -41,31 +41,31 @@
                 <span class="min-w-[127.933px]">{{group.surface_area.toFixed(3)}}km²</span>
                 <div class="flex gap-[15px] items-center">
                     <span class="text-secondary-heiglight">{{group.total_objects}}</span>
-                    <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation()" [matMenuTriggerFor]="menu">
+                    <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">
                         <img src="assets/svg-icons/nav-menu-icon.svg" />
                     </span>
-                    <mat-menu class="bg-secondaryBg" #menu="matMenu" id="site">
+                    <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #menu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">
                         <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
                             <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                                <button 
+                                <button (click)="setNotifications(true,group)"
                                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                                     [ngClass]="group?.notification ?'text-[#453303] bg-yellow':'text-secondary-heiglight'">On
                                    </button>
-                                <button 
+                                <button (click)="setNotifications(false,group)"
                                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                                     [ngClass]="!group?.notification?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Off</button>
                             </div>
-                            <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer">Add subgroup</span>
-                            <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer">Rename</span>
-                            <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer">Delete</span>
+                            <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="addGroup('addSubgroup',group)">Add subgroup</span>
+                            <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="renameGroup('rename',group)">Rename</span>
+                            <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="deleteGroup('delete',group)">Delete</span>
                         </div>
                     </mat-menu>
                 </div>
             </div>
             <div 
       *ngIf="activeIndex === index" 
-      class="overflow-hidden transition-all duration-300 ease-in-out ml-[30px]" 
+      class="overflow-hidden transition-all duration-300 ease-in-out pl-[15px]" 
       [ngClass]="activeIndex === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'"
     >
     @for (nestedGroup of nestedGroupsData?.subgroups;track nestedGroup  ;let i = $index){
@@ -75,7 +75,7 @@
         (selectedGroup)="selectedGroupEvent($event)" 
         [index]="i"
         [type]="'Groups'"
-        
+        [padding]="'15px'"
       ></app-groups-list>
         </ng-container>
     }

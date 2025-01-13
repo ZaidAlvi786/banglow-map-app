@@ -29,7 +29,7 @@
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Group</span>
         @if(selectedGroup == null){
           <div class="flex relative items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups()"
+            <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
             [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
             <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
               <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
@@ -186,7 +186,7 @@
         </div>
       </div>
       <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
-        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Day of week</span>
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Day of Week</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
             <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
@@ -226,7 +226,7 @@
   </div>
     
     <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
-      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+      <div class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
         <span class="h-[15px] w-[15px] cursor-pointer">
          @if (data?.vendorData?.type ==='Night') {
@@ -235,6 +235,16 @@
           <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
          }
       </span>  
+      <div class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium leading-[18px] p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
+        <div class="flex flex-col gap-[5px]">
+          <span class="text-secondary-heiglight">UTC time:</span>
+          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'utc')}}</span>
+        </div>
+        <div class="flex flex-col gap-[5px]">
+          <span class="text-secondary-heiglight">Local time:</span>
+          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local')}}</span>
+        </div>
+      </div>>
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' : 'SAR' }}</span>
