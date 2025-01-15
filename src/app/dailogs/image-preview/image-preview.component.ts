@@ -25,13 +25,22 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
   currentIndex:any;
+  isZoomed = false;
+  isDragging = false;
+  startX = 0;
+  startY = 0;
+  offsetX = 0;
+  offsetY = 0;
+
+  @ViewChild('container') 'container': ElementRef;
+  @ViewChild('img') 'img': ElementRef;
   ngOnInit(): void {
-    this.currentIndex = this.data.currentIndex;
-    console.log("dialog dat: ", this.data.images.data);
+    this.currentIndex = this.data?.currentIndex;
+    console.log("dialog dat: ", this.data);
   }
 
   ngAfterViewInit() {
-    this.adjustImageHeight();
+    // this.adjustImageHeight();
   }
 
   closeDialog(): void {
@@ -82,14 +91,59 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
       }
     }
 
-    adjustImageHeight() {
-      const dialogContainer = document.querySelector('.dialog-content');
-      const image = document.querySelector('.resizable-image') as HTMLImageElement;
-      console.log(dialogContainer?.clientHeight,'dialogContainer.clientHeightdialogContainer.clientHeight');
-      
-      if (dialogContainer && image) {
-        const dialogHeight = dialogContainer.clientHeight;
-        image.style.height = `${dialogHeight}px`; // Adjust the image height to match the dialog height
+    onClick(event: MouseEvent): void {
+      this.isZoomed = !this.isZoomed;
+  
+      const imgElement = this.img.nativeElement;
+      const containerElement = this.container.nativeElement;
+  
+      if (this.isZoomed) {
+        const rect = containerElement.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+  
+        imgElement.style.transformOrigin = `${clickX}px ${clickY}px`;
+        imgElement.style.transform = 'scale(2)';
+        imgElement.style.cursor = 'zoom-out';
+      } else {
+        imgElement.style.transform = 'scale(1)';
+        imgElement.style.cursor = 'zoom-in';
+        this.offsetX = 0;
+        this.offsetY = 0;
       }
     }
+  
+    onMouseDown(event: MouseEvent): void {
+      if (!this.isZoomed) return;
+  
+      this.isDragging = true;
+      this.startX = event.clientX - this.offsetX;
+      this.startY = event.clientY - this.offsetY;
+    }
+  
+    mouseMoveHandler(event: MouseEvent): void {
+      if (!this.isDragging) return;
+  
+      const imgElement = this.img.nativeElement;
+  
+      this.offsetX = event.clientX - this.startX;
+      this.offsetY = event.clientY - this.startY;
+  
+      imgElement.style.transform = `scale(4) translate(${this.offsetX}px, ${this.offsetY}px)`;
+    }
+  
+    onMouseUp(): void {
+      this.isDragging = false;
+    }
+
+    // adjustImageHeight() {
+    //   const dialogContainer = document.querySelector('.dialog-content');
+    //   const image = document.querySelector('.resizable-image') as HTMLImageElement;
+    //   console.log(dialogContainer?.clientHeight,'dialogContainer.clientHeightdialogContainer.clientHeight');
+      
+    //   if (dialogContainer && image) {
+    //     const dialogHeight = dialogContainer.clientHeight;
+    //     image.style.height = `${dialogHeight}px`; // Adjust the image height to match the dialog height
+    //   }
+    // }
 }

@@ -15,6 +15,7 @@ export class SidebarDrawerComponent implements OnInit {
   @Input() polygon_wkt:any
   @Output() closeSidebar = new EventEmitter<boolean>();
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
+  @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
 
@@ -72,6 +73,10 @@ get zoomed_wkt(): string {
   }
   handleData(data: any) {
     this.notifyParent.emit(data);
+  }
+
+  handelMarkerData(data: any) {
+    this.addMarkerToMap.emit(data);
   }
 
   highlightData(data:any){

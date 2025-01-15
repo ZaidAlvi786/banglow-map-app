@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { GroupsListComponent } from '../../common/groups-list/groups-list.component';
 import { SatelliteService } from '../../services/satellite.service';
 import { MatInputModule } from '@angular/material/input';
@@ -10,6 +10,7 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { CommonDailogsComponent } from '../../dailogs/common-dailogs/common-dailogs.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SharedService } from '../shared/shared.service';
 
 // export class Group {
 //   name?: string;
@@ -24,56 +25,82 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './groups.component.html',
   styleUrl: './groups.component.scss'
 })
-export class GroupsComponent implements OnInit {
+export class GroupsComponent implements OnInit,AfterViewInit {
   groups = [];
   activeGroup:any;
   @Output() closeDrawer = new EventEmitter<boolean>();
   searchInput = new Subject<string>();
   activeIndex:number  = null;
   nestedGroupsData:any = [];
+  parentGroupID:any = null
   private _snackBar = inject(MatSnackBar);
   constructor(
     private satelliteService:SatelliteService,
     private overlayContainer: OverlayContainer,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private sharedService: SharedService
   ){
-    //  this.searchInput.pipe(
-    //       debounceTime(1000),  // Wait for 1000ms after the last key press
-    //       switchMap((inputValue) => {
-    //         const data = {
-    //           group_name:inputValue
-    //         }
+    if(this.searchInput){
+     this.searchInput.pipe(
+          debounceTime(500),  // Wait for 1000ms after the last key press
+          switchMap((inputValue) => {
+            const data = {
+              group_name:inputValue
+            }
             
-    //         return this.satelliteService.getGroupsForAssignment(data).pipe(
-    //           catchError((err) => {
+            return this.satelliteService.getParentGroups(data).pipe(
+              catchError((err) => {
                 
-    //             console.error('API error:', err);
-    //             // Return an empty array to allow subsequent API calls to be made
-    //             return of({ data: [] });
-    //           })
-    //         );
-    //       })
-    //     ).subscribe({
-    //       next: (resp: any) => {
+                console.error('API error:', err);
+                // Return an empty array to allow subsequent API calls to be made
+                return of({ data: [] });
+              })
+            );
+          })
+        ).subscribe({
+          next: (resp: any) => {
             
-    //         console.log(resp, 'API Response');
-    //         this.groups = resp?.data;
-    //       },
-    //       error: (err: any) => {
-    //         console.error('API call failed', err);
-    //       }
-    //     });
+            console.log(resp, 'API Response');
+            this.groups = resp;
+          },
+          error: (err: any) => {
+            console.error('API call failed', err);
+          }
+        });
+      }
   }
 
   ngOnInit(): void {
     this.getGroups()
   }
 
+  ngAfterViewInit(): void {
+    this.sharedService.getNestedGroup$.subscribe((group:any) => {
+      if(group){
+        this.sharedService.updatedNestedGroup$.subscribe((state) => {
+          console.log(state,'statestatestatestatestatestate');
+          const data = {group_id:state}
+          this.satelliteService.getNestedGroup(data).subscribe({
+          next: (resp) => {
+            console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
+    
+            this.nestedGroupsData = resp
+    
+          }})
+        })
+      }
+    })
+   
+  }
+
   getGroups() {
     this.selectedGroupEvent(null)
-    
+   const params ={
+      group_name:''
+
+    }
   
-      this.satelliteService.getParentGroups().subscribe({
+      this.satelliteService.getParentGroups(params).subscribe({
         next: (resp) => {
           console.log(resp, 'respresprespresprespresprespresprespresp');
           this.groups = resp
@@ -114,9 +141,11 @@ export class GroupsComponent implements OnInit {
     if(this.activeIndex !== i){
       this.activeIndex = i
       const data = {group_id:group.id}
+      this.parentGroupID = group.id
+      this.sharedService.setUpdatedNestedGroup(this.parentGroupID)
       this.satelliteService.getNestedGroup(data).subscribe({
       next: (resp) => {
-        console.log(resp,'respresprespresprespresprespresprespresp');
+        console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
 
         this.nestedGroupsData = resp
 
@@ -167,8 +196,11 @@ export class GroupsComponent implements OnInit {
       });
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Dialog closed', result);
+        if(result){
+          this.getGroups();
+        }
         // this.getUpdateGroup(result)
-        this.getGroups();
+       
 
         this._snackBar.open('Group updated successfully.', 'Ok', {
           duration: 2000  // Snackbar will disappear after 300 milliseconds
@@ -195,5 +227,10 @@ export class GroupsComponent implements OnInit {
     if (index>-1) {
       this.groups[index] = data;
     }
+  }
+
+  UpdateGroupEvent(event:any){
+    console.log(event,'grouppppppppppppppppppppppppppppppppppppp');
+    
   }
 }

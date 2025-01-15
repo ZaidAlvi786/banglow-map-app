@@ -41,7 +41,7 @@
           class="day relative group"
         >
           {{ day.date }}
-          <div *ngIf="day.value>0" class="group-hover:inline-flex min-w-[185px] left-0 z-[9999999999] w-max absolute hidden font-Barlow p-[15px] top-[30px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+          <div *ngIf="day.value>0" class="group-hover:inline-flex min-w-[185px] z-[9999999999] w-max absolute hidden font-Barlow p-[15px] top-[30px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
             <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(month.name,day)}}</span>
             <span class="text-secondaryText text-sm font-medium leading-[18px]">{{day.value}} images available</span>
             <span class="text-yellow pt-[15px] border-t border-t-solid border-t-custom-border text-xs font-bold leading-[18px]">Browse images</span>

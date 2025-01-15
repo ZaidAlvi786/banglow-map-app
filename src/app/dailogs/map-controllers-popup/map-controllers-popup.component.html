@@ -195,9 +195,13 @@
         </div>
       </div>
       
-      <span class="w-[240px] max-h-[300px] flex justify-center items-center"
+      <span class="w-[240px] relative group cursor-pointer max-h-[300px] flex justify-center items-center" (click)="imagePreview(data?.vendorData,'vendor')"
       >
-      <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url" />
+        <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url"  />
+        <div
+            class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+        </div>
       </span>
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
@@ -212,7 +216,7 @@
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{formatToThreeDecimalPlaces(data?.vendorData?.resolution)}}</span>         
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.gsd}}</span>         
         </div> 
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
@@ -244,7 +248,7 @@
           <span class="text-secondary-heiglight">Local time:</span>
           <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local')}}</span>
         </div>
-      </div>>
+      </div>
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' : 'SAR' }}</span>

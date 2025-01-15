@@ -185,8 +185,8 @@ ngOnInit(): void {
     if(this.showLayers) this.showLayers = false;
   }
   
-  copyToClipboard(): void {
-    const textToCopy = `Latitude: ${this.latitude}, Longitude: ${this.longitude}`;
+  copyToClipboard(): void {    
+    const textToCopy = `${this.latitude},${this.longitude}`;
 
     // Create a temporary input element to copy text
     const inputElement = document.createElement('input');
