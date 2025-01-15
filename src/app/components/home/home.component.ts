@@ -1566,6 +1566,37 @@ receiveData(dataArray: any[]) {
   }
 }
 
+handleMakerData(data: any) {
+  console.log(data, 'handling marker data');
+
+  // Check if the data object is valid and has coordinates
+  if (data?.coordinates_record?.coordinates) {
+    // Extract the coordinates and map them to Leaflet's LatLng format
+    const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
+      new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+    );
+
+    // Create bounds for the current shape
+    const bounds = L.latLngBounds(coordinates);
+
+    // Highlight the coordinates with a green border (polygon)
+    L.polygon(coordinates, {
+      color: 'green', // Set border color to green
+      weight: 3, // Border thickness
+    }).addTo(this.map);
+
+    // Adjust the map view to fit the bounds of the shape
+    this.map.fitBounds(bounds, {
+      padding: [20, 20], // Optional: Add padding to ensure the shape is fully visible
+      maxZoom: 10, // Set a maximum zoom level
+    });
+  } else {
+    // Handle case where there are no valid coordinates
+    console.log('No valid coordinates to highlight.');
+  }
+}
+
+
 
 setDynamicHeight(): void {
   // Get the height of the elements above
@@ -1635,7 +1666,7 @@ highLightShape(data: any): void {
       color = '#A900E6';
       break;
     default:
-      color = '#FF00C5';
+      color = '#7A00B3';
       break;
   }
 
@@ -1790,9 +1821,9 @@ isWktGreater(wkt1: string, wkt2: string): boolean {
   // Compare areas of the bounds
   const area1 = this.calculateArea(bounds1);
   const area2 = this.calculateArea(bounds2);
-  console.log(area1,'area1area1area1area1area1area1area1', area1.toFixed(1) > area2.toFixed(1));
-  this.zoomed_status = area1.toFixed(1) > area2.toFixed(1)
-  return area1.toFixed(1) > area2.toFixed(1);
+  console.log(area1.toFixed(1), area2.toFixed(1),'area1area1area1area1area1area1area1', +area1.toFixed(1) < +area2.toFixed(1));
+  this.zoomed_status = +area1.toFixed(1) < +area2.toFixed(1)
+  return +area1.toFixed(1) < +area2.toFixed(1);
 }
 
 // Helper function to calculate area of bounds

@@ -1,28 +1,84 @@
-<div class="dialog-content  bg-secondaryBg p-[15px]">
-    <div class="flex flex-col">
-        <div class="resizable-image bg-secondary-heiglight flex justify-center items-center">
-            @if (data.images.data[currentIndex].presigned_url) {
-                <img  [src]="data?.images?.data[currentIndex]?.presigned_url" alt="Preview" class="resizable-image object-contain w-full">
+@if (data.type === 'vendor') {
+    <div class="dialog-content  bg-secondaryBg p-[15px]">
+        <div class="flex flex-col">
+            <div
+            #container
+            class="h-[700px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
+          >
+            @if (data?.images?.presigned_url) {
+              <img
+                [src]="data?.images?.presigned_url"
+                alt="Preview"
+                class="resizable-image object-contain w-full"
+                (click)="onClick($event)"
+                (mousedown)="onMouseDown($event)"
+                (mousemove)="mouseMoveHandler($event)"
+                (mouseup)="onMouseUp()"
+                (mouseleave)="onMouseUp()"
+                #img
+                style="cursor: zoom-in; width: 100%; transition: all 0.3s; position: absolute;height: -webkit-fill-available ;"
+              />
             } @else {
-                <span class="text-lg leading-6 font-semibold text-secondary-heiglight">Image not found</span>
+              <span class="text-lg leading-6 font-semibold text-secondary-heiglight">
+                Image not found
+              </span>
             }
-        </div>
-
-        <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
-            <div class="flex gap-[15px]">
-                <div class="flex gap-[15px] h-[20px] items-center justify-between">
-                    <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/left-arrow-icon.svg" alt="" (click)="previousImage()"></span>
-                    <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/right-arrow-icon.svg" alt="" (click)="nextImage()"></span>
-                </div>
-                
+          </div>      
+            <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
                 <div class="flex gap-[15px]">
-                    <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.data[currentIndex]?.acquisition_datetime | dateFormat}}</span>
-                    <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.acquisition_datetime | timeFormat}}</span>
+                    <div class="flex gap-[15px]">
+                        <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.acquisition_datetime | dateFormat}}</span>
+                        <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.acquisition_datetime | timeFormat}}</span>
+                    </div>
                 </div>
-            </div>
-            <div>
-                <img src="assets/svg-icons/cross-icon.svg" class="cursor-pointer" (click)="closeDialog()" alt="">
+                <div>
+                    <img src="assets/svg-icons/cross-icon.svg" class="cursor-pointer" (click)="closeDialog()" alt="">
+                </div>
             </div>
         </div>
     </div>
-</div>
+}@else{
+    <div class="dialog-content  bg-secondaryBg p-[15px]">
+        <div class="flex flex-col">
+            <div
+            #container
+            class="h-[700px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
+          >
+            @if (data.images.data[currentIndex].presigned_url) {
+              <img
+                [src]="data?.images?.data[currentIndex]?.presigned_url"
+                alt="Preview"
+                class="resizable-image object-contain w-full"
+                (click)="onClick($event)"
+                (mousedown)="onMouseDown($event)"
+                (mousemove)="mouseMoveHandler($event)"
+                (mouseup)="onMouseUp()"
+                (mouseleave)="onMouseUp()"
+                #img
+                style="cursor: zoom-in; width: 100%; transition: all 0.3s; position: absolute;height: -webkit-fill-available ;"
+              />
+            } @else {
+              <span class="text-lg leading-6 font-semibold text-secondary-heiglight">
+                Image not found
+              </span>
+            }
+          </div>      
+            <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
+                <div class="flex gap-[15px]">
+                    <div class="flex gap-[15px] h-[20px] items-center justify-between">
+                        <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/left-arrow-icon.svg" alt="" (click)="previousImage()"></span>
+                        <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/right-arrow-icon.svg" alt="" (click)="nextImage()"></span>
+                    </div>
+                    
+                    <div class="flex gap-[15px]">
+                        <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.data[currentIndex]?.acquisition_datetime | dateFormat}}</span>
+                        <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.acquisition_datetime | timeFormat}}</span>
+                    </div>
+                </div>
+                <div>
+                    <img src="assets/svg-icons/cross-icon.svg" class="cursor-pointer" (click)="closeDialog()" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+} 
