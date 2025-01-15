@@ -8,6 +8,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { provideAuth } from './interceptors/auth.provider';
 import { provideLoading } from './interceptors/loading/loading.provider';
 import { NgxUiLoaderModule, NgxUiLoaderConfig } from 'ngx-ui-loader';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { environment } from '../environments/environment';
+
+const config: SocketIoConfig = { url: environment.SOCKET_URL, options: {} };
 const ngxUiLoaderConfig: NgxUiLoaderConfig = {
   fgsType: 'three-strings',
   fgsColor: '#FCCA40', // Change the loader color
@@ -16,5 +20,6 @@ const ngxUiLoaderConfig: NgxUiLoaderConfig = {
   bgsOpacity:0.7
 };
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), provideClientHydration(),provideAuth(),provideLoading(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,NgxDaterangepickerMd.forRoot(),HttpClientModule,NgxUiLoaderModule.forRoot(ngxUiLoaderConfig)])]
+  providers: [provideRouter(routes), provideClientHydration(),provideAuth(),provideLoading(), importProvidersFrom([ BrowserAnimationsModule,BrowserModule,
+        NgxDaterangepickerMd.forRoot(),HttpClientModule,NgxUiLoaderModule.forRoot(ngxUiLoaderConfig), SocketIoModule.forRoot(config)])]
 };

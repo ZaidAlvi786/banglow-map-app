@@ -12,6 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, debounceTime, of, Subject, switchMap } from 'rxjs';
 import { NgxUiLoaderModule, NgxUiLoaderService } from 'ngx-ui-loader';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { OverlayContainer } from '@angular/cdk/overlay';
 
 @Component({
   selector: 'app-sites',
@@ -59,7 +60,8 @@ export class SitesComponent implements OnInit, AfterViewInit {
     this.getSitesData(queryParams)
   }
   constructor(private sateliteService: SatelliteService,
-    private ngxLoader: NgxUiLoaderService
+    private ngxLoader: NgxUiLoaderService,
+    private overlayContainer: OverlayContainer
   ) {
     this.options = {}
 
@@ -411,6 +413,12 @@ export class SitesComponent implements OnInit, AfterViewInit {
     });
 
     return ranges;
+  }
+
+  setClass(){
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.add('sites-overlay-container');
+   
   }
 }
 

@@ -1,40 +1,41 @@
 .group {
     margin-left: 20px;
-  }
-  .group-header {
+}
+.group-header {
     display: flex;
     align-items: center;
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s;
-  }
-  .group-header:hover {
+}
+.group-header:hover {
     background-color: rgba(255, 255, 255, 0.1);
-  }
-  .icon-folder {
+}
+.icon-folder {
     color: gray;
     margin-right: 8px;
-  }
-  .icon-folder-open {
+}
+.icon-folder-open {
     color: yellow;
     margin-right: 8px;
-  }
-  .subgroup {
+}
+.subgroup {
     padding-left: 20px;
-  }
+}
 
-  .menu_group {
-    ::ng-deep{
-      .cdk-overlay-connected-position-bounding-box {
-          top: auto !important;
-          right: 65px !important;
-          width: 165px !important;
-          left: auto !important;
-          bottom: -3px !important;
-      }
-      .mat-mdc-menu-panel {
-          background-color: #20272d !important;
-          box-shadow: 5px 5px 5px 0px #0000001a !important;
-      }
+::ng-deep .group-overlay-container{
+  .cdk-overlay-connected-position-bounding-box {
+      top: auto !important;
+      right: auto !important;
+      width: 165px !important;
+      left: 600px !important;
+      bottom: -3px !important;
   }
+  .mat-mdc-menu-panel {
+      background-color: #20272d !important;
+      box-shadow: 5px 5px 5px 0px #0000001a !important;
   }
+  .mat-mdc-menu-content{
+      overflow: hidden !important;;
+  }
+}

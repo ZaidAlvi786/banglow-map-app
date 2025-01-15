@@ -1,0 +1,46 @@
+@if(data?.type === 'addGroup'|| data?.type === 'addSubgroup'){
+    <div class="bg-primaryBg"  id="library">
+    <div class="p-[15px] flex flex-col gap-[10px]">
+        <div class="flex flex-col gap-3" >
+            <span class="!text-secondary-heiglight placeholder:!text-secondary-heiglight font-semibold text-xs leading-[18px]">Create new group</span>
+            <mat-form-field id="library" appearance="outline" class="!w-[320px]"
+                >
+                <mat-label>Group name</mat-label>
+                <input [(ngModel)]="name" matInput placeholder="Enter group name">
+            </mat-form-field>
+        </div>
+        <button (click)="addGroup()"
+            class="flex justify-center !text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Add group</button>
+        <button
+            class="flex justify-center !text-[#ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]" (click)="closeDialog()">Cancel</button>
+    </div>
+</div>
+} @else if(data?.type === 'rename'){
+    <div class="bg-primaryBg"  id="library">
+        <div class="p-[15px] flex flex-col gap-[10px]">
+            <div class="flex flex-col gap-3" >
+                <span class="!text-secondary-heiglight placeholder:!text-secondary-heiglight font-semibold text-xs leading-[18px]">Rename</span>
+                <mat-form-field id="library" appearance="outline" class="!w-[320px]"
+                    >
+                    <mat-label>Name</mat-label>
+                    <input [(ngModel)]="name" matInput placeholder="Enter group name">
+                </mat-form-field>
+            </div>
+            <button (click)="renameGroup()"
+                class="flex justify-center !text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
+            <button
+                class="flex justify-center !text-[#ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]" (click)="closeDialog()">Cancel</button>
+        </div>
+    </div>
+} @else {
+    <div class="bg-primaryBg"  id="delete">
+        <div class="p-[15px] flex flex-col gap-[15px]">
+            
+           <span class="text-secondaryText text-sm font-bold leading-normal">Are you sure you want to remove this item?</span>
+            <button 
+                class="flex justify-center !text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]" (click)="deleteGroup()">Delete</button>
+            <button
+                class="flex justify-center !text-[#ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]" (click)="closeDialog()">Cancel</button>
+        </div>
+    </div>
+}

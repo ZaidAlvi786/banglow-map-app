@@ -14,6 +14,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { SharedService } from "../shared/shared.service";
 // import { LoadingBarComponent } from "../shared/loading-bar";
 // declare var google: any;
 
@@ -33,7 +34,9 @@ export class HeaderComponent implements OnInit,OnChanges {
 
   private autocomplete!: google.maps.places.Autocomplete;
   private _isDrawerOpen: boolean = false;
+  constructor(private sharedService:SharedService,){
 
+  }
   @Input()
   set isDrawerOpen(value: boolean) {
     this._isDrawerOpen = value;
@@ -65,7 +68,7 @@ export class HeaderComponent implements OnInit,OnChanges {
   
   if(this.toggleType !== type){
     console.log('typetypetypetypetypetypetype: ' , type);
-    
+    this.sharedService.setIsOpenedEventCalendar(false);
     this.toggleType = type;
     this.isDrawerOpen = true;
     this.toggleEvent.emit(this.toggleType);

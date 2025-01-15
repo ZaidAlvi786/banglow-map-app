@@ -49,6 +49,7 @@ import { DateFormatPipe } from "../../pipes/date-format.pipe";
 import { log } from "console";
 import { MapCalendarComponent } from "./map-calendar/map-calendar.component";
 import { stat } from "fs";
+import { OverlayContainer } from "@angular/cdk/overlay";
 
 export class Group {
   name?: string;
@@ -254,7 +255,7 @@ set zoomed_wkt(value: string) {
         this.getSatelliteCatalog(payload, queryParams);
         
       }
-    }, 600);
+    }, 800);
      // Debounce time: 600ms
   }
   this.setDynamicHeight();
@@ -274,10 +275,11 @@ set zoomed_wkt(value: string) {
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
-     private satelliteService:SatelliteService,
-     private el: ElementRef, private renderer: Renderer2,
-     private cdr:ChangeDetectorRef,
-     private ngxLoader: NgxUiLoaderService
+    private satelliteService:SatelliteService,
+    private el: ElementRef, private renderer: Renderer2,
+    private cdr:ChangeDetectorRef,
+    private ngxLoader: NgxUiLoaderService,
+    private overlayContainer: OverlayContainer
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -1171,5 +1173,10 @@ getDateTimeFormat(dateTime: string) {
     return index;
   }
   
+  setClass(){
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.add('library-overlay-container');
+   
+  }
 
 }
