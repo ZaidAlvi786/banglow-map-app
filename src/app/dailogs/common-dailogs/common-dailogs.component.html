@@ -6,7 +6,7 @@
             <mat-form-field id="library" appearance="outline" class="!w-[320px]"
                 >
                 <mat-label>Group name</mat-label>
-                <input [(ngModel)]="name" matInput placeholder="Enter group name">
+                <input [(ngModel)]="name" matInput placeholder="Enter group name" [required]="true">
             </mat-form-field>
         </div>
         <button (click)="addGroup()"
@@ -23,7 +23,7 @@
                 <mat-form-field id="library" appearance="outline" class="!w-[320px]"
                     >
                     <mat-label>Name</mat-label>
-                    <input [(ngModel)]="name" matInput placeholder="Enter group name">
+                    <input [(ngModel)]="name" matInput placeholder="Enter group name" [required]="true">
                 </mat-form-field>
             </div>
             <button (click)="renameGroup()"

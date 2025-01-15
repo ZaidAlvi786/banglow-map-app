@@ -28,7 +28,7 @@ export class CommonDailogsComponent implements OnInit  {
   }
   addGroup(){
     console.log(this.data,'aaaaaaaaaaaaaaaaaaaa');
-    
+    if(this.name !==''){
     let payload
     if(this.data.type === 'addSubgroup'){
       payload = {
@@ -51,13 +51,16 @@ export class CommonDailogsComponent implements OnInit  {
       }
     })
   }
+  }
 
   renameGroup(){
+    if(this.name !==''){
     const payload = {
       group_id: this.data.group.id,
       name: this.name,
     }
     this.updateGroup(payload)
+  }
   }
 
   deleteGroup(){
@@ -72,7 +75,7 @@ export class CommonDailogsComponent implements OnInit  {
   updateGroup(payload: any) {
     this.satelliteService.updateGroup(payload).subscribe({
       next: (resp) =>{
-        this.dialogRef.close(resp)
+        this.dialogRef.close({resp:resp,parentGroupID:this.data.parentGroupID})
       },
       error(err) {
         

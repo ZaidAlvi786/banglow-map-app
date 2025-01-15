@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import moment from 'moment';
 import { DateFormatPipe, DateTimeFormatPipe } from '../../pipes/date-format.pipe';
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { ImagePreviewComponent } from '../image-preview/image-preview.component';
 
 export class Group {
   name?: string;
@@ -67,6 +68,7 @@ export class MapControllersPopupComponent implements OnInit {
   siteData: any;
   isHovered:boolean = false;
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
+    private dialog: MatDialog,
     private satelliteService: SatelliteService,private overlayContainer: OverlayContainer) {
     // Apply debounceTime to the Subject and switch to the latest observable (API call)
     this.searchInput.pipe(
@@ -280,7 +282,7 @@ export class MapControllersPopupComponent implements OnInit {
       const text =  this.getPolygonCenter(data)
       // Create a temporary input element to copy text
       const inputElement = document.createElement('input');
-      inputElement.value = `${text?.lat.toFixed(4)}',' ${text?.lon.toFixed(4)}`;
+      inputElement.value = `${text?.lat.toFixed(4)},${text?.lon.toFixed(4)}`;
       document.body.appendChild(inputElement);
       inputElement.select();
       document.execCommand('copy');
@@ -440,5 +442,20 @@ setClass(){
   containerElement.classList.add('popup-overlay-container');
  
 }
+
+imagePreview(data:any,type:any) {
+    const dialogRef = this.dialog.open(ImagePreviewComponent, {
+      width: "880px",
+      maxHeight:'700px',
+      data:  {images:data, type:type} ,
+      panelClass: "custom-preview",
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log("Selected date range:", result);
+      }
+    });
+  }
 
 }

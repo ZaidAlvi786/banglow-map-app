@@ -11,7 +11,7 @@ import {
   Output,
   Renderer2,
 } from "@angular/core";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
@@ -50,6 +50,8 @@ import { log } from "console";
 import { MapCalendarComponent } from "./map-calendar/map-calendar.component";
 import { stat } from "fs";
 import { OverlayContainer } from "@angular/cdk/overlay";
+import { MatDatepickerModule } from "@angular/material/datepicker";
+import { provideNativeDateAdapter } from "@angular/material/core";
 
 export class Group {
   name?: string;
@@ -96,8 +98,10 @@ export interface PeriodicElement {
     MatSortModule,
     NgxUiLoaderModule,
     DateFormatPipe,
-    MapCalendarComponent
+    MapCalendarComponent,
+    MatDatepickerModule,
 ],
+providers: [provideNativeDateAdapter()],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
   animations: [
@@ -164,6 +168,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   searchInput = new Subject<string>();
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
+  @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();
   private _startDate: any;
   private _endDate: any;
 
@@ -178,7 +183,14 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
-        
+        max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+        min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+        max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+        min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -244,7 +256,15 @@ set zoomed_wkt(value: string) {
           start_date: this.startDate,
           end_date: this.endDate,
           source: 'library',
-          zoomed_wkt: this._zoomed_wkt
+          zoomed_wkt: this._zoomed_wkt,
+          max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+          min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+          max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+          min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+          min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         };
         const payload = {
           wkt_polygon: this.polygon_wkt
@@ -272,6 +292,7 @@ set zoomed_wkt(value: string) {
   get zoomed_wkt(): string {
     return this._zoomed_wkt;
   }
+  formGroup: FormGroup;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -279,7 +300,8 @@ set zoomed_wkt(value: string) {
     private el: ElementRef, private renderer: Renderer2,
     private cdr:ChangeDetectorRef,
     private ngxLoader: NgxUiLoaderService,
-    private overlayContainer: OverlayContainer
+    private overlayContainer: OverlayContainer,
+    private fb: FormBuilder
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -300,6 +322,33 @@ set zoomed_wkt(value: string) {
           },
           error: (err) => {
             console.error('API call failed', err);
+          }
+        });
+        this.formGroup = this.fb.group({
+          max_cloud: [],
+          min_cloud:[],
+          max_angle:[],
+          min_angle:[],
+          min_gsd:[],
+          max_gsd:[],
+          vendor:[],
+          vendorId:[],
+          
+        });
+        this.formGroup.get('end_date')?.valueChanges.subscribe((value) => {
+          if (value) {
+            const formattedValue = moment(value).format('YYYY-MM-DD HH:mm');
+            this.formGroup.get('end_date')?.setValue(formattedValue, {
+              emitEvent: false, // Prevent infinite loop
+            });
+          }
+        });
+        this.formGroup.get('start_date')?.valueChanges.subscribe((value) => {
+          if (value) {
+            const formattedValue = moment(value).format('YYYY-MM-DD HH:mm');
+            this.formGroup.get('start_date')?.setValue(formattedValue, {
+              emitEvent: false, // Prevent infinite loop
+            });
           }
         });
   }
@@ -327,6 +376,14 @@ set zoomed_wkt(value: string) {
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
+        max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+        min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+        max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+        min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         
       }
       const payload = {
@@ -358,6 +415,11 @@ set zoomed_wkt(value: string) {
       console.log('Sorted Data:', this.dataSource.filteredData);
       this.sortData(); // Will only be called once after the debounce time
     });
+    this.sharedService.isOpenedEventCalendar$.subscribe((isOpened) => {
+      console.log(isOpened,'isOpenedisOpenedisOpened');
+      
+      this.isEventsOpened = isOpened
+    })
     const div = this.scrollableDiv?.nativeElement;
 
     // Add scroll event listener
@@ -390,7 +452,15 @@ set zoomed_wkt(value: string) {
           end_date: this.endDate,
           source: 'library',
           sort_by:'acquisition_datetime',
-          sort_order:direction
+          sort_order:direction,
+          max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+          min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+          max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+          min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+          min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
         const payload = {
           wkt_polygon: this.polygon_wkt
@@ -415,7 +485,15 @@ set zoomed_wkt(value: string) {
           end_date: this.endDate,
           source: 'library',
           sort_by:'sensor',
-          sort_order:direction
+          sort_order:direction,
+          max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+          min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+          max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+          min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+          min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
         const payload = {
           wkt_polygon: this.polygon_wkt
@@ -436,7 +514,15 @@ set zoomed_wkt(value: string) {
           end_date: this.endDate,
           source: 'library',
           sort_by:'vendor_name',
-          sort_order:direction
+          sort_order:direction,
+          max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+          min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+          max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+          min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+          max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+          min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
         }
         const payload = {
           wkt_polygon: this.polygon_wkt
@@ -491,9 +577,11 @@ set zoomed_wkt(value: string) {
       start_date:this.startDate,
       end_date: this.endDate,
       source: 'library',
+      
      
       
     }
+    this.formGroup.reset();
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
@@ -538,8 +626,8 @@ set zoomed_wkt(value: string) {
 
   openImagePreviewDialog(index:any) {
     const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "auto",
-      maxHeight:'auto',
+      width: "880px",
+      maxHeight:'700px',
       data:  {images:this.dataSource, currentIndex:index} ,
       panelClass: "custom-preview",
     });
@@ -889,6 +977,9 @@ expandedData(data: any) {
 
   console.log(this.selectedObjects, 'Updated selectedObjects array');
 }
+markerData(data:any){
+  this.addMarkerToMap.emit(data)
+}
 
 
 //Table Row hover event Emit
@@ -905,6 +996,7 @@ setDynamicHeight(): void {
     const header = document.getElementById('header');
     const analyticsData = document.getElementById('analyticsData');
     const notFound = document.getElementById('not_found');
+    const notFount2 = document.getElementById('custom')
     const custom = document.getElementById('custom');
     const container = document.getElementById('container');
     
@@ -913,6 +1005,7 @@ setDynamicHeight(): void {
       header,
       analyticsData,
       notFound,
+      notFount2,
       custom,
       container
     ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
@@ -933,6 +1026,7 @@ setDynamicHeight(): void {
     const header = document.getElementById('header');
   const analyticsData = document.getElementById('analyticsData');
   const notFound = document.getElementById('not_found');
+  const notFount2 = document.getElementById('custom')
   const custom = document.getElementById('custom');
   const container = document.getElementById('container');
   
@@ -941,6 +1035,7 @@ setDynamicHeight(): void {
     header,
     analyticsData,
     notFound,
+    notFount2,
     custom,
     container
   ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
@@ -1042,7 +1137,15 @@ private handleWheelEvent = (event: WheelEvent): void => {
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
-        zoomed_wkt:this._zoomed_wkt
+        zoomed_wkt:this._zoomed_wkt,
+        max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+        min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+        max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+        min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -1173,10 +1276,84 @@ getDateTimeFormat(dateTime: string) {
     return index;
   }
   
+  //Overlay container customization class add functionality
   setClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.add('library-overlay-container');
    
   }
+  setFilterClass(){
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.add('filter-overlay-container');
+  }
 
+  //Filter Form submit functionality
+  onSubmit() {
+   
+      const datetime = this.formGroup.value.end_date;
+      const params = {
+        end_date:this.getDateValue(this.endDate),
+        start_date:this.getDateValue(this.startDate),
+        max_cloud_cover: this.formGroup.get('max_cloud')?.value? this.formGroup.get('max_cloud').value:100,
+        min_cloud_cover:this.formGroup.get('min_cloud')?.value?this.formGroup.get('min_cloud').value:0,
+        max_off_nadir_angle: this.formGroup.get('max_angle')?.value?this.formGroup.get('max_angle').value:360,
+        min_off_nadir_angle:this.formGroup.get('min_angle')?.value ?this.formGroup.get('min_angle').value:0,
+        page_number:1,
+        page_size:20,
+        source:'library',
+        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value:'',
+        max_gsd:this.formGroup.get('max_gsd')?.value ? this.formGroup.get('max_gsd')?.value:100,
+        min_gsd:this.formGroup.get('min_gsd')?.value ? this.formGroup.get('min_gsd')?.value:0
+      }
+      console.log('Selected Date and Time:', params);
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+     setTimeout(() => {
+      this.loader = true
+      this.ngxLoader.start(); // Start the loader
+      this.getSatelliteCatalog(payload,params)
+     },300)
+  }
+
+  getDateValue(date:any){
+    if (!date) {
+      return null; // Handle null or undefined input
+    }
+  
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      throw new Error('Invalid date'); // Handle invalid date input
+    }
+
+    console.log(parsedDate.toISOString(),'parsedDateparsedDateparsedDateparsedDateparsedDateparsedDate');
+    const endDateControlValue = this.formGroup.get('end_date')?.value;
+
+if (endDateControlValue) {
+  const formattedDate = moment(endDateControlValue).format('YYYY-MM-DD HH:mm');
+  console.log('Formatted Date:', formattedDate);
+}
+  
+    return parsedDate.toISOString(); 
+  }
+
+  // Custom Validator for Date Format
+  dateFormatValidator(format: string) {
+    return (control: AbstractControl) => {
+      const value = control.value;
+
+      if (!value) {
+        return null; // If no value, let `Validators.required` handle it
+      }
+
+      const isValidFormat = moment(value, format, true).isValid();
+
+      return isValidFormat ? null : { invalidDateFormat: true };
+    };
+  }
+
+  resetForm(){
+    this.formGroup.reset();
+  }
 }
