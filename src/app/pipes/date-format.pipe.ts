@@ -33,3 +33,21 @@ export class DateTimeFormatPipe implements PipeTransform {
     return moment(value, 'YYYY-MM-DD    HH:mm:ss')?.format('YYYY-MM-DD     HH:mm:ss');;
   }
 }
+@Pipe({
+  name: 'utcDateTimePipe',
+  standalone: true,
+})
+export class UtcDateTimePipe implements PipeTransform {
+  transform(value: string | Date): string {
+    if (!value) {
+      return ''; // Handle null or undefined values
+    }
+
+    const date = moment(value); 
+    if (!date.isValid()) {
+      return ''; // Handle invalid dates
+    }
+
+    return date.utc().format('YYYY-MM-DD HH:mm:ss'); 
+  }
+}

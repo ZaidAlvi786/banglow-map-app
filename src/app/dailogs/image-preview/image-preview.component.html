@@ -3,7 +3,7 @@
         <div class="flex flex-col">
             <div
             #container
-            class="h-[700px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
+            class="2k:!h-[700px] mxl:!h-[545px] lxl:!h-[600px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
           >
             @if (data?.images?.presigned_url) {
               <img
@@ -24,13 +24,54 @@
               </span>
             }
           </div>      
-            <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
-                <div class="flex gap-[15px]">
-                    <div class="flex gap-[15px]">
-                        <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.acquisition_datetime | dateFormat}}</span>
-                        <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.acquisition_datetime | timeFormat}}</span>
+            <div class="flex flex-col bg-primaryBg p-[15px] gap-[15px] items-end justify-between font-Barlow">
+              <div class="flex gap-[15px]">
+                <div class="flex flex-col gap-[10px] w-[170px] flex-0 items-start justify-center">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date</span>
+                  <div class="flex gap-[5px]">
+                    <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.acquisition_datetime | dateFormat}}</span>
+                    <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.acquisition_datetime | timeFormat}}</span>
+                </div>
+                </div>
+                <div class="flex flex-col gap-[10px] w-[115px] flex-0 items-start justify-center">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Sensor</span>
+                    <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.images?.sensor}}</span>
                     </div>
                 </div>
+                <div class="flex flex-col gap-[10px] w-[115px] flex-0 items-start justify-center">
+                  <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendor</span>
+                    <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.images?.vendor_name}}</span>
+                    </div>
+                  <!-- </div> -->
+                </div>    
+                <div class="flex flex-col gap-[10px] w-[50px] flex-0 items-start justify-center">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Clouds</span>
+                    <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.images?.vendor_name !== 'capella' && data?.images?.vendor_name !== 'skyfi-umbra'? roundOff(data?.images?.cloud_cover)+ '%':'SAR'}}</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-[10px] w-[60px] flex-0 items-start justify-center">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
+                    <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{toDecimal(data?.images?.gsd)}}m</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-[10px] w-[80px] flex-0 items-start justify-center">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Type</span>
+                    <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.images?.acquisition_datetime)}}</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-[10px] w-[140px] flex-0 items-start justify-center">
+                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">ID</span>
+                    <div class="flex items-center gap-[15px] self-stretch w-full">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px] w-[140px]">{{data?.images?.vendor_id}}</span>
+                    </div>
+                </div>
+              </div>
                 <div>
                     <img src="assets/svg-icons/cross-icon.svg" class="cursor-pointer" (click)="closeDialog()" alt="">
                 </div>
@@ -42,7 +83,7 @@
         <div class="flex flex-col">
             <div
             #container
-            class="h-[700px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
+            class="2k:!h-[700px] mxl:!h-[545px] lxl:!h-[600px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
           >
             @if (data.images.data[currentIndex].presigned_url) {
               <img
@@ -63,20 +104,62 @@
               </span>
             }
           </div>      
-            <div class="flex bg-primaryBg p-[15px] gap-[15px] items-center justify-between font-Barlow">
+          <div class="flex flex-col bg-primaryBg p-[15px] gap-[15px] items-end justify-between font-Barlow">              
                 <div class="flex gap-[15px]">
-                    <div class="flex gap-[15px] h-[20px] items-center justify-between">
-                        <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/left-arrow-icon.svg" alt="" (click)="previousImage()"></span>
-                        <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/right-arrow-icon.svg" alt="" (click)="nextImage()"></span>
-                    </div>
-                    
-                    <div class="flex gap-[15px]">
-                        <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.data[currentIndex]?.acquisition_datetime | dateFormat}}</span>
-                        <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.acquisition_datetime | timeFormat}}</span>
-                    </div>
+                  <div class="flex flex-col gap-[10px] w-[170px] flex-0 items-start justify-center">
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date</span>
+                    <div class="flex gap-[5px]">
+                      <span class="text-secondaryText font-medium leading-[18px]">{{ data?.images?.data[currentIndex]?.acquisition_datetime | dateFormat}}</span>
+                      <span class=" text-secondaryText font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.acquisition_datetime | timeFormat}}</span>
+                  </div>
+                  </div>
+                  <div class="flex flex-col gap-[10px] w-[115px] flex-0 items-start justify-center">
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Sensor</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.sensor}}</span>
+                      </div>
+                  </div>
+                  <div class="flex flex-col gap-[10px] w-[115px] flex-0 items-start justify-center">
+                    <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+                      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendor</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.vendor_name}}</span>
+                      </div>
+                    <!-- </div> -->
+                  </div>    
+                  <div class="flex flex-col gap-[10px] w-[50px] flex-0 items-start justify-center">
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Clouds</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.images?.data[currentIndex]?.vendor_name !== 'capella' && data?.images?.data[currentIndex]?.vendor_name !== 'skyfi-umbra'? roundOff(data?.images?.data[currentIndex]?.cloud_cover)+ '%':'SAR'}}</span>
+                      </div>
+                  </div>
+                  <div class="flex flex-col gap-[10px] w-[60px] flex-0 items-start justify-center">
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{toDecimal(data?.images?.data[currentIndex]?.gsd)}}m</span>
+                      </div>
+                  </div>
+                  <div class="flex flex-col gap-[10px] w-[80px] flex-0 items-start justify-center">
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Type</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.images?.data[currentIndex]?.acquisition_datetime)}}</span>
+                      </div>
+                  </div>
+                  <div class="flex flex-col gap-[10px] w-[140px] flex-0 items-start justify-center">
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">ID</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                        <span class="text-secondaryText text-center text-sm font-medium leading-[18px] w-[140px]">{{data?.images?.data[currentIndex]?.vendor_id}}</span>
+                      </div>
+                  </div>
                 </div>
-                <div>
-                    <img src="assets/svg-icons/cross-icon.svg" class="cursor-pointer" (click)="closeDialog()" alt="">
+                <div class="flex w-full justify-between items-center">
+                  <div class="flex gap-[15px] h-[20px] items-center justify-between">
+                    <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/left-arrow-icon.svg" alt="" (click)="previousImage()"></span>
+                    <span class="cursor-pointer flex w-[20px] h-[20px]"><img src="assets/svg-icons/right-arrow-icon.svg" alt="" (click)="nextImage()"></span>
+                  </div>
+                  <div>
+                      <img src="assets/svg-icons/cross-icon.svg" class="cursor-pointer" (click)="closeDialog()" alt="">
+                  </div>
                 </div>
             </div>
         </div>

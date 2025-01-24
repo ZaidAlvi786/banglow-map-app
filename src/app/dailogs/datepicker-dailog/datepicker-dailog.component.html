@@ -6,7 +6,7 @@
       class="w-full"
       [dateClass]="dateClass"
     ></mat-calendar> -->
-    <div class="flex justify-between gap-3">
+    <div class="flex justify-between gap-3 mb-[20px]">
       <div class="flex flex-col w-[334px] gap-3 !relative justify-end">
         <div class="range-calendar-container !relative !h-[300px]">
           <!-- Date Range Picker with Hidden Input Fields -->
@@ -77,7 +77,7 @@
           class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"
           (click)="setDateRange('24hours')"
         >
-          1 day
+          1 Day
         </button>
         <button
           class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"
@@ -117,9 +117,9 @@
         </button>
         <button
           class="!w-[84px] !h-[40px] cursor-pointer bg-primaryBg !border !text-secondary-heiglight !border-solid !border-custom-secondary !rounded-[5px] flex items-center justify-center"
-          (click)="setDateRange('9months')"
+          (click)="setDateRange('1year')"
         >
-          9 Months
+          1 Year
         </button>
       </div>
     </div>

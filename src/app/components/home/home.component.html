@@ -21,7 +21,7 @@
         <mat-drawer [ngClass]="OpenEventCalendar ? '!w-[1088px]':'!w-[820px]'"  #drawer class="!bg-primaryBg !top-[40px] !block !z-[999999999999] library" mode="side">
          @if (drawer._animationState === 'open') {
           <div class="z-[999999999999] h-full">
-          <app-sidebar-drawer (closeSidebar)="closeDrawer()" (notifyParent)="receiveData($event)"  (addMarkerToMap)="handleMakerData($event)" (rowHoveredData)="highLightShape($event)" [zoomed_wkt]="zoomed_wkt_polygon" [polygon_wkt]="polygon_wkt" [type]="type" [endDate]="endDate" [startDate]="startDate"></app-sidebar-drawer>
+          <app-sidebar-drawer (closeSidebar)="closeDrawer()" (onFilterset)="onFilterset($event)" (notifyParent)="receiveData($event)"  (addMarkerToMap)="handleMakerData($event)" (rowHoveredData)="highLightShape($event)" [popUpData]="popUpData" [shapeHoverData]="shapeHoverData" [zoomed_wkt]="zoomed_wkt_polygon" [polygon_wkt]="polygon_wkt" [type]="type" [endDate]="endDate" [startDate]="startDate"></app-sidebar-drawer>
           </div>
          } 
         </mat-drawer>
@@ -42,9 +42,9 @@
         }"        
       ></div>
       <div
-        class="flex justify-end end-0 gap-3 pr-[12px] absolute bottom-[12px]"
+        class="flex justify-start w-[960px] end-0 gap-3 pr-[12px] absolute bottom-[12px]"
       >
-        <div class="relative z-50 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
+        <div class="relative z-50 " [ngClass]="drawer._animationState === 'open'? ' !w-fill-available':'w-full'">
           <app-footer #childComponent
             (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"
