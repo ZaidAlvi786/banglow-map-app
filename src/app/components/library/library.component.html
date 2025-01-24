@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col gap-3 z-[1000000000]">
+<div class="flex h-full flex-col gap-3 z-[1000000000]" (click)="hideMenu()">
     <div class="flex">
         <div class="flex flex-col gap-3 !w-[820px]">
     <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
@@ -13,7 +13,7 @@
 
         <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Selection area</span>
-            <span class="text-sm font-medium leading-[18px] text-secondaryText font-Barlow">8,080,464.3 km2</span>
+            <span class="text-sm font-medium leading-[18px] text-secondaryText font-Barlow">{{analyticsData?.area}} km2</span>
         </div>
         <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
@@ -123,7 +123,7 @@
                     {{analyticsData?.oldest_date | dateFormat}}
                 </span>
             </div>
-            <div
+            <!-- <div
                 class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Newest
@@ -131,7 +131,7 @@
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                     {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
                 </span>
-            </div>
+            </div> -->
             <div
                 class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
@@ -147,32 +147,54 @@
                     Avg
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{analyticsData?.average_per_day.toFixed(3)}}
+                    {{analyticsData?.average_per_day.toFixed(2)}}
                 </span>
             </div>
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Most recent
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
                     {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
                 </span>
+                <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Date time:</span>
+                        <span>{{analyticsData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Vendor:</span>
+                        <span>{{analyticsData?.newest_info?.vendor_name }}</span>
+                    </div>
+                    
+                </div>
             </div>
             <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
                     Most recent clear
                 </span>
                 <span class="text-sm font-semibold leading-[18px] text-yellow">
                     {{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | dateFormat}}
                 </span>
+                <div class="hidden absolute shadow-custom right-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Date time:</span>
+                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                    </div>
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Vendor:</span>
+                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.vendor_name }}</span>
+                    </div>
+                    
+                </div>
             </div>
         </div>
 
         <div class="mx-[15px] flex font-Barlow">
             <div *ngFor="let level of percentageArray;let isLast = last"
-                class="w-[182px] flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
+                class="w-[182px] group cursor-pointer flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
                 [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }">
 
                 <div class="custom-progress-container">
@@ -186,7 +208,13 @@
                     <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
                         alt="up_icon" class="ml-1" />
                 </span>
+                <div class="absolute z-10 top-[348px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
+                    <div class="flex flex-col gap-[5px]">
+                        <span class="text-sm font-semibold leading-[18px] flex-wrap">{{roundOff(level.current_count)}} ({{level.key}} days)  ÷  {{roundOff(level.previous_count)}} ({{getDouble(level.key)}} days)</span>
+                    </div>    
+                </div>
             </div>
+            
         </div>
     </div>
     } @else {
@@ -197,16 +225,17 @@
 
 
     <div class="bg-secondaryBg w-full relative" id="custom_table" >
-        <div id="container" [ngClass]="dataSource?.data?.length ? 'mb-[70px]': '' " class="flex m-[20px] justify-between items-center">
+        <div id="container"  class="flex m-[20px] justify-between items-center">
             <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                 <button (click)="selectPreviewMethod('table')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                     [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image Library
-                    {{total_count}}</button>
+                     {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'? formatNumber(total_count):''}}</button>
                 <button (click)="selectPreviewMethod('browse')"
                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
-                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse</button>
+                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
+                    {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'? formatNumber(total_count):''}}</button>
             </div>
             <div class="Menu">
                 <div class="flex">
@@ -223,50 +252,62 @@
                         <button class="py-[9px] px-[20px] my-0 ml-[8px] rounded-[19px] bg-primaryBg" (click)="setFilterClass()" [matMenuTriggerFor]="filter">
                             <img src="assets/svg-icons/filter-icon.svg" alt="">
                         </button>
-                        <mat-menu class="bg-primaryBg p-[15px]" #filter="matMenu" id="filter">
+                        <mat-menu class="bg-primaryBg p-[15px]" #filter="matMenu" id="filter" (closed)="onMenuClose()">
                             <form class="flex flex-col font-Barlow gap-[15px]" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
                                 <span class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply filters</span>
                                 <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                    <mat-label>Vendor name</mat-label>
-                                    <input matInput type="text" formControlName="vendor">
+                                    <mat-label class="!text-secondaryText">Vendor name</mat-label>
+                                    <mat-select class="!text-secondaryText" multiple formControlName="vendor" name="vendor">
+                                    @for (vendor of vendorsList; track vendor) {
+                                        <mat-option [value]="vendor">{{vendor}}</mat-option>
+                                    }
+                                    </mat-select>
                                 </mat-form-field>
                                 <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                    <mat-label>Vendor ID</mat-label>
-                                    <input matInput type="text" formControlName="vendorId">
+                                    <mat-label class="!text-secondaryText">Vendor ID</mat-label>
+                                    <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
                                 </mat-form-field>
-                                <div class="flex gap-2">
-                                    <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Min Cloud Cover</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="min_cloud">
+
+                                <div  class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
+                                    <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                        <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
                                     </mat-form-field>
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Max Cloud Cover</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="max_cloud">
-                                    </mat-form-field>
+                                        <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
+                                    </mat-form-field> -->
+                                    <mat-label class="!text-secondaryText">Cloud Cover</mat-label>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>GSD</mat-label>
                                     <input matInput type="text" formControlName="gsd">
                                 </mat-form-field> -->
-                                <div class="flex gap-2">
-                                    <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Min Off NADIR Angle</mat-label>
-                                        <input matInput [max]="360" type="number" formControlName="min_angle">
+                                <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
+                                    <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                        <mat-label class="!text-secondaryText">Min Off NADIR Angle</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="min_angle">
                                     </mat-form-field>
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Max Off NADIR Angle</mat-label>
-                                        <input matInput [max]="360" type="number" formControlName="max_angle">
-                                    </mat-form-field>
+                                        <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
+                                    </mat-form-field> -->
+                                    <mat-label class="!text-secondaryText">Off NADIR Angle</mat-label>
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions"></ngx-slider>
                                 </div>
-                                <div class="flex gap-2">
-                                    <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Min GSD</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="min_gsd">
+                                <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
+                                    <!-- <mat-form-field  class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                        <mat-label class="!text-secondaryText">Min GSD</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_gsd">
                                     </mat-form-field>
                                     <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label>Max GSD</mat-label>
-                                        <input matInput [max]="100" type="number" formControlName="max_gsd">
-                                    </mat-form-field>
+                                        <mat-label class="!text-secondaryText">Max GSD</mat-label>
+                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
+                                    </mat-form-field> -->
+                                    <mat-label class="!text-secondaryText">GSD</mat-label>
+
+                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>Start date</mat-label>
@@ -305,9 +346,12 @@
         <div class="w-[820px] overflow-auto browser-content" #scrollableDiv>
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                @if(dataSource?.data?.length){
-                <div *ngFor="let item of dataSource.data; let index = index" class="bg-secondaryBg rounded-[5px] font-Barlow single_browse w-[182px]">
-                    <div class="flex flex-col">
-                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
+                <div *ngFor="let item of dataSource.data; let index = index"                 
+                 class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                
+                    <div class="flex flex-col" 
+                        >
+                        <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'verticalLine':''" class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
                         (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
                             @if (item?.presigned_url) {
                                 <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
@@ -321,10 +365,11 @@
                         </div>
 
                         <div class="flex justify-between">
-                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime)}}</span>
-                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item?.acquisition_datetime)}}</span>
+                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
                         </div>
                     </div>
+                    <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
                 </div>
                } @else {
                 <div class="w-full flex justify-center items-center">
@@ -341,9 +386,9 @@
                 <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
                 </div>
-                <table id="library-table" mat-table [dataSource]="dataSource" matSort multiTemplateDataRows
+                <table id="library-table" style="    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;" mat-table (matSortChange)="onSortChange($event)" [dataSource]="dataSource" matSort multiTemplateDataRows
                 class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg" [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
-                <ng-container matColumnDef="selectDate">
+                <ng-container matColumnDef="acquisition_datetime">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[185px] p-[10px] text-secondaryText font-semibold">
                         <mat-checkbox class="cursor-default" [aria-label]="'Select All'">
                         </mat-checkbox>
@@ -353,48 +398,48 @@
                     
                     >
                         <mat-checkbox (click)="$event.stopPropagation()"
-                        (change)="expandedData(row)" [checked]="isRowSelected(row.id)"
+                        (change)="expandedData(row)" [checked]="isRowSelected(row.id) || matchedObject?.id === row.id"
                             [aria-label]="'Select Row'">
                         </mat-checkbox>
-                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime) +' '+ formatUtcTime(row?.acquisition_datetime)}}</span>
+                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime,row?.centroid) +' '+ formatUtcTime(row)}}</span>
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="Sensor">
+                <ng-container matColumnDef="sensor">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Sensor</th>
                     <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.sensor }}
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="Vendor">
+                <ng-container matColumnDef="vendor_name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Vendor</th>
                     <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.vendor_name }}
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="Cover">
-                    <th mat-header-cell *matHeaderCellDef class="w-[70px] p-[10px] text-secondaryText font-semibold">
-                        Cover</th>
-                    <td mat-cell *matCellDef="let row" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
+                <ng-container matColumnDef="cloud_cover">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[70px] p-[10px] text-secondaryText font-semibold">
+                        Clouds</th>
+                    <td mat-cell *matCellDef="let row" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'skyfi-umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
                 </ng-container>
 
-                <ng-container matColumnDef="Resolution">
-                    <th mat-header-cell *matHeaderCellDef class="w-[90px] p-[10px] text-secondaryText font-semibold">
+                <ng-container matColumnDef="gsd">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[90px] p-[10px] text-secondaryText font-semibold">
                         Resolution</th>
-                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{ row?.gsd }}
+                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="type">
-                    <th mat-header-cell *matHeaderCellDef class="w-[80px] p-[10px] text-secondaryText font-semibold">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[80px] p-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime) }}</td>
+                    <td mat-cell *matCellDef="let row" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
                 </ng-container>
 
-                <ng-container matColumnDef="Id">
-                    <th mat-header-cell *matHeaderCellDef class="w-[165px] p-[10px] text-secondaryText font-semibold">ID
+                <ng-container matColumnDef="vendor_id">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[165px] p-[10px] text-secondaryText font-semibold">ID
                     </th>
                     <td mat-cell *matCellDef="let row" class="w-[165px] p-[10px] text-secondaryText">
                         <div class="flex">
@@ -429,15 +474,15 @@
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Constellation:
                                         </span> <span class="text-secondaryText">{{element?.vendor_name}}</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date Time:
-                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime)}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime,element?.centroid)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Day of Week:
-                                        </span> <span class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime)}}</span> </div>
+                                        </span> <span class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime,element?.centroid)}}</span> </div>
                                         <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Image ID:
                                         </span> <span class="text-secondaryText">{{element?.vendor_id}}</span> </div>
                                     <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
                                         </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div> -->
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Cloud Cover:
-                                             </span> <span class="text-secondaryText">{{ element?.vendor_name !== 'capella' && element?.vendor_name !== 'umbra' ? roundOff(element?.cloud_cover)+'%' : 'SAR' }}</span>
+                                             </span> <span class="text-secondaryText">{{ element?.vendor_name !== 'capella' && element?.vendor_name !== 'skyfi-umbra' ? roundOff(element?.cloud_cover)+'%' : 'SAR' }}</span>
                                     </div>
                                     <!-- <div class="flex py-2"> <span
                                         class="text-secondary-heiglight font-semibold">Constellation: </span> <span
@@ -447,21 +492,21 @@
                                             class="text-secondaryText">{{element?.sensor}}</span> </div>
                                             <div class="flex py-2"> <span
                                                 class="text-secondary-heiglight font-semibold">GSD:</span> <span
-                                                class="text-secondaryText">{{element?.gsd}}</span> </div>
+                                                class="text-secondaryText">{{roundOff(element?.gsd)}}m</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Area:
                                         </span> <span class="text-secondaryText">{{element?.area}}km²</span> </div>
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Geo
                                             referenced: </span> <span
                                             class="text-secondaryText">{{element?.georeferenced?'True':'False'}}</span>
                                     </div>
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
-                                    </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div>
+                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
+                                    </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div> -->
                                     <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Off NADIR Angle: </span> <span
-                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(3)}}°</span> 
+                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(2)}}°</span> 
                                     </div>
                                     <div class="flex gap-2 py-2"> <span class="text-secondary-heiglight font-semibold">Centroid Lat: </span> <div
                                         class="flex gap-2" *ngFor="let center of element.centroid">
-                                        <span  class="text-secondaryText">{{center.toFixed(3)}}</span></div> 
+                                        <span  class="text-secondaryText">{{center.toFixed(2)}}</span></div> 
                                     </div>
                                 </div>
                             </div>
@@ -469,10 +514,14 @@
                     </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-secondaryBg"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="bg-secondaryBg"></tr>
                 <tr mat-row *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex" 
                 class="hover:bg-secondaryHighlight cursor-pointer"
-                [ngClass]="zoomed_captures_count > 0 && (i+1) == zoomed_captures_count  ? 'border-b-2 border-b-solid border-b-white':''"
+                [ngClass]="{
+                    'border-b-2 border-b-solid border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count,
+                    '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id
+                  }"
+                  
                 (click)="expandedElement = expandedElement === row ? null : row;"
                 (mouseover)="onRowHover(row)"
                 (mouseout)="onRowHover(null)"
@@ -548,7 +597,7 @@
 </div>
     @if (isEventsOpened && calendarApiData) {
         <div class="z-[1000000] text-secondaryText " >
-          <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate" [calendarApiData]="calendarApiData"></app-map-calendar>
+          <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate" (calendarEventsOpen)="calendarEventsOpen()" [calendarApiData]="calendarApiData"></app-map-calendar>
         </div>
       }
    </div>

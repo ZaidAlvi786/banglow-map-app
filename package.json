@@ -9,6 +9,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-slider/ngx-slider": "^18.0.0",
     "@angular/animations": "^18.2.13",
     "@angular/cdk": "^18.2.14",
     "@angular/common": "^18.2.13",
@@ -28,6 +29,7 @@
     "leaflet-draw": "^1.0.4",
     "martinez-polygon-clipping": "^0.7.4",
     "moment": "^2.30.1",
+    "moment-timezone": "^0.5.46",
     "ng-apexcharts": "^1.15.0",
     "ngx-daterangepicker-material": "^6.0.4",
     "ngx-socket-io": "^4.7.0",
@@ -36,8 +38,8 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "typescript": "^5.5.4",
+    "tz-lookup": "^6.1.25",
     "zone.js": "~0.14.3"
-    
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.2.12",

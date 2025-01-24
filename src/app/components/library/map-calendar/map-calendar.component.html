@@ -37,11 +37,13 @@
       <div *ngFor="let week of month.weeks" class="week">
         <div
           *ngFor="let day of week"
-          [ngStyle]="{'background-color': day?.backgroundValue,'color':day.colorValue?day.colorValue:'#ffffff'}"
-          class="day relative group"
+          [style.background-color]="day?.backgroundValue"
+          [style.color]="day?.colorValue"
+          class="day group"
+          
         >
-          {{ day.date }}
-          <div *ngIf="day.value>0" class="group-hover:inline-flex min-w-[185px] z-[9999999999] w-max absolute hidden font-Barlow p-[15px] top-[30px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+        {{ getDayFromDate(day.date) }}
+          <div *ngIf="day.value>0" class="group-hover:inline-flex min-w-[185px] z-[9999999999] w-max absolute hidden font-Barlow p-[15px] right-[20px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
             <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(month.name,day)}}</span>
             <span class="text-secondaryText text-sm font-medium leading-[18px]">{{day.value}} images available</span>
             <span class="text-yellow pt-[15px] border-t border-t-solid border-t-custom-border text-xs font-bold leading-[18px]">Browse images</span>

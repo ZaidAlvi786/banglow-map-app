@@ -128,6 +128,12 @@ hybridLayer:L.TileLayer = L.tileLayer(
   zoomed_wkt_polygon:any = '';
   shapeType:string='';
   zoomed_status:boolean = false;
+  popUpData:any;
+  shapeHoverData:any;
+  contextMenu:any
+  mapDirection = 1;
+  mapFormula = 0;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -197,36 +203,48 @@ hybridLayer:L.TileLayer = L.tileLayer(
      });
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.sharedService.rightMenuHide$.subscribe((event) =>{
+      if(event === false){
+          
+          if (this.contextMenu) {
+            this.contextMenu.style.display = 'none';
+          }
+       
+    }
+    })
   }
 
   //openstreetmap search and location markers function
   onSearchLocation(result: google.maps.places.PlaceResult) {
-
-
-   
+    // Remove existing markers from the map
     this.map.eachLayer((layer) => {
       if (layer instanceof L.Marker) {
         this.map.removeLayer(layer);
       }
     });
-
+  
+    // Get the latitude and longitude of the searched location
     const lat = result.geometry?.location?.lat()!;
     const lng = result.geometry?.location?.lng()!;
+  
     // Move the map to the searched location
     this.map.setView([lat, lng], this.zoomLevel);
+  
+    // Define the custom marker icon
     const markerIcon = L.icon({
       iconUrl: 'assets/svg-icons/pin-location-icon.svg',  // Adjust the path if necessary
       iconSize: [25, 41],  // Adjust the icon size
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
     });
-
-    
-    // Add a marker to the map
+  
+    // Add a marker to the map without auto-opening the popup
     const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
-    // Optionally bind a popup to the marker
-    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup();
+  
+    // Bind the popup to the marker but do not open it automatically
+    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup()
   }
+  
 
   //openstreetmap initialization
   private initMap(): void {
@@ -313,24 +331,98 @@ hybridLayer:L.TileLayer = L.tileLayer(
     //      console.log('WKT of the zoomed polygon:', wkt);
     // }
     // });
+
+    // Add right-click event listener
+    this.map.on('contextmenu', (event: L.LeafletMouseEvent) => {
+      const { lat, lng } = event.latlng;
+
+      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(lat, lng)
+      const coords = `${normalizedLatitude.toFixed(6)}, ${normalizedLongitude.toFixed(6)}`;
+          
+      // Create a context menu if it doesn't exist
+       this.contextMenu = document.getElementById('context-menu');
+      if (!this.contextMenu) {
+        
+        this.contextMenu = document.createElement('div');
+        this.contextMenu.id = 'context-menu';
+        this.contextMenu.style.position = 'absolute';
+        this.contextMenu.style.zIndex = '1000';
+        this.contextMenu.style.backgroundColor = '#20272D';
+        this.contextMenu.style.border = '1px solid #20272D';
+        this.contextMenu.style.padding = '5px';
+        this.contextMenu.style.boxShadow = '0px 2px 1px 0px rgba(0, 0, 0, 0.50)';
+        this.contextMenu.style.cursor = 'pointer';
+        document.body.appendChild(this.contextMenu);
+    
+        // Add menu option
+        const menuOption = document.createElement('div');
+        menuOption.textContent = 'Copy Coordinates';
+        menuOption.style.padding = '5px';
+        menuOption.style.whiteSpace = 'nowrap';
+        menuOption.style.fontSize = '14px';
+        menuOption.style.color = '#ABB7C0'
+    
+        menuOption.addEventListener('click', () => {
+          try {
+            navigator.clipboard.writeText(coords).then(() => {
+              this._snackBar.open('Latitude and Longitude copied to clipboard!', 'Ok', {
+                duration: 2000,
+              });
+            }).catch((err) => {
+              console.error('Clipboard API failed. Falling back to execCommand:', err);
+              this.fallbackCopyToClipboard(coords);
+            });
+          } catch(e) {
+            console.error('Clipboard API failed. Falling back to execCommand:', e);
+            this.fallbackCopyToClipboard(coords);
+          }
+
+    
+          // Hide the context menu
+          this.contextMenu.style.display = 'none';
+          this.contextMenu.removeChild(menuOption);
+          document.body.removeChild(this.contextMenu);
+          this.contextMenu = null;
+        });
+    
+        this.contextMenu.appendChild(menuOption);
+      }
+    
+      // Position and show the context menu
+      this.contextMenu.style.left = `${event.originalEvent.pageX}px`;
+      this.contextMenu.style.top = `${event.originalEvent.pageY}px`;
+      this.contextMenu.style.display = 'block';
+    
+      // Hide the menu on any other click
+      this.map.once('click', () => {
+        this.contextMenu.style.display = 'none';
+      });
+    });
+    
   
     // Add mousemove event to track coordinates
     this.map.on('mousemove', (event: L.LeafletMouseEvent) => {
       const coords = event.latlng;
-      this.longitude = parseFloat(coords.lng.toFixed(6));
-      this.latitude = parseFloat(coords.lat.toFixed(6));
+
+      // Clamp latitude to [-90, 90] and longitude to [-180, 180]
+      const clampedLat = Math.max(-90, Math.min(90, coords.lat));
+      const clampedLng = ((coords.lng + 180) % 360 + 360) % 360 - 180; // Wrap longitude to [-180, 180]
+    
+      this.longitude = parseFloat(clampedLng.toFixed(6));
+      this.latitude = parseFloat(clampedLat.toFixed(6));
     });
   
     // Adjust view to clamp latitude if necessary
-    this.map.on('move', () => {
+    this.map.on('move', (event: L.LeafletMouseEvent) => {
+      const coords = event.latlng;
+
       const mapSize = this.map.getSize(); // Get the map viewport size
       // const mapViewportWidth = mapSize.x; // Extract the width
       
-     
       const center = this.map.getCenter();
       const lat = Math.max(-90, Math.min(90, center.lat));
       const lng = center.lng; // Allow longitude wrapping
-      if (lat !== center.lat) {
+      if (lat !== center.lat) {        
         this.map.setView([lat, lng], this.map.getZoom(), { animate: false });
       }
     });
@@ -420,6 +512,35 @@ hybridLayer:L.TileLayer = L.tileLayer(
     this.map.off('add');
     this.map.off('click');
   }
+
+  // Fallback method to copy text
+private fallbackCopyToClipboard(text: string): void {
+  // Create a temporary textarea element
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed'; // Prevent scrolling to the textarea
+  textarea.style.opacity = '0'; // Make it invisible
+  document.body.appendChild(textarea);
+
+  // Select and copy the text
+  textarea.select();
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+      this._snackBar.open("Latitude and Longitude copied to clipboard!", "Ok", {
+        duration: 2000, // Snackbar will disappear after 300 milliseconds
+      });
+      console.log(`Copied coordinates (fallback): ${text}`);
+    } else {
+      console.error('Fallback copy failed');
+    }
+  } catch (err) {
+    console.error('Fallback copy failed:', err);
+  }
+
+  // Clean up the textarea element
+  document.body.removeChild(textarea);
+}
   
   
   private adjustMapCenter(containerWidth: number): void {
@@ -687,9 +808,8 @@ hybridLayer:L.TileLayer = L.tileLayer(
 
   //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
-    console.log('aaaaaaaaaaaaaaa');
-    
-    this.satelliteService.getPolyGonData(payload).subscribe({
+    const  updatedPayload = this.normalizePayloadCoordinates(payload);
+    this.satelliteService.getPolyGonData(updatedPayload).subscribe({
       next: (resp) => {
         this.polygon_wkt = resp?.data?.wkt_polygon
         console.log("resp:resp:resp:resp:resp: ", resp?.data);
@@ -722,7 +842,47 @@ hybridLayer:L.TileLayer = L.tileLayer(
     });
   }
 
+  normalizePayloadCoordinates(payload: any): any {
+    if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
+      payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
+        coordinateSet.map(([longitude, latitude]: [number, number]) => {
 
+         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+          let direction =  1;
+        if (longitude >=0) {
+          direction = 1;       
+        } else {      
+          direction= -1;  
+        }
+        
+       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)) * direction)
+      return [normalizedLongitude, normalizedLatitude];
+        })
+      );
+    }
+    return payload; // Return the updated payload
+  }
+
+  normalizePayloadZoomCoordinates(coordinates: any): any {
+    if (coordinates && Array.isArray(coordinates)) {
+       coordinates = coordinates.map(coordinateSet =>
+        coordinateSet.map(([longitude, latitude]: [number, number]) => {
+
+         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+        //   let direction =  1;
+        // if (normalizedLongitude >=0) {
+        //   direction = 1;       
+        // } else {      
+        //   direction= -1;  
+        // }
+        
+      //  this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)) * direction)
+      return [normalizedLongitude, normalizedLatitude];
+        })
+      );
+    }
+    return coordinates; // Return the updated payload
+  }
   //Polygon data getting by using polygon fucntionality
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
@@ -797,7 +957,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
     const latLngs = polygonCoordinates.map((coord: [number, number]) => [
         coord[1],
-        coord[0],
+        coord[0] + this.mapFormula,
     ]);
   
     let color = 'rgba(239, 242, 77, 0.8)'; // Default color with 50% opacity
@@ -826,10 +986,18 @@ if (data.vendor_name === 'planet') {
     }).addTo(this.map);
     console.log(polygon, 'Polygon added');
   
+    // Attach hover events to the polygon
+    polygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
+    polygon.on('mouseout', (e) => this.onPolygonOut(null));
+
+    console.log(polygon, 'Polygon added');
     // Attach the click event to open the component dialog
     polygon.on('click', (event: L.LeafletMouseEvent) => {
         const clickedPosition = event.latlng; // Get the clicked position
-  
+        if (this.currentAction === 'location') {
+          console.log('Handle action is location, dialog will not open.');
+          return; // Prevent dialog from opening
+      }
         // Convert clicked position to pixel position relative to the map
         const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
         let queryParams = {
@@ -843,7 +1011,10 @@ if (data.vendor_name === 'planet') {
             next: (resp) => {
                 console.log(resp, 'Data received');
                 const vendorData = resp.data[0];
+                this.onPolygonOut(null)
                 this.openDialogAtPosition(polygon, vendorData);
+                this.popUpData = vendorData
+
             },
             error: (err) => {
                 console.error("Error fetching polygon data: ", err);
@@ -861,6 +1032,14 @@ if (data.vendor_name === 'planet') {
     }
   
     console.log('Drawing tools disabled');
+}
+
+
+onFilterset(data) {
+  data.params = {...data.params, source: 'home',  page_number: '1', page_size: '100'}
+  this.getDataUsingPolygon(data.payload,  data.params);
+  this.cdr.detectChanges();
+
 }
 
 //Extra shapes  clearing functionality
@@ -977,11 +1156,14 @@ handleAction(action: string): void {
           left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
         };
 
+      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(clickLat, clickLng)
+
       const  payload= {
-        latitude:clickLat,
-        longitude:clickLng,
+        latitude:normalizedLatitude,
+        longitude:normalizedLongitude,
         distance:1
       }
+    
       this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
         next: (resp) => {
           console.log(resp,'resprespresprespresprespresp');
@@ -1067,6 +1249,17 @@ handleAction(action: string): void {
       return 'Error fetching address';
     }
   }
+
+
+  private getlatlngNormalized(lat: number, lng: number) {
+    // Normalize longitude to [-180, 180]
+    const normalizedLongitude = ((lng + 180) % 360 + 360) % 360 - 180;
+  
+    // Clamp latitude to [-90, 90]
+    const normalizedLatitude = Math.max(-90, Math.min(90, lat));
+  
+    return { normalizedLatitude, normalizedLongitude };
+  }
   
 
   // Enable drawing mode for polygons or lines
@@ -1139,7 +1332,8 @@ handleAction(action: string): void {
           };
         }
         // API call to get polygon data
-        this.satelliteService.getPolyGonData(payload).subscribe({
+        
+        this.satelliteService.getPolyGonData(this.normalizePayloadCoordinates(payload)).subscribe({
           next: (resp) => {
             console.log(resp, 'Polygon Data Response');
             this.polygon_wkt = resp?.data?.wkt_polygon
@@ -1169,9 +1363,11 @@ handleAction(action: string): void {
   
                       // Mock data for dialog content (replace with actual data if needed)
                       const markerData = res?.data?.analytics;
-                      this.getAddress(center.lat, center.lng).then((address) => {
+                      const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(center.lat, center.lng)
+
+                      this.getAddress(normalizedLatitude, normalizedLongitude).then((address) => {
                         const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-                          width: '320px',
+                          width: '355px',
                           data: { type: 'polygon', markerData: markerData, shapeData: shapeData },
                           position,
                           panelClass: 'custom-dialog-class',
@@ -1360,6 +1556,7 @@ onDateRangeChanged(event: { startDate: string, endDate: string }) {
       start_date:this.startDate,
       end_date: this.endDate
     }
+    this.closeDrawer()
   this.getDataUsingPolygon(this.data,queryParams);
   }
   this.cdr.detectChanges();
@@ -1492,13 +1689,14 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
 
   dialogRef.afterClosed().subscribe((result) => {
     console.log('Dialog closed', result);
+    this.popUpData = null
   });
 }
 
 receiveData(dataArray: any[]) {
   console.log(dataArray, 'parentparentparentparentparentparentparent');
 
-  // Track existing image overlays
+  // Initialize the imageOverlays map if it doesn't exist
   if (!this.imageOverlays) {
     this.imageOverlays = new Map<string, L.ImageOverlay>();
   }
@@ -1522,7 +1720,7 @@ receiveData(dataArray: any[]) {
       if (data?.coordinates_record?.coordinates) {
         // Extract the coordinates and map them to Leaflet's LatLng format
         const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-          new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+          new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
         );
 
         // Create bounds for the current image
@@ -1536,35 +1734,38 @@ receiveData(dataArray: any[]) {
             opacity: 1, // Optional: Adjust opacity if needed
             zIndex: 1000,
           });
+
+          // Add mouseover and mouseout event listeners
+          imageOverlay.on('mouseover', (event) => {
+            console.log(`Mouse entered image: ${data.vendor_id}`);
+            this.onPolygonHover(data?.vendor_id)
+            // Change opacity on hover
+          });
+
+          imageOverlay.on('mouseout', (event) => {
+            console.log(`Mouse left image: ${data.presigned_url}`);
+            this.onPolygonOut(null)
+             // Restore original opacity
+          });
+
           imageOverlay.addTo(this.map);
 
           // Store the overlay in the map for tracking
           this.imageOverlays.set(data.presigned_url, imageOverlay);
-        } else {
-          // Update the bounds of the existing overlay if necessary
-          // const existingOverlay = this.imageOverlays.get(data.presigned_url);
-          // if (existingOverlay) {
-          //   existingOverlay.setBounds(bounds);
-          // }
         }
       }
     });
 
-    // Combine all bounds into one
+    // Combine all bounds into one if needed
     // const combinedBounds = allBounds.reduce((acc, bounds) => acc.extend(bounds), L.latLngBounds([]));
-
-    // // Get the center of the combined bounds
-    // const center = combinedBounds.getCenter();
-
-    // // Set the map view to the center without changing the zoom level
-    // const currentZoom = this.map.getZoom();
-    // this.map.setView(center, currentZoom); // Retain the current zoom
+    // this.map.fitBounds(combinedBounds); // Fit the map to the bounds of all overlays
   } else {
     // Handle case where there are no valid coordinates
     this.imageOverlays.forEach((overlay) => this.map.removeLayer(overlay));
     this.imageOverlays.clear();
   }
 }
+
 
 handleMakerData(data: any) {
   console.log(data, 'handling marker data');
@@ -1573,7 +1774,7 @@ handleMakerData(data: any) {
   if (data?.coordinates_record?.coordinates) {
     // Extract the coordinates and map them to Leaflet's LatLng format
     const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-      new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+      new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
     );
 
     // Create bounds for the current shape
@@ -1644,7 +1845,7 @@ highLightShape(data: any): void {
 
   // Extract the coordinates and map them to Leaflet's LatLng format
   const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-    new L.LatLng(coord[1], coord[0]) // Convert [lon, lat] to [lat, lon]
+    new L.LatLng(coord[1], coord[0]+this.mapFormula) // Convert [lon, lat] to [lat, lon]
   );
 
   // Determine the color based on the vendor name
@@ -1769,7 +1970,7 @@ boundsToPolygon(bounds: L.LatLngBounds): any {
   };
 }
 polygonToWKT(polygon: any): string {
-  const wktCoordinates = polygon[0]
+  const wktCoordinates = this.normalizePayloadZoomCoordinates(polygon[0])
     .map((ring: any) =>
       ring.map((coord: any) => `${coord[0]} ${coord[1]}`).join(', ')
     )
@@ -1884,4 +2085,21 @@ wktToBounds(wkt: string): L.LatLngBounds {
     }
   }
 
+  //Map data filtering functionality
+  filterData(queryParams:any){
+    this.getDataUsingPolygon(this.data,queryParams);
+  }
+  // Define hover functions
+  onPolygonHover(data) {
+    this.sharedService.setRowHover(data)
+  }
+
+  onPolygonOut(data) {
+   this.sharedService.setRowHover(data)
+  }
+
 }
+function onPolygonHover(e: any, LeafletMouseEvent: any) {
+  throw new Error('Function not implemented.');
+}
+

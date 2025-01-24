@@ -87,31 +87,90 @@ export class HeaderComponent implements OnInit,OnChanges {
  
 }
 
+private initializeAutocomplete() {
+  console.log('Initializing autocomplete');
 
-  private initializeAutocomplete() {
-    console.log('rrrrrrrrrrrrrr');
-    
-    const input = this.searchInput.nativeElement;
-    this.autocomplete = new google.maps.places.Autocomplete(input, {
-      types: ["geocode"], // You can adjust this to `['establishment']` or other types
+  const input = this.searchInput.nativeElement;
+
+  // Initialize Google Maps Places Autocomplete
+  this.autocomplete = new google.maps.places.Autocomplete(input, {
+    types: ["geocode"], // Adjust this if needed
+  });
+
+  // Add listener for place selection
+  this.autocomplete.addListener("place_changed", () => {
+    this.ngZone.run(() => {
+      const place: google.maps.places.PlaceResult = this.autocomplete.getPlace();
+
+      if (place && place.geometry) {
+        // If a valid place is selected
+        const lat = place.geometry.location?.lat();
+        const lng = place.geometry.location?.lng();
+        console.log("Selected place:", place, lat, lng);
+
+        this.searchEvent.emit(place);
+      } else {
+        // If no place is selected, validate and parse coordinate input
+        const inputValue = input.value;
+        this.handleCoordinateInput(inputValue);
+      }
     });
+  });
+}
 
-    // Add listener for place selection
-    this.autocomplete.addListener("place_changed", () => {
-      this.ngZone.run(() => {
-        const place: google.maps.places.PlaceResult =
-          this.autocomplete.getPlace();
-        if (place && place.geometry) {
-          // get lat
-          const lat = place.geometry.location?.lat();
-          // get lng
-          const lng = place.geometry.location?.lng();
+/**
+ * Validates and handles coordinate input in both DMS and Decimal formats
+ */
+private handleCoordinateInput(input: string) {
+  const dmsRegex = /^(\d{1,3})°(\d{1,2})'(\d{1,2}(\.\d+)?)["']?\s*([NSEW])\s*,?\s*(\d{1,3})°(\d{1,2})'(\d{1,2}(\.\d+)?)["']?\s*([NSEW])$/;
+  const decimalRegex = /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/;
 
-          console.log("placeplaceplaceplaceplace", place, lng, lat);
+  let latitude: number | undefined;
+  let longitude: number | undefined;
 
-          this.searchEvent.emit(place);
-        }
-      });
-    });
+  if (dmsRegex.test(input)) {
+    // Parse DMS coordinates
+    const matches = dmsRegex.exec(input);
+    latitude = this.convertDMSToDecimal(matches![1], matches![2], matches![3], matches![5]);
+    longitude = this.convertDMSToDecimal(matches![6], matches![7], matches![8], matches![10]);
+  } else if (decimalRegex.test(input)) {
+    // Parse Decimal coordinates
+    [latitude, longitude] = input.split(',').map(coord => parseFloat(coord.trim()));
+  } else {
+    console.error("Invalid coordinate format");
+    return;
+  }
+
+  if (latitude !== undefined && longitude !== undefined) {
+    console.log("Parsed coordinates:", latitude, longitude);
+
+    // Construct a minimal PlaceResult object
+    const place: google.maps.places.PlaceResult = {
+      geometry: {
+        location: new google.maps.LatLng(latitude, longitude),
+      },
+      name: `${latitude}, ${longitude}`, // Optional: Display coordinates as the name
+      formatted_address: `${latitude}, ${longitude}`, // Optional: Use coordinates as address
+    };
+
+    this.searchEvent.emit(place);
+  }
+}
+
+
+/**
+ * Converts DMS coordinates to Decimal Degrees
+ */
+private convertDMSToDecimal(degrees: string, minutes: string, seconds: string, direction: string): number {
+  let decimal = parseInt(degrees) + parseInt(minutes) / 60 + parseFloat(seconds) / 3600;
+  if (direction === 'S' || direction === 'W') {
+    decimal *= -1;
+  }
+  return decimal;
+}
+
+
+  hideMenu(){
+    this.sharedService.setRightMenuHide(false)
   }
 }
