@@ -9,6 +9,7 @@ import {
 } from "@angular/core";
 import dayjs from "dayjs";
 import minMax from "dayjs/plugin/minMax";
+import { legends_calendar } from "../../shared/calrendar-range-colos";
 dayjs.extend(minMax);
 
 type CalendarDay = {
@@ -55,7 +56,8 @@ export class MapCalendarComponent implements OnInit {
 
   get calendarApiData(): any {
     return this._calendarApiData;
-  }
+  };
+
   ngOnInit(): void {
   }
 
@@ -88,7 +90,7 @@ export class MapCalendarComponent implements OnInit {
           date: dateString,
           value,
           colorValue: "#ffffff",
-          backgroundValue: value && value > 0 ? this.getBackgroundColor(value) : "",
+          backgroundValue: value && value > 0 ? this.getColor(value,  Object.values(apiData)) : "",
         });
         day = day.add(1, "day");
       }
@@ -126,17 +128,69 @@ export class MapCalendarComponent implements OnInit {
     // Convert to rgb format
     return `rgb(${red}, ${green}, ${blue})`;
   }
-  
-  getColor(value: number): string {
-    // Generate a random color for the text
-    return this.getRandomDarkColor();
+
+  getColor(value: number, data): string {
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const mean = data.reduce((sum, v) => sum + v, 0) / data.length;
+
+    // Special case: Only one value in the dataset
+  if (min === max) {
+    return `rgb(255, 0, 0)`; // Default to red for a single value
   }
+  // Clamp the value to the range [min, max]
+  const clampedValue = Math.min(Math.max(value, min), max);
+
+  // Normalize value to a range of 0-1
+  const normalized = (clampedValue - min) / (max - min);
+
+  // Calculate red and green intensities
+   const red = Math.round(255 * normalized);     // Red increases with the value
+   const green = Math.round(255 * (1 - normalized)); // Green decreases with the value
+
+  // Return the gradient color
+  return `rgb(${red}, ${green}, 0)`;
+//  // Clamp the value to the range [min, max]
+//  const clampedValue = Math.min(Math.max(value, min), max);
+
+//  // Map value to a 0-1 range
+//  const normalized = (clampedValue - min) / (max - min);
+
+//  // Calculate red and green intensities
+//  const red = Math.round(255 * normalized);     // Red increases with the value
+//  const green = Math.round(255 * (1 - normalized)); // Green decreases with the value
+
+//  // Return the color in rgb format
+//  return `rgb(${red}, ${green}, 0)`; // Blue is fixed at 0 for shades of red and green
+
+
+    // if (value <= mean) {
+    //   // Below or at the mean: Lighter red shades
+    //   const normalized = (value - min) / (mean - min);
+    //   const red = 255;
+    //   const green = Math.round(255 * (1 - normalized));
+    //   const blue = Math.round(255 * (1 - normalized));
+    //   return `rgb(${red}, ${green}, ${blue})`;
+    // } else {
+    //   // Above the mean: Transition from red to green
+    //   const normalized = (value - mean) / (max - mean);
+    //   const red = Math.round(255 * (1 - normalized));
+    //   const green = Math.round(255 * normalized);
+    //   return `rgb(${red}, ${green}, 0)`;
+    // }
+  }
+  
+  // getColor(value: number): string {
+  //   // Generate a random color for the text
+  //   return this.getRandomDarkColor();
+  // }
   
   getBackgroundColor(value: number): string {
-    // Generate a random color for the background
-    return this.getRandomDarkColor();
+    const matchedRange = legends_calendar.find(
+      range => value >= range.min && value <= range.max
+    );
+    return matchedRange?.color; // Default to black if no match
   }
-
   getDate(month: string, day: any): string {
     // Create the full date string like '2024-12-01' by combining year, month, and day
     const fullDate = `${day.date}`;

@@ -186,6 +186,12 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   matchedObject:any
 
   defaultFilter() {
+    let minCloud
+    if(this.min_cloud <= -1) {
+      minCloud = -1
+    } else {
+      minCloud = this.min_cloud
+    } 
     return {
       page_number: '1',
       page_size: '20',
@@ -194,7 +200,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       source: 'library',
       zoomed_wkt:this._zoomed_wkt,
       max_cloud_cover: this.max_cloud,
-      min_cloud_cover:this.min_cloud,
+      min_cloud_cover:minCloud,
       max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
       min_off_nadir_angle:this.min_angle,
       vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
@@ -309,32 +315,41 @@ set zoomed_wkt(value: string) {
     }
 
     this.debounceTimeout = setTimeout(() => {
+      let minCloud
+      if(this.min_cloud <= -1) {
+        minCloud = -1
+      } else {
+        minCloud = this.min_cloud
+      } 
+      let queryParams: any = {
+        page_number: '1',
+        page_size: this.page_size,
+        start_date: this.startDate,
+        end_date: this.endDate,
+        source: 'library',
+        max_cloud_cover: this.max_cloud,
+        min_cloud_cover:minCloud,
+        max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
+        min_off_nadir_angle:this.min_angle,
+        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
+        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
+        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
+        min_gsd:this.min_gsd,
+      };
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      };
       if (this._zoomed_wkt !== '') {
-        let queryParams = {
-          page_number: '1',
-          page_size: this.page_size,
-          start_date: this.startDate,
-          end_date: this.endDate,
-          source: 'library',
-          zoomed_wkt: this._zoomed_wkt,
-          max_cloud_cover: this.max_cloud,
-          min_cloud_cover:this.min_cloud,
-          max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
-          min_off_nadir_angle:this.min_angle,
-          vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-          vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-          max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-          min_gsd:this.min_gsd,
-        };
-        const payload = {
-          wkt_polygon: this.polygon_wkt
-        };
-        this.loader = true;
-        this.ngxLoader.start(); // Start the loader
-        this.page_number = '1';
-        this.getSatelliteCatalog(payload, queryParams);
+        queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+       
         
+      } else {
+        queryParams = {...queryParams,  zoomed_wkt: ''}
       }
+      this.loader = true;
+      this.ngxLoader.start(); // Start the loader
+      this.page_number = '1';
+      this.getSatelliteCatalog(payload, queryParams);
     }, 800);
      // Debounce time: 600ms
   }
@@ -384,11 +399,21 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
-  max_cloud:number = 100
-  min_cloud: number = -1;
+  max_cloud:number = 51
+  min_cloud: number = 0;
   options: Options = {
-    floor: -1,
-    ceil: 100,
+    floor: -2,
+    ceil: 51,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '';
+      } else if (value === 51) {
+        return '';
+      }else if (value <= -1) {
+        return '';
+      }
+      return `${value}`; // Default for other values
+    },
   };
   max_angle:number = 51;
   min_angle: number = 0;
@@ -679,6 +704,7 @@ set zoomed_wkt(value: string) {
     setTimeout(() => {
       if(this.isEventsOpened){
         if(this.polygon_wkt ){
+          
           const payload = {
             polygon_wkt: this.polygon_wkt,
             start_date: this.startDate,
@@ -1202,6 +1228,12 @@ private handleWheelEvent = (event: WheelEvent): void => {
     this.page_number = new_pageNumber.toString()
     console.log(this.page_number,'new_pageSizenew_pageSizenew_pageSize',this.zoomed_captures_count);
     if(this.dataSource.data.length<this.total_count){
+      let minCloud
+      if(this.min_cloud <= -1) {
+        minCloud = -1
+      } else {
+        minCloud = this.min_cloud
+      } 
       let queryParams ={
         page_number: this.page_number,
         page_size: this.page_size,
@@ -1210,7 +1242,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
         source: 'library',
         zoomed_wkt:this._zoomed_wkt,
         max_cloud_cover: this.max_cloud,
-        min_cloud_cover:this.min_cloud,
+        min_cloud_cover:minCloud,
         max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
@@ -1374,7 +1406,12 @@ getDateTimeFormat(dateTime: string) {
 
   //Filter Form submit functionality
   onSubmit() {
-   
+    let minCloud
+    if(this.min_cloud <= -1) {
+      minCloud = -1
+    } else {
+      minCloud = this.min_cloud
+    } 
       const datetime = this.formGroup.value.end_date;
      
      
@@ -1385,7 +1422,7 @@ getDateTimeFormat(dateTime: string) {
         end_date:this.getDateValue(this.endDate),
         start_date:this.getDateValue(this.startDate),
         max_cloud_cover: this.max_cloud,
-        min_cloud_cover:this.min_cloud,
+        min_cloud_cover:minCloud,
         max_off_nadir_angle: this.max_angle === 51 ? 1000: this.max_angle,
         min_off_nadir_angle:this.min_angle,
         vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
