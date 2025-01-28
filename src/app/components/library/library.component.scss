@@ -81,9 +81,10 @@
 }
 ::ng-deep #library-table {
   thead {
-    position: fixed;
+    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;
+    // position: fixed;
     // width: 100%;
-    top: 503px;
+    // top: 503px;
   }
   th {
     .mdc-checkbox {
@@ -238,6 +239,7 @@
     .mdc-notched-outline__notch {
     border-color: #4a5863 !important;
     border-right: none !important;
+    border-left: none !important;
   }
   .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
     border-color: #4a5863 !important;
@@ -251,24 +253,111 @@
     font-weight: 700 !important;
     font-size: 12px !important;
   }
+  .mat-mdc-select-arrow svg{
+    fill: #ABB7C0 !important;
+  }
+
+  
 }
+
+::ng-deep {
+  div.mat-mdc-select-panel{
+    background-color: #20272D !important;
+    box-shadow: 5px 5px 5px 0px #0000001a !important;
+  }
+  .mdc-list-item__primary-text {
+    color: #ABB7C0 !important;
+  }
+  .mat-pseudo-checkbox-full {
+    border-color: #4A5863 !important;
+  }
+  .mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked {
+    background-color: #FCCA40 !important;
+  }
+}
+
+.allow_sar {
+  ::ng-deep  .mat-internal-form-field {
+    margin-left: -8px;
+
+
+  }
+  ::ng-deep .mat-internal-form-field>label {
+    padding-left: 0 !important;
+  }
+}
+
 
 ::ng-deep .filter-overlay-container{
   .mat-mdc-menu-panel {
     background-color: #20272d !important;
-    width: 350px !important;
-    max-width: 350px !important;
+    width: 375px !important;
+    max-width: 375px !important;
     box-shadow: 5px 5px 5px 0px #0000001a !important;
   }
   .cdk-overlay-connected-position-bounding-box {
     top: 120px !important;
     left: 155px !important;
-    width: 350px !important;
+    width: 375px !important;
+    height: 600px !important;
   }
   .cdk-overlay-pane {
     width: 100%;
     left: 0px !important;
     top: 0px !important;
   }
+  .mat-mdc-menu-content{
+    display: flex !important;
+    justify-content: center !important;
+  }
   
+}
+
+::ng-deep {
+  .custom-slider .ngx-slider .ngx-slider-bar {
+    background: #ABB7C0;
+    height: 5px;
+  }
+
+  // .custom-slider .ngx-slider {
+  //   width: 98% !important;
+  // }
+  .custom-slider .ngx-slider .ngx-slider-selection {
+    background: #FCCA40;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 22px;
+    top: auto; /* to remove the default positioning */
+    bottom: -10px;
+    background-color: #ABB7C0;
+    border-radius: 5px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-limit {
+    font-weight: bold;
+    color: #FCCA40;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick {
+    width: 1px;
+    height: 10px;
+    margin-left: 4px;
+    border-radius: 0;
+    background: #ABB7C0;
+    top: -1px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
+    background: #FCCA40;
+  }
 }

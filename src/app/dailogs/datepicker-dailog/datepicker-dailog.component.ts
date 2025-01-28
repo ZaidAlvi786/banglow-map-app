@@ -154,8 +154,8 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
         this.startDate = now.subtract(6, 'months').startOf('day');
         this.endDate = now.subtract(1, 'day').endOf('day');
         break;
-      case '9months':
-        this.startDate = now.subtract(9, 'months').startOf('day');
+      case '1year':
+        this.startDate = now.subtract(12, 'months').startOf('day');
         this.endDate = now.subtract(1, 'day').endOf('day');
         break;
       default:

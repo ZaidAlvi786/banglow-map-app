@@ -38,7 +38,7 @@
                 </div>
                 <span class="min-w-[102.324px]"></span>
                 <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
-                <span class="min-w-[127.933px]">{{group.surface_area.toFixed(3)}}km²</span>
+                <span class="min-w-[127.933px]">{{group.surface_area.toFixed(2)}}km²</span>
                 <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
                     <span class="text-secondary-heiglight">{{group.total_objects}}</span>
                     <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">

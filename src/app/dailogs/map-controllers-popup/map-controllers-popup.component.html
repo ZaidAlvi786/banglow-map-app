@@ -16,10 +16,10 @@
         </div>
     </div>
    @if(data.type !== 'polygon'){ <div class="flex flex-col items-start gap-[5px] self-stretch">
-        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.markerData?.address}}</span>
-            <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.markerData?.address)">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{toDecimal(data?.pointData?.latitude)}},{{toDecimal(data?.pointData?.longitude)}}</span>
+            <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.pointData)">
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
         </div>
@@ -96,9 +96,20 @@
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
                 </div>
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] group min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Newest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}</span>
+                    <div class="hidden absolute rounded-[10px] z-10 top-[285px] shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Date time:</span>
+                          <span>{{data?.markerData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                      </div>
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Vendor:</span>
+                          <span>{{data?.markerData?.newest_info?.vendor_name }}</span>
+                      </div>
+                      
+                  </div>
                 </div>
                 <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Total</span>
@@ -133,7 +144,7 @@
             </div>
             <div class="flex items-center gap-[5px] self-stretch">
                 <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{activeTimeDate?.percentage_change}}%</span>
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{roundOff(activeTimeDate?.percentage_change)}}%</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     @if (activeTimeDate?.current_count >activeTimeDate?.previous_count) {<img src="/assets/svg-icons/increase-icon.svg" alt="" />}
                     @else if (activeTimeDate?.current_count < activeTimeDate?.previous_count) {
@@ -145,7 +156,7 @@
                 <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Most recent</span>
             <div class="flex items-center gap-[5px] self-stretch">
                 <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{data?.markerData?.newest_info?.cloud_cover.toFixed(3)}}%</span>
+                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{ data?.markerData?.newest_info?.vendor_name !== 'capella' && data?.markerData?.newest_info?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.markerData?.newest_info?.cloud_cover) + '%' : 'SAR' }}</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
                 </span>
@@ -179,7 +190,7 @@
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.acquisition_datetime | dateTimeFormat}}</span>
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/calender-icon.svg" alt="" />
             </span>          
@@ -188,7 +199,7 @@
       <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Day of Week</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime)}}</span>
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/poi-icon.svg" alt="" />
             </span>          
@@ -216,7 +227,7 @@
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.gsd}}</span>         
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}</span>         
         </div> 
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
@@ -239,19 +250,19 @@
           <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
          }
       </span>  
-      <div class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium leading-[18px] p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
+      <div class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
         <div class="flex flex-col gap-[5px]">
           <span class="text-secondary-heiglight">UTC time:</span>
           <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'utc')}}</span>
         </div>
         <div class="flex flex-col gap-[5px]">
           <span class="text-secondary-heiglight">Local time:</span>
-          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local')}}</span>
+          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local', data?.vendorData?.centroid)}}</span>
         </div>
       </div>
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' : 'SAR' }}</span>
+        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' : 'SAR' }}</span>
         <span class="h-[15px] flex w-[15px] cursor-pointer">
           <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
       </span>  

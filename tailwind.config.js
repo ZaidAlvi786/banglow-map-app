@@ -39,6 +39,12 @@ module.exports = {
       width: {
         'fill-available': '-webkit-fill-available',
       },
+      screens: {
+        'mxl':{min:'300px'},
+        'lxl': {min:'1710px'},
+        '2k':{min:'1920px', max:'2559px'},
+        '4k': {min:'2560px'}
+      },
     },
   },
   plugins: [],
