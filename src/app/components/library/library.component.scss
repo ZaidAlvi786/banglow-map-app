@@ -291,20 +291,24 @@
 ::ng-deep .filter-overlay-container{
   .mat-mdc-menu-panel {
     background-color: #20272d !important;
-    width: 350px !important;
-    max-width: 350px !important;
+    width: 375px !important;
+    max-width: 375px !important;
     box-shadow: 5px 5px 5px 0px #0000001a !important;
   }
   .cdk-overlay-connected-position-bounding-box {
     top: 120px !important;
     left: 155px !important;
-    width: 350px !important;
+    width: 375px !important;
     height: 600px !important;
   }
   .cdk-overlay-pane {
     width: 100%;
     left: 0px !important;
     top: 0px !important;
+  }
+  .mat-mdc-menu-content{
+    display: flex !important;
+    justify-content: center !important;
   }
   
 }

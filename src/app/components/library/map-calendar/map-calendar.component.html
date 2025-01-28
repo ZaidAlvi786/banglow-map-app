@@ -24,6 +24,15 @@
       </div>
   } -->
   <div *ngFor="let month of calendarData" class="month border border-solid border-custom-border">
+    <!-- <div class="flex flex-wrap gap-[10px] pb-[10px] justify-center">
+      <div class="flex gap-[5px]" *ngFor="let legend of legens_calendar">
+        <div class="flex flex-col items-center gap-[5px]">
+          <div class="w-[20px] h-[20px] rounded-[5px]" [ngStyle]="{'background-color':legend?.color}"></div>
+          <div class="text-secondaryText text-sm font-medium leading-[18px] font-Barlow">{{legend?.min}}-{{legend?.max}}</div>
+        </div>
+
+      </div>
+    </div> -->
     <div class="month-header">{{ month.name }}</div>
     
     <!-- Weekday Labels -->

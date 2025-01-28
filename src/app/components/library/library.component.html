@@ -253,7 +253,7 @@
                             <img src="assets/svg-icons/filter-icon.svg" alt="">
                         </button>
                         <mat-menu class="bg-primaryBg p-[15px]" #filter="matMenu" id="filter" (closed)="onMenuClose()">
-                            <form class="flex flex-col font-Barlow gap-[15px]" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+                            <form class="flex flex-col font-Barlow gap-[15px] w-[320px]" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
                                 <span class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply filters</span>
                                 <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label class="!text-secondaryText">Vendor name</mat-label>
@@ -268,7 +268,7 @@
                                     <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
                                 </mat-form-field>
 
-                                <div  class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
+                                <div  class="flex-col gap-2 custom-slider pb-[15px] relative" (click)="$event.stopPropagation()">
                                     <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                         <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
@@ -278,7 +278,10 @@
                                         <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
                                     </mat-form-field> -->
                                     <mat-label class="!text-secondaryText">Cloud Cover</mat-label>
-                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
+                                    <ngx-slider class="z-20" *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
+                                    <span class="!text-secondaryText absolute -bottom-[5px] -left-[28px]">SAR</span>
+                                    <span class="!text-secondaryText absolute -bottom-[5px]  left-[12px]">0</span>
+                                    <span class="!text-secondaryText absolute -bottom-[5px] -right-[13px]">51+</span>
                                 </div>
                                 <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
                                     <mat-label>GSD</mat-label>

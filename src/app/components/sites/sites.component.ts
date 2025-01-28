@@ -356,17 +356,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
             per_page: this.per_page,
             name: '',
           }
-          this.sateliteService.getSites(payload).subscribe({
-            next: (resp) => {
-              this.loader = false
-              this.ngxLoader.stop(); // Stop the loader when the data is successfully fetched
-            },
-            error: (err) => {
-              console.log("err getPolyGonData: ", err);
-              this.loader = false
-              this.ngxLoader.stop(); // Stop the loader even if there is an error
-            }
-          });
+        this.getSitesData(payload)
         }
 
         // Set debounce flag to false and reset it after 3 seconds
