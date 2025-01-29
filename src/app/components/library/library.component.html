@@ -349,12 +349,75 @@
         <div class="w-[820px] overflow-auto browser-content" #scrollableDiv>
             <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                @if(dataSource?.data?.length){
-                <div *ngFor="let item of dataSource.data; let index = index"                 
+                
+                <div class="flex flex-col gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-red-600" *ngIf="overlapListData.length">
+                    <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
+                    <div class="flex flex-start all_wrap flex-wrap">
+                    <div *ngFor="let item of getOverlapData();let index = index"
+                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                        <div class="flex flex-col" 
+                            >
+                            <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
+                            (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
+                                @if (item?.presigned_url) {
+                                    <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
+                                } @else {
+                                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image not found</span>
+                                }
+                                <div
+                                    class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+                                </div>
+                            </div>
+    
+                            <div class="flex justify-between">
+                                <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                </div>
+                <div class="flex flex-col gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-white" *ngIf="zoomed_captures_count>0">
+                    <span class="text-sm text-secondaryText leading-[18px]">In View</span>
+                    <div class="flex flex-start all_wrap flex-wrap">
+                    <div *ngFor="let item of getInviewList(zoomed_captures_count);let index = index"
+                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                        <div class="flex flex-col" 
+                            >
+                            <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
+                            (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
+                                @if (item?.presigned_url) {
+                                    <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
+                                } @else {
+                                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image not found</span>
+                                }
+                                <div
+                                    class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+                                </div>
+                            </div>
+    
+                            <div class="flex justify-between">
+                                <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                </div>
+                <div class="flex flex-start all_wrap flex-wrap">
+                <div *ngFor="let item of getFilteredData(); let index = index"                 
                  class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
                 
                     <div class="flex flex-col" 
+                    [ngClass]="{
+                        'border-r-2 border-r-solid !border-r-red-600': item.id === lastMatchId
+                      }"
                         >
-                        <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'verticalLine':''" class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
+                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
                         (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
                             @if (item?.presigned_url) {
                                 <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
@@ -373,6 +436,7 @@
                         </div>
                     </div>
                     <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
+                </div>
                 </div>
                } @else {
                 <div class="w-full flex justify-center items-center">
@@ -397,7 +461,9 @@
                         </mat-checkbox>
                         Date
                     </th>
-                    <td mat-cell *matCellDef="let row" class="w-[185px] p-[10px] flex items-center"
+                    <td mat-cell *matCellDef="let row" [ngClass]="{
+                        'border-b-2 border-b-solid !border-b-red-600': row.id === lastMatchId
+                      }" class="w-[185px] p-[10px] flex items-center"
                     
                     >
                         <mat-checkbox (click)="$event.stopPropagation()"
@@ -411,40 +477,52 @@
                 <ng-container matColumnDef="sensor">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Sensor</th>
-                    <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.sensor }}
+                    <td mat-cell *matCellDef="let row" [ngClass]="{
+                        'border-b-2 border-b-solid !border-b-red-600': row.id === lastMatchId
+                      }" class="w-[115px] p-[10px] text-secondaryText">{{ row?.sensor }}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="vendor_name">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[115px] p-[10px] text-secondaryText font-semibold">
                         Vendor</th>
-                    <td mat-cell *matCellDef="let row" class="w-[115px] p-[10px] text-secondaryText">{{ row?.vendor_name }}
+                    <td mat-cell *matCellDef="let row" [ngClass]="{
+                        'border-b-2 border-b-solid !border-b-red-600': row.id === lastMatchId
+                      }" class="w-[115px] p-[10px] text-secondaryText">{{ row?.vendor_name }}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="cloud_cover">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[70px] p-[10px] text-secondaryText font-semibold">
                         Clouds</th>
-                    <td mat-cell *matCellDef="let row" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'skyfi-umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
+                    <td mat-cell *matCellDef="let row" [ngClass]="{
+                        'border-b-2 border-b-solid !border-b-red-600': row.id === lastMatchId
+                      }" class="w-[70px] p-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'skyfi-umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="gsd">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[90px] p-[10px] text-secondaryText font-semibold">
                         Resolution</th>
-                    <td mat-cell *matCellDef="let row" class="w-[90px] p-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
+                    <td mat-cell *matCellDef="let row" [ngClass]="{
+                        'border-b-2 border-b-solid !border-b-red-600': row.id === lastMatchId
+                      }" class="w-[90px] p-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="type">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[80px] p-[10px] text-secondaryText font-semibold">
                         Type</th>
-                    <td mat-cell *matCellDef="let row" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
+                    <td mat-cell *matCellDef="let row" [ngClass]="{
+                        'border-b-2 border-b-solid !border-b-red-600': row.id === lastMatchId
+                      }" class="w-[80px] p-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="vendor_id">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-[165px] p-[10px] text-secondaryText font-semibold">ID
                     </th>
-                    <td mat-cell *matCellDef="let row" class="w-[165px] p-[10px] text-secondaryText">
+                    <td mat-cell *matCellDef="let row" [ngClass]="{
+                        'border-b-2 border-b-solid !border-b-red-600': row.id === lastMatchId
+                      }" class="w-[165px] p-[10px] text-secondaryText">
                         <div class="flex">
                             <span class="w-[100px] truncate">{{ row?.vendor_id }}</span>
                             <span (click)="$event.stopPropagation();markerData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
@@ -521,8 +599,8 @@
                 <tr mat-row *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex" 
                 class="hover:bg-secondaryHighlight cursor-pointer"
                 [ngClass]="{
-                    'border-b-2 border-b-solid border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count,
-                    '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id
+                    'border-b-2 border-b-solid !border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count,
+                    '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id,
                   }"
                   
                 (click)="expandedElement = expandedElement === row ? null : row;"

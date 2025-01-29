@@ -35,6 +35,11 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
 (window as any).type = undefined;
 
+declare module 'leaflet' {
+  interface Polygon {
+      vendorData: any; // Use specific type instead of 'any' if available
+  }
+}
 
 @Component({
   selector: 'app-home',
@@ -887,6 +892,8 @@ private fallbackCopyToClipboard(text: string): void {
   getDataUsingPolygon(payload: any,queryParams: any) {
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
+        console.log(resp,'satelliteServicesatelliteServicesatelliteServicesatelliteService');
+        
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)) {
           resp.data.forEach((item:any) => {
@@ -978,50 +985,96 @@ if (data.vendor_name === 'planet') {
     
   
     // Add the polygon to the map
-    const polygon = L.polygon(latLngs, {
-        color: color, // Border color
-        fillColor: color, // Fill color
-        fillOpacity: 0.1, // Fill opacity
-        weight:1
-    }).addTo(this.map);
-    console.log(polygon, 'Polygon added');
-  
-    // Attach hover events to the polygon
-    polygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
-    polygon.on('mouseout', (e) => this.onPolygonOut(null));
+   // When creating the polygon
+const polygon = L.polygon(latLngs, {
+  color: color,
+  fillColor: color,
+  fillOpacity: 0.1,
+  weight: 1
+}) as L.Polygon & { vendorData: any };
 
-    console.log(polygon, 'Polygon added');
-    // Attach the click event to open the component dialog
-    polygon.on('click', (event: L.LeafletMouseEvent) => {
-        const clickedPosition = event.latlng; // Get the clicked position
-        if (this.currentAction === 'location') {
-          console.log('Handle action is location, dialog will not open.');
-          return; // Prevent dialog from opening
+polygon.vendorData = data; // Now TypeScript knows about this property
+
+// In your click handler
+ // Attach hover events to the polygon
+ polygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
+ polygon.on('mouseout', (e) => this.onPolygonOut(null));
+
+ console.log(polygon, 'Polygon added');
+polygon.on('click', (event: L.LeafletMouseEvent) => {
+  if (this.currentAction === 'location') return;
+
+  const clickedPoint = event.latlng;
+  const clickedVendorData = [];
+
+  this.extraShapesLayer.eachLayer((layer: L.Layer) => {
+      if (layer instanceof L.Polygon) {
+          const polygonLayer = layer as L.Polygon & { vendorData: any };
+          if (polygonLayer.getBounds().contains(clickedPoint)) {
+              clickedVendorData.push(polygonLayer.vendorData);
+          }
       }
-        // Convert clicked position to pixel position relative to the map
-        const containerPoint = this.map.latLngToContainerPoint(clickedPosition);
-        let queryParams = {
-            page_number: '1',
-            page_size: '100',
-            start_date: '',
-            end_date: '',
-            vendor_id: data.vendor_id
-        };
-        this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
-            next: (resp) => {
-                console.log(resp, 'Data received');
-                const vendorData = resp.data[0];
-                this.onPolygonOut(null)
-                this.openDialogAtPosition(polygon, vendorData);
-                this.popUpData = vendorData
+  });
+  if(clickedVendorData.length>1)this.sharedService.setOverlayShapeData(clickedVendorData);
+  
+  const vendorIds = clickedVendorData.map(v => v.vendor_id);
+     console.log(clickedVendorData,'vendorIdsvendorIdsvendorIdsvendorIds');
+      const clickedPolygon = polygon; // The polygon that was clicked
+      const clickedLatLngs = clickedPolygon.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of the clicked polygon
+  
+      // Calculate the bounding box of the clicked polygon
+      const clickedBoundingBox = this.getBoundingBox(clickedLatLngs);
+  
+      console.log('Clicked Polygon Bounding Box:', clickedBoundingBox);
+  
+      const intersectingPolygons: any[] = []; // To store all polygons within range
+  
+      // Iterate through all polygons in the `extraShapesLayer`
+      this.extraShapesLayer.eachLayer((layer) => {
+          if (layer instanceof L.Polygon) {
+              const layerLatLngs = layer.getLatLngs()[0] as L.LatLng[]; // Get the coordinates of this polygon
+              const layerBoundingBox = this.getBoundingBox(layerLatLngs); // Get its bounding box
+  
+              console.log('Checking Bounding Box:', layerBoundingBox);
+  
+              // Check if the bounding boxes intersect
+              if (this.isBoundingBoxIntersecting(clickedBoundingBox, layerBoundingBox)) {
+                  console.log('Bounding Box Intersected with:', layerBoundingBox);
+                  const polygonData = (layer as any).options.data; // Assuming metadata is stored in options.data
+                  if (polygonData) {
+                      intersectingPolygons.push(polygonData); // Add matching polygon's data
+                  }
+              }
+          }
+      });
+  
+      console.log('Intersecting Polygons Data:', intersectingPolygons);
+  
+      // Fetch data for all intersecting polygons
+      let queryParams = {
+        page_number: '1',
+        page_size: '100',
+        start_date: '',
+        end_date: '',
+        vendor_id: data.vendor_id
+    };
+    this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+        next: (resp) => {
+            console.log(resp, 'Data received');
+            const vendorData = resp.data[0];
+            this.onPolygonOut(null)
+            this.openDialogAtPosition(polygon, vendorData);
+            this.popUpData = vendorData
 
-            },
-            error: (err) => {
-                console.error("Error fetching polygon data: ", err);
-            },
-        });
-        
+        },
+        error: (err) => {
+            console.error("Error fetching polygon data: ", err);
+        },
     });
+    
+});
+  
+  
   
     // Add the polygon to the extra shapes layer
     this.extraShapesLayer?.addLayer(polygon);
@@ -1034,6 +1087,70 @@ if (data.vendor_name === 'planet') {
     console.log('Drawing tools disabled');
 }
 
+private flattenLatLngs(latlngs: any): L.LatLng[] {
+  console.log(latlngs,'latlngslatlngslatlngslatlngslatlngslatlngs');
+  
+  const flattened: L.LatLng[] = [];
+  latlngs.forEach((latlng: any) => {
+      if (Array.isArray(latlng)) {
+          flattened.push(...this.flattenLatLngs(latlng));
+      } else {
+          flattened.push(latlng);
+      }
+  });
+  console.log(flattened,'flattenedflattenedflattenedflattenedflattenedflattened');
+  
+  return flattened;
+}
+private isPointInPolygon(point: L.LatLng, latlngs: L.LatLng[]): boolean {
+  console.log(point, 'Clicked Point');
+  console.log(latlngs, 'Polygon LatLngs');
+
+  const x = point.lng, y = point.lat; // Longitude is X, Latitude is Y
+  let inside = false;
+
+  for (let i = 0, j = latlngs.length - 1; i < latlngs.length; j = i++) {
+      const xi = latlngs[i].lng, yi = latlngs[i].lat; // Longitude as X, Latitude as Y
+      const xj = latlngs[j].lng, yj = latlngs[j].lat;
+
+      console.log(`Edge (${xi}, ${yi}) to (${xj}, ${yj}) - Point (${x}, ${y})`);
+
+      const intersect = ((yi > y) !== (yj > y)) ||
+                        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) {
+          console.log("Ray intersects edge");
+          inside = true;
+      }
+  }
+  console.log(inside,'insideinsideinsideinsideinside');
+  
+  return inside;
+}
+
+isBoundingBoxIntersecting(
+  box1: { minLat: number; maxLat: number; minLng: number; maxLng: number },
+  box2: { minLat: number; maxLat: number; minLng: number; maxLng: number }
+): boolean {
+  return (
+      box1.minLat <= box2.maxLat || // Latitude overlap (box1's minLat is below or equal to box2's maxLat)
+      box1.maxLat >= box2.minLat || // Latitude overlap (box1's maxLat is above or equal to box2's minLat)
+      box1.minLng <= box2.maxLng || // Longitude overlap (box1's minLng is left or equal to box2's maxLng)
+      box1.maxLng >= box2.minLng    // Longitude overlap (box1's maxLng is right or equal to box2's minLng)
+  );
+}
+
+private getBoundingBox(latlngs: L.LatLng[]): { minLat: number; maxLat: number; minLng: number; maxLng: number } {
+  let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+
+  latlngs.forEach((latlng) => {
+      minLat = Math.min(minLat, latlng.lat);
+      maxLat = Math.max(maxLat, latlng.lat);
+      minLng = Math.min(minLng, latlng.lng);
+      maxLng = Math.max(maxLng, latlng.lng);
+  });
+
+  return { minLat, maxLat, minLng, maxLng };
+}
 
 onFilterset(data) {
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '100'}
@@ -1041,6 +1158,7 @@ onFilterset(data) {
   this.cdr.detectChanges();
 
 }
+
 
 //Extra shapes  clearing functionality
   private clearExtraShapes(): void {
