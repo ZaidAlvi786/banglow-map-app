@@ -15,6 +15,8 @@ export class SharedService {
   rowHover$ = this.rowHover.asObservable()
   private rightMenuHide = new BehaviorSubject<any>(false);
   rightMenuHide$ = this.rightMenuHide.asObservable()
+  private nestedPadding = new BehaviorSubject<any>(null);
+  nestedPadding$ = this.nestedPadding.asObservable()
   private overlayShapeData = new BehaviorSubject<any>(null);
   overlayShapeData$ = this.overlayShapeData.asObservable()
   constructor() {}
@@ -36,7 +38,10 @@ export class SharedService {
     this.rightMenuHide.next(data);
   }
 
-  setOverlayShapeData(data: any): void{
+ setNestedPadding(data: any): void {
+    this.nestedPadding.next(data);
+}
+setOverlayShapeData(data: any): void{
     this.overlayShapeData.next(data);
   }
 }

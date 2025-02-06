@@ -291,26 +291,53 @@
 ::ng-deep .filter-overlay-container{
   .mat-mdc-menu-panel {
     background-color: #20272d !important;
-    width: 375px !important;
-    max-width: 375px !important;
+    width: 410px !important;
+    max-width: 470px !important;
     box-shadow: 5px 5px 5px 0px #0000001a !important;
   }
   .cdk-overlay-connected-position-bounding-box {
     top: 120px !important;
     left: 155px !important;
-    width: 375px !important;
+    width: 480px !important;
     height: 600px !important;
   }
   .cdk-overlay-pane {
     width: 100%;
     left: 0px !important;
     top: 0px !important;
+    display: flex;
+    justify-content: center;
   }
   .mat-mdc-menu-content{
     display: flex !important;
     justify-content: center !important;
   }
   
+}
+
+::ng-deep .column-menu{
+  .mat-mdc-menu-panel {
+    background-color: #191E22 !important;
+    width: 240px !important;
+    max-width: 240px !important;
+    box-shadow: 5px 5px 5px 0px #0000001a !important;
+  }
+  .cdk-overlay-connected-position-bounding-box {
+    top: 120px !important;
+    left: 155px !important;
+    width: 240px !important;
+    height: 600px !important;
+  }
+  .cdk-overlay-pane {
+    width: 100%;
+    left: -70px !important;
+    top: 0px !important;
+    height: max-content !important;
+  }
+  .mat-mdc-menu-content{
+    display: flex !important;
+    justify-content: center !important;
+  }
 }
 
 ::ng-deep {
