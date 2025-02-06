@@ -119,44 +119,47 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
 
   // Function to set the date range based on button clicked
   setDateRange(range: string): void {
-    const now = dayjs().utc(); // Get current UTC time as a Dayjs object
+    const now = dayjs(new Date()).utc(); // Get current UTC time as a Dayjs object
   
     switch (range) {
       case '24hours':
         // Start of the previous day
-        this.startDate = now.subtract(1, 'day').startOf('day'); 
+        this.startDate = now.startOf('day'); 
         // End of the previous day
-        this.endDate = now.subtract(1, 'day').endOf('day'); 
+        this.endDate = now.endOf('day'); 
+
+        console.log("nownownow",now);
+        
         break;
       case '3days':
         // Start of 3 days ago
-        this.startDate = now.subtract(3, 'days').startOf('day'); 
+        this.startDate = now.subtract(2, 'days').startOf('day'); 
         // End of the previous day
-        this.endDate = now.subtract(1, 'day').endOf('day'); 
+        this.endDate = now.endOf('day'); 
         break;
       case '7days':
-        this.startDate = now.subtract(7, 'days').startOf('day');
-        this.endDate = now.subtract(1, 'day').endOf('day');
+        this.startDate = now.subtract(6, 'days').startOf('day');
+        this.endDate = now.endOf('day'); 
         break;
       case '14days':
-        this.startDate = now.subtract(14, 'days').startOf('day');
-        this.endDate = now.subtract(1, 'day').endOf('day');
+        this.startDate = now.subtract(13, 'days').startOf('day');
+        this.endDate = now.endOf('day'); 
         break;
       case '28days':
-        this.startDate = now.subtract(28, 'days').startOf('day');
-        this.endDate = now.subtract(1, 'day').endOf('day');
+        this.startDate = now.subtract(27, 'days').startOf('day');
+        this.endDate = now.endOf('day'); 
         break;
       case '3months':
         this.startDate = now.subtract(3, 'months').startOf('day');
-        this.endDate = now.subtract(1, 'day').endOf('day');
+        this.endDate = now.endOf('day'); 
         break;
       case '6months':
         this.startDate = now.subtract(6, 'months').startOf('day');
-        this.endDate = now.subtract(1, 'day').endOf('day');
+        this.endDate = now.endOf('day'); 
         break;
       case '1year':
         this.startDate = now.subtract(12, 'months').startOf('day');
-        this.endDate = now.subtract(1, 'day').endOf('day');
+        this.endDate = now.endOf('day'); 
         break;
       default:
         console.error('Invalid range');

@@ -315,7 +315,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     console.log('Polygon Bounds:', polygonBounds);
   
     // Pass the GeoJSON and bounds to your custom function
-    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds);
+    this.getPolygonFromCoordinates({ geometry: geoJSON.geometry }, polygonBounds,true);
   
     // Add zoom change listener
     // this.map.on('zoomend', () => {
@@ -812,11 +812,14 @@ private fallbackCopyToClipboard(text: string): void {
 }
 
   //Getting the polygon from cordinates functionality
-  getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any) {
+  getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any,  isLoadFirstTime = false) {
     const  updatedPayload = this.normalizePayloadCoordinates(payload);
     this.satelliteService.getPolyGonData(updatedPayload).subscribe({
       next: (resp) => {
-        this.polygon_wkt = resp?.data?.wkt_polygon
+        this.polygon_wkt = resp?.data?.wkt_polygon;
+        if (isLoadFirstTime) {
+          this.zoomed_wkt_polygon = this.polygon_wkt;
+        }
         console.log("resp:resp:resp:resp:resp: ", resp?.data);
         if(resp?.data?.area>=100000000){
           this.openSnackbar("Select a smaller polygon");
@@ -860,7 +863,7 @@ private fallbackCopyToClipboard(text: string): void {
           direction= -1;  
         }
         
-       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)) * direction)
+       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
       return [normalizedLongitude, normalizedLatitude];
         })
       );
@@ -1899,10 +1902,18 @@ handleMakerData(data: any) {
     const bounds = L.latLngBounds(coordinates);
 
     // Highlight the coordinates with a green border (polygon)
-    L.polygon(coordinates, {
+    const polygon = L.polygon(coordinates, {
       color: 'green', // Set border color to green
-      weight: 3, // Border thickness
-    }).addTo(this.map);
+      weight: 3,
+    }) as L.Polygon & { vendorData: any };
+    
+    // Attach custom data to the polygon
+    polygon.vendorData = data; // Ensuring TypeScript recognizes vendorData
+    
+    // Add event listeners for hover effects
+    polygon.on('mouseover', () => this.onPolygonHover(data.vendor_id));
+    polygon.on('mouseout', () => this.onPolygonOut(null));
+    
 
     // Adjust the map view to fit the bounds of the shape
     this.map.fitBounds(bounds, {
@@ -2057,7 +2068,7 @@ layercalculateVisibleWKT(): void {
       } else {
         console.log('Decoded WKT:qqqqqqqqqqqq');
         
-        this.zoomed_wkt_polygon = ''
+        this.zoomed_wkt_polygon = this.polygon_wkt;
       }
     } else {
       console.log('No intersection detected.');

@@ -25,17 +25,22 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
   currentIndex:any;
-  isZoomed = false;
- isDragging = false;
-  startX = 0;
-  startY = 0;
-  offsetX = 0;
-  offsetY = 0;
-  scale = 1;
-  imgTransform = 'scale(1) translate(0px, 0px)';
+  // isZoomed = false;
+//  isDragging = false;
+  zoomLevel: number = 1; // Initial zoom level
+  isDragging: boolean = false; // Dragging state
+  startX: number = 0; // Mouse start X
+  startY: number = 0; // Mouse start Y
+  offsetX: number = 0; // Image offset X
+  offsetY: number = 0; // Image offset Y
+  tempOffsetX: number = 0; // Temporary offset during drag
+  tempOffsetY: number = 0; // Temporary offset during drag
+  isZoomed: boolean = false; // Zoom toggle state
+
+  @ViewChild("img", { static: false }) img!: ElementRef;
 
   @ViewChild('container') 'container': ElementRef;
-  @ViewChild('img') 'img': ElementRef;
+  // @ViewChild('img') 'img': ElementRef;
   ngOnInit(): void {
     this.currentIndex = this.data?.currentIndex;
     console.log("dialog dat: ", this.data);
@@ -43,6 +48,9 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
 
   ngAfterViewInit() {
     // this.adjustImageHeight();
+    if (!this.img) {
+      console.error("Image element not found");
+    }
   }
 
   closeDialog(): void {
@@ -71,6 +79,8 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     previousImage() {
       if (this.currentIndex > 0) {
         this.currentIndex--;
+        const imgElement = this.img.nativeElement;
+        imgElement.style.transform = 'scale(1)';
       } else {
         this.currentIndex = this.data.images.data.length - 1; // Wrap around to the last image
       }
@@ -79,6 +89,8 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     nextImage() {
       if (this.currentIndex < this.data.images.data.length - 1) {
         this.currentIndex++;
+        const imgElement = this.img.nativeElement;
+        imgElement.style.transform = 'scale(1)';
       } else {
         this.currentIndex = 0; // Wrap around to the first image
       }
@@ -112,13 +124,13 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
       }
     }
     
-    onMouseDown(event: MouseEvent): void {
-      if (!this.isZoomed) return;
+    // onMouseDown(event: MouseEvent): void {
+    //   if (!this.isZoomed) return;
     
-      this.isDragging = true;
-      this.startX = event.clientX - this.offsetX;
-      this.startY = event.clientY - this.offsetY;
-    }
+    //   this.isDragging = true;
+    //   this.startX = event.clientX - this.offsetX;
+    //   this.startY = event.clientY - this.offsetY;
+    // }
     
     mouseMoveHandler(event: MouseEvent): void {
       if (!this.isDragging) return;
@@ -131,9 +143,9 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
       imgElement.style.transform = `scale(3) translate(${this.offsetX}px, ${this.offsetY}px)`;
     }
     
-    onMouseUp(): void {
-      this.isDragging = false;
-    }
+    // onMouseUp(): void {
+    //   this.isDragging = false;
+    // }
     
     onMouseLeave(): void {
       if (!this.isZoomed) return;
@@ -145,11 +157,11 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
       if (this.isZoomed) this.isDragging = false;
     }
     
-    private resetDragState(): void {
-      this.isDragging = false;
-      this.offsetX = 0;
-      this.offsetY = 0;
-    }
+    // private resetDragState(): void {
+    //   this.isDragging = false;
+    //   this.offsetX = 0;
+    //   this.offsetY = 0;
+    // }
 
     // Round off value
     roundOff(value: number): any {
@@ -190,4 +202,50 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     //     image.style.height = `${dialogHeight}px`; // Adjust the image height to match the dialog height
     //   }
     // }
+
+     // Handle mouse wheel zoom
+  onWheel(event: WheelEvent): void {
+    event.preventDefault();
+    const zoomSpeed = 0.1;
+    const delta = event.deltaY < 0 ? 1 : -1;
+    this.zoomLevel = Math.max(1, this.zoomLevel + delta * zoomSpeed);
+    this.applyTransform();
+  }
+
+  // Handle drag start
+  onMouseDown(event: MouseEvent): void {
+    if (this.zoomLevel > 1) {
+      this.isDragging = true;
+      this.startX = event.clientX - this.offsetX;
+      this.startY = event.clientY - this.offsetY;
+    }
+  }
+
+  // Handle drag move
+  onMouseMove(event: MouseEvent): void {
+    if (this.isDragging) {
+      this.offsetX = event.clientX - this.startX;
+      this.offsetY = event.clientY - this.startY;
+      this.applyTransform();
+    }
+  }
+
+  // Handle drag end
+  onMouseUp(): void {
+    this.isDragging = false;
+  }
+
+  // Apply transformations for zoom and drag
+  private applyTransform(): void {
+    const imgElement = this.img.nativeElement as HTMLImageElement;
+    imgElement.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px) scale(${this.zoomLevel})`;
+    imgElement.style.cursor = this.zoomLevel > 1 ? "grab" : "grab";
+  }
+
+  // Reset drag state when zoom is toggled off
+  private resetDragState(): void {
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.applyTransform();
+  }
 }

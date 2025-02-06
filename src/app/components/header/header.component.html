@@ -10,11 +10,11 @@
     <img src="assets/svg-icons/location-icon.svg" alt="" *ngIf="toggleType !== 'library'" />
     <span class="text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'library' ? 'text-yellow':'text-secondaryText'">library</span>
 </div>
-<div (click)="onToggleDrawer('Sites')" class="flex items-center justify-center min-w-[119px] w-auto h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
+<!-- <div (click)="onToggleDrawer('Sites')" class="flex items-center justify-center min-w-[119px] w-auto h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
     <img src="assets/svg-icons/sites-icon.svg" alt="" *ngIf="toggleType !== 'Sites'" />
     <img src="assets/svg-icons/sites-active-icon.svg" alt="" *ngIf="toggleType === 'Sites'" />
     <span class="text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'Sites' ? 'text-yellow':'text-secondaryText'">Sites</span>
-</div>
+</div> -->
 <div (click)="onToggleDrawer('Groups')" class="flex items-center justify-center min-w-[134px] w-auto h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
     <img [src]="toggleType === 'Groups' ? 'assets/svg-icons/file-icon-active.svg' :'assets/svg-icons/file-icon.svg'" alt="" />
     <span class="text-secondary text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'Groups' ? 'text-yellow':'text-secondaryText'">Groups</span>

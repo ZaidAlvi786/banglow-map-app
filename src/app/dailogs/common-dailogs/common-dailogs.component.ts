@@ -23,7 +23,7 @@ export class CommonDailogsComponent implements OnInit  {
 
   ngOnInit(): void {
     if(this.data.type === 'rename'){
-      this.name = this.data?.group?.name
+      this.name = this.data?.group?.name || this.data?.site?.name
     }
   }
   addGroup(){
@@ -55,32 +55,63 @@ export class CommonDailogsComponent implements OnInit  {
 
   renameGroup(){
     if(this.name !==''){
-    const payload = {
-      group_id: this.data.group.id,
-      name: this.name,
-    }
+      let payload
+      if(this.data?.group?.id){
+         payload = {
+          group_id: this.data.group.id,
+          name: this.name,
+        }
+      } else {
+        payload = {
+          site_id: this.data?.site?.id,
+          name: this.name,
+        }
+      }
+    
     this.updateGroup(payload)
   }
   }
 
   deleteGroup(){
-    const payload = {
-      group_id: this.data.group.id,
-      is_deleted: true,
-      name: this.data.group.name
-    }
+    let payload
+      if(this.data?.group?.id){
+         payload = {
+          group_id: this.data.group.id,
+          name: this.data?.group?.name,
+          is_deleted: true,
+        }
+      } else {
+        payload = {
+          site_id: this.data?.site?.id,
+          name: this.data?.site?.name,
+          is_deleted: true,
+        }
+      }
     this.updateGroup(payload)
   }
 
   updateGroup(payload: any) {
-    this.satelliteService.updateGroup(payload).subscribe({
-      next: (resp) =>{
-        this.dialogRef.close({resp:resp,parentGroupID:this.data.parentGroupID})
-      },
-      error(err) {
-        
-      },
-    })
+    if(this.data?.group?.id){
+      this.satelliteService.updateGroup(payload).subscribe({
+        next: (resp) =>{
+          this.dialogRef.close({resp:resp,parentGroupID:this.data.parentGroupID})
+        },
+        error(err) {
+          
+        },
+      })
+    } else {
+      this.satelliteService.updateSite(payload).subscribe({
+        next: (resp) => {
+          if (resp) {
+            this.dialogRef.close({resp:resp})
+          }
+  
+  
+        }
+      })
+    }
+    
   }
 
   closeDialog(){
