@@ -58,6 +58,8 @@ export class MapCalendarComponent implements OnInit {
     return this._calendarApiData;
   };
 
+  tooltipPosition: any = {};
+
   ngOnInit(): void {
   }
 
@@ -96,7 +98,7 @@ export class MapCalendarComponent implements OnInit {
       }
   
       this.calendarData.push({
-        name: current.format("MMMM"),
+        name: current.format("MMMM YYYY"), // Includes the year
         weeks: this.generateWeeksForMonth(monthDays),
       });
   
@@ -203,4 +205,50 @@ export class MapCalendarComponent implements OnInit {
   getDayFromDate(fullDate: string): number {
     return dayjs(fullDate).date(); // Extracts the day of the month from the full date
   }
+
+
+//Tooltip positioning functions  
+
+calculateTooltipPosition(event: MouseEvent, day: any): void {
+  const dayElement = event.currentTarget as HTMLElement;
+  const dayRect = dayElement.getBoundingClientRect();
+  const tooltipWidth = 185; // Match your tooltip's min-width
+  const tooltipHeight = 100; // Approximate tooltip height
+
+  // Horizontal positioning
+  let left: number, right: number;
+  if (dayRect.right + tooltipWidth <= window.innerWidth) {
+    left = dayRect.right;
+    right = undefined;
+  } else if (dayRect.left - tooltipWidth >= 0) {
+    left = dayRect.left - tooltipWidth;
+    right = undefined;
+  } else {
+    left = Math.max(10, window.innerWidth - tooltipWidth - 10);
+    right = undefined;
+  }
+
+  // Vertical positioning
+  let top: number, bottom: number;
+  if (dayRect.bottom + tooltipHeight <= window.innerHeight) {
+    top = dayRect.bottom;
+    bottom = undefined;
+  } else {
+    bottom = window.innerHeight - dayRect.top + 10;
+    top = undefined;
+  }
+
+  this.tooltipPosition[day.date] = {
+    position: 'fixed',
+    left: left + 'px',
+    top: top ? top + 'px' : 'unset',
+    bottom: bottom ? bottom + 'px' : 'unset',
+    'z-index': 9999999999,
+    // Include other styles from your original class
+  };
+}
+
+clearTooltipPosition(day: any): void {
+  delete this.tooltipPosition[day.date];
+}
 }
