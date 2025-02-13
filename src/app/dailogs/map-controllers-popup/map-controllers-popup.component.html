@@ -27,22 +27,18 @@
     }
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Group</span>
-        @if(selectedGroup == null){
+        @if(selectedGroup !== null){
           <div class="flex relative items-center gap-[15px] self-stretch w-full">
+            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
+          </div>
+        }
+          <div class="flex relative justify-between items-center gap-[15px] self-stretch w-full">
+            
             <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
-            [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
+            [matMenuTriggerFor]="assign">Assign to a group</span> 
             <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
               <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
                 <!-- Groups Section -->
-                <div class="container">
-                  @for (group of groups; track group;let index = $index) {
-                    <ng-container>
-                      <app-groups-list [group]="group" (selectedGroup)="selectedGroupEvent($event)" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
-                    </ng-container>
-                  }
-                </div>
-            
-                <!-- Search and Assign Section -->
                 <div class="flex flex-col gap-3">
                   <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
                   <mat-form-field
@@ -56,16 +52,26 @@
                     <img src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
                   </mat-form-field>
                 </div>
+                <div class="max-h-[230px] overflow-y-scroll scrollbar scrollbar-thumb-secondaryText !scrollbar-track-gray-200">
+                  @for (group of groups; track group;let index = $index) {
+                    <ng-container>
+                      <app-groups-list [group]="group" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
+                    </ng-container>
+                  }
+                </div>
+            
+                <!-- Search and Assign Section -->
+                
             
                 <!-- Checkbox Section -->
-                <span>
+                <!-- <span>
                   <mat-checkbox
                     class="example-margin"
                     [(ngModel)]="checked"
                     (click)="$event.stopPropagation()"
                     >Notify me of new updates</mat-checkbox
                   >
-                </span>
+                </span> -->
             
                 <!-- Buttons -->
                 <button (click)="saveGroup()"
@@ -79,27 +85,38 @@
                   Cancel
                 </button>
               </div>
-            </mat-menu>        
+            </mat-menu>    
+            <div class="flex justify-center items-center text-center h-[25px] cursor-pointer w-[25px] border border-solid border-yellow rounded-full text-yellow" (click)="addNewGroup('addGroup')">
+              <span>+</span>
+            </div>    
         </div>
-        } @else {
-          <div class="flex relative items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
-          </div>
-        }
     </div>
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Image acquisition</span>
         
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex items-center gap-[5px] self-stretch">
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
+                    <div [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                    class="hidden absolute rounded-[10px] z-10  shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Date time:</span>
+                          <span>{{data?.markerData?.oldest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                      </div>
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Vendor:</span>
+                          <span>{{data?.markerData?.oldest_info?.vendor_name }}</span>
+                      </div>
+                      
+                  </div>
                 </div>
                 <div class="flex h-[60px] group min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Newest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}</span>
-                    <div class="hidden absolute rounded-[10px] z-10 top-[285px] shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                    class="hidden absolute rounded-[10px] z-10  shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                       <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                           <span>Date time:</span>
                           <span>{{data?.markerData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
@@ -111,13 +128,28 @@
                       
                   </div>
                 </div>
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Total</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.total_count}}</span>
+                    <div  [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                    class="hidden absolute shadow-custom rounded-[10px] z-10  text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Total count in last 90 days</span>
+                      </div>
+                      
+                  </div>
+                    
                 </div>
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] group bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Avg</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day?.toFixed(3)}}</span>
+                    <div [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                     class="hidden absolute shadow-custom rounded-[10px] z-10  text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>{{data?.markerData?.total_count}} ÷ 90 </span>
+                      </div>
+                      
+                  </div>
                 </div>
             </div>
             <div class="p-[3px] flex justify-between items-center self-stretch rounded-[50px] bg-secondaryBg">
@@ -186,7 +218,7 @@
       
    </div>
   } @else if (data.type === 'vendor') {
-    <div class="flex p-[15px] relative flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40">
+    <div class="flex p-[15px] relative flex-col items-start gap-[15px] rounded-b-l-[10px] bg-secondaryBg z-40">
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
@@ -234,11 +266,61 @@
         <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
           <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendor</span>
           <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name}}</span>
+            <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name}}</span>
           </div>
         <!-- </div> -->
       </div>         
   </div>
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Constellation</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.constellation}}</span>         
+      </div> 
+    </div>
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Azimuth Angle</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle}}</span>         
+      </div> 
+    </div>      
+</div>
+<div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Illumination Angle</span>
+    <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_azimuth_angle}}</span>         
+    </div> 
+  </div>    
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Satellite Angle</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.illumination_azimuth_angle}}</span>
+      </div>
+    <!-- </div> -->
+  </div>         
+</div>
+<div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Platform</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.platform}}</span>
+      </div>
+    <!-- </div> -->
+  </div>       
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Publication</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{getDateTimeFormat(data?.vendorData?.publication_datetime, data?.vendorData?.centroid)}}</span>
+      </div>
+    <!-- </div> -->
+  </div> 
+</div>
+        
+
     
     <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
       <div class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">

@@ -9,19 +9,28 @@
             @if (data?.images?.presigned_url) {
               <div
                 class="image-container"
-                (wheel)="onWheel($event)"
-                (mousedown)="onMouseDown($event)"
-                (mousemove)="onMouseMove($event)"
-                (mouseup)="onMouseUp()"
-                (mouseleave)="onMouseUp()"
+                #container
+                style="position: absolute; top: 0px; bottom: 0; left: 0; right: 0;"
+
               >
+              <ngx-panzoom
+              #PanZoom
+              [zoomLevels]="20"
+              [zoomStepDuration]="0.1"
+              [freeMouseWheelFactor]="0.01"
+              [zoomToFitZoomLevelFactor]="0.9"
+              [initialPanX]="400"
+              [initialPanY]="200"
+            >
+              <div class="relative">
                 <img
-                  #img
-                  [src]="data?.images?.presigned_url"
-                  alt="Preview"
-                  class="resizable-image object-contain"
-                  style="transition: transform 0.3s; cursor: pointer; position: relative;"
-                />
+                #img
+                [src]="data?.images?.presigned_url"
+                alt="Preview"
+                class="object-contain"
+              />
+              </div>
+            </ngx-panzoom>
               </div>
             } @else {
               <span class="text-lg leading-6 font-semibold text-secondary-heiglight">
@@ -95,22 +104,40 @@
             @if (data.images.data[currentIndex].presigned_url) {
              
               <div
-                class="image-container"
-                (wheel)="onWheel($event)"
-                (mousedown)="onMouseDown($event)"
-                (mousemove)="onMouseMove($event)"
-                (mouseup)="onMouseUp()"
-                (mouseleave)="onMouseUp()"
-              >
-                <img
-                  #img
-                  [src]="data?.images?.data[currentIndex]?.presigned_url"
-                  alt="Preview"
-                  class="resizable-image object-contain"
-                  style="transition: transform 0.3s; cursor: pointer; position: relative;"
-                />
-              </div>
-             
+              class="image-container"
+              style="position: absolute; top: 0px; bottom: 0; left: 0; right: 0;"
+              #container
+       
+            >
+            <!-- <pinch-zoom [wheel]="true">
+            
+
+          </pinch-zoom> -->
+
+          <ngx-panzoom
+          #PanZoom
+          [zoomLevels]="20"
+          [zoomStepDuration]="0.1"
+          [freeMouseWheelFactor]="0.01"
+          [zoomToFitZoomLevelFactor]="0.9"
+          [initialPanX]="400"
+          [initialPanY]="200"
+        >
+          <div class="relative">
+            <img
+            #img
+            [src]="data?.images?.data[currentIndex]?.presigned_url"
+            class="object-contain"
+          />
+          </div>
+        </ngx-panzoom>
+     
+
+            </div>
+            
+            <div class="flex ml-[8px]">
+              <!-- <button class="flex justify-center w-[115px] !text-[#453303] items-center text-center h-[38px] py-[10px] bg-yellow rounded-[5px]" (click)="PanZoom.zoomOut('lastPoint')">back</button> -->
+            </div>
 
             } @else {
               <span class="text-lg leading-6 font-semibold text-secondary-heiglight">

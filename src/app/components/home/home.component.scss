@@ -1,81 +1,163 @@
 .map {
-    width: 100%;
-    height: 100%;
-  }
+  width: 100%;
+  height: 100%;
+}
 
-  :host {
-    display: block;
-    height: 100vh;
-  }
-  
-  .map {
-    height: 100%;
-    width: 100%;
-  }
-  
-  .h-screen {
-    height: 100vh;
-    background-color: #2d3e37; /* Dark background to match the theme */
-  }
+:host {
+  display: block;
+  height: 100vh;
+}
 
-  #mapContainer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(30, 30, 30, 0.3); /* Dark overlay with some transparency */
-    pointer-events: none; /* Allows interaction with map underneath */
-  }
+.map {
+  height: 100%;
+  width: 100%;
+}
 
-  /* Custom styles for the dropdown */
+.h-screen {
+  height: 100vh;
+  background-color: #2d3e37; /* Dark background to match the theme */
+}
+
+#mapContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 30, 30, 0.3); /* Dark overlay with some transparency */
+  pointer-events: none; /* Allows interaction with map underneath */
+}
+
+/* Custom styles for the dropdown */
 .custom-select {
-  position: relative;
-  width: 200px;
-  cursor: pointer;
+position: relative;
+width: 200px;
+cursor: pointer;
 }
 
 
 
 .option {
-  padding: 10px;
-  display: flex;
-  align-items: center;
+padding: 10px;
+display: flex;
+align-items: center;
 }
 
 .option img {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
+width: 20px;
+height: 20px;
+margin-right: 10px;
 }
 
 .example-sidenav-content {
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+display: flex;
+height: 100%;
+align-items: center;
+justify-content: center;
 }
 
 .example-sidenav {
-  padding: 20px;
+padding: 20px;
 }
 
 #menu-drawer::ng-deep{
-  .mat-drawer-content{
-    margin-left: 0px !important;
-  }
+.mat-drawer-content{
+  margin-left: 0px !important;
+}
 }
 
 ::ng-deep .custom-dialog-class{
-  .mat-mdc-dialog-surface{
-    background-color: #191E22 !important;
-    box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, 0.50) !important;
-    border-radius: 5px !important;
-  }
+.mat-mdc-dialog-surface{
+  background-color: #191E22 !important;
+  box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, 0.50) !important;
+  border-radius: 5px !important;
+}
 }
 
 
 ::ng-deep.leaflet-container img.leaflet-image-layer{
-  object-fit: cover !important;
+object-fit: cover !important;
+}
+.library{
+width: 100%;
+// height: 682.575px !important;
+height: 94% !important;
+
+}
+
+/* Sidebar (mat-drawer) container styling */
+.draggable-resizable-container {
+position: absolute;
+top: 41px;
+left: 0;
+width: 820px; /* Default width */
+height: 100% !important;
+z-index: 99999;
+// background: var(--primaryBg);
+// overflow: hidden;
+resize: both; /* Allow resizing */
+border-right: 1px solid var(--custom-border); /* Optional border for clarity */
+}
+
+@media (min-width: 1537px) {
+  .draggable-resizable-container {
+    top: 42px;
+  }
+  .library{
+    height: 100% !important;
+  }
+}
+
+/* Map container styling */
+#mapContainer {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%; /* Always use full width */
+height: 100%; /* Always occupy full height */
+z-index: 0; /* Keep it behind other elements */
+}
+
+// #mapContainer {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   width: calc(100% - var(--sidebar-width, 0px)); /* Adjust width dynamically */
+//   height: 100%;
+//   z-index: 0;
+//   transition: margin-left 0.3s ease-in-out; /* Smooth transition */
+// }
+
+
+/* Sidebar visibility handling */
+.mat-drawer-open .draggable-resizable-container {
+display: block;
+}
+
+/* Adjustments for sidebar interactions */
+.mat-drawer-closed .draggable-resizable-container {
+display: none;
+}
+
+/* Sidebar resizing handle */
+.draggable-resizable-container::after {
+content: '';
+position: absolute;
+right: 0;
+bottom: 0;
+width: 10px;
+height: 10px;
+background: rgba(0, 0, 0, 0.3);
+cursor: nwse-resize;
+}
+.drag-btn{
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  cursor: ew-resize;
+  border-radius: 5px;
+  padding: 5px 3px;
+  color: gray;
+  background: #20272d;
 }

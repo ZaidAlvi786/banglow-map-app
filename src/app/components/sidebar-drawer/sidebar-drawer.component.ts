@@ -2,11 +2,12 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { LibraryComponent } from "../library/library.component";
 import { SitesComponent } from "../sites/sites.component";
 import { GroupsComponent } from "../groups/groups.component";
+import { ImageryStatusComponent } from "../imagery-status/imagery-status.component";
 
 @Component({
   selector: "app-sidebar-drawer",
   standalone: true,
-  imports: [LibraryComponent,SitesComponent,GroupsComponent],
+  imports: [LibraryComponent,SitesComponent,GroupsComponent,ImageryStatusComponent],
   templateUrl: "./sidebar-drawer.component.html",
   styleUrl: "./sidebar-drawer.component.scss",
 })

@@ -95,3 +95,8 @@
         box-shadow: 5px 5px 5px 0px #0000001a !important;
       }
     }
+.custome-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 1rem;
+}

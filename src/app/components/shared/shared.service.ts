@@ -19,6 +19,12 @@ export class SharedService {
   nestedPadding$ = this.nestedPadding.asObservable()
   private overlayShapeData = new BehaviorSubject<any>(null);
   overlayShapeData$ = this.overlayShapeData.asObservable()
+  private drawShape = new BehaviorSubject<any>(null);
+  drawShape$ = this.drawShape.asObservable()
+  private vendorData = new BehaviorSubject<any>(null);
+  vendorData$ = this.vendorData.asObservable()
+  private groupData = new BehaviorSubject<any>(null);
+  groupData$ = this.groupData.asObservable()
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {
@@ -44,4 +50,16 @@ export class SharedService {
 setOverlayShapeData(data: any): void{
     this.overlayShapeData.next(data);
   }
+
+setDrawShape(data: any): void{
+  this.drawShape.next(data);
+}
+
+setVendorData(data: any): void {
+  this.vendorData.next(data);
+}
+
+setGroupData(data: any): void {
+  this.groupData.next(data);
+}
 }

@@ -69,21 +69,38 @@ export class GroupsListComponent {
     
     if (group !== this.activeIndex) {
       this.activeIndex = group
+      console.log('activeIndexactiveIndexactiveIndexactiveIndex',group);
+      this.selectedGroup.emit({ group });
+      this.SharedService.setGroupData(group)
     
     } else {
       this.activeIndex = null;
+      this.selectedGroup.emit( null )
+      this.SharedService.setGroupData(null)
     }
     this.isExpanded = !this.isExpanded; // Toggle expand/collapse
     this.backgroundColor = this.isExpanded ? '#232B32' : '#191E22';
+    
     if (this.isExpanded) {
-      this.selectedGroup.emit({ group })
-    }
+      console.log('Togglinggggggggggggggggggggggggggggg',group);
+      
+      
+    } 
   }
 
   setClass() {
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','custom-menu-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('group-overlay-container');
 
+  }
+
+  setMainClass(){
+    const classesToRemove = ['group-overlay-container', 'filter-overlay-container','library-overlay-container','custom-menu-container','imagery-filter-container'];
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add('site-menu');
   }
 
   addGroup(type: string, group: any) {
@@ -99,13 +116,13 @@ export class GroupsListComponent {
     this.openDialog(data)
   }
 
-  renameGroup(type: any, group: any) {
-    const data = { type: type, group: group}
+  renameGroup(type: any, group: any,value:any) {
+    const data = { type: type, group: group,value:value}
     this.openDialog(data)
   }
 
-  deleteGroup(type: any, group: any) {
-    const data = { type: type, group: group}
+  deleteGroup(type: any, group: any,value: any) {
+    const data = { type: type, group: group,value:value}
     this.openDialog(data)
   }
 
@@ -132,11 +149,14 @@ export class GroupsListComponent {
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Dialog closed', result);
         if(result){
-          if(data?.group){
+          if(data.type === 'addSubgroup'){
             this.SharedService.setNestedGroup(true);
             this._snackBar.open('Group updated successfully.', 'Ok', {
               duration: 2000  // Snackbar will disappear after 300 milliseconds
             });
+          } else if(data.value ==='renameGroup' || data.value ==='deleteGroup') {
+            this.SharedService.setNestedGroup(true);
+            
           } else {
             if (data?.type == 'rename') {
               
@@ -407,22 +427,21 @@ export class GroupsListComponent {
     if (!this.siteDetail || !this.siteDetail.heatmap) {
       return;
     }
+  
     let maxValue = Math.max(...this.siteDetail.heatmap.map(entry => entry.count));
     if (maxValue < 100) {
       maxValue = 100; // Default max value to 100 if less than 100
     }
     const rangeStep = Math.ceil(maxValue / 6);
   
-   
-  
     const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
   
     this.chartOptions = {
       series: groupedData.map((group, index) => ({
-        name: `Site`,
+        name: `Week ${index + 1}`,
         data: group.map((entry) => ({
-          x: entry.date || " ", // Ensure x is a valid string
-          y: entry.count !== null ? entry.count : null // Ensure y is valid
+          x: entry.date,
+          y: entry.count
         }))
       })),
       chart: {
@@ -438,12 +457,13 @@ export class GroupsListComponent {
           shadeIntensity: 0.5,
           colorScale: {
             ranges: [
-              { from: 0, to: rangeStep, name: "Very Low", color: "#272F34" },
-              { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#2A2130" },
-              { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#122B64" },
-              { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#386118" },
-              { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#FFC300" },
-              { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#C70039" }
+              { from: 0, to: 0, name: "Zero", color: "#272F34" }, // Neutral gray for zero
+              { from: 1, to: rangeStep, name: "Very Low", color: "#2ECC71" }, // Light Green
+              { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#218838" }, // Darker Green
+              { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#B22222" }, // Dark Red
+              { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#D32F2F" }, // Stronger Red
+              { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#C70039" }, // Deep Red
+              { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#8B0000" } // Darkest Red
             ]
           }
         }
@@ -459,29 +479,50 @@ export class GroupsListComponent {
         }
       },
       xaxis: {
-        labels: { show: false },
-        axisTicks: { show: false },
-        axisBorder: { show: false }
+        labels: {
+          show: false // Hides X-axis labels completely
+        },
+        axisTicks: {
+          show: false // Hides X-axis ticks
+        },
+        axisBorder: {
+          show: false // Hides X-axis border
+        }
       },
       yaxis: {
-        labels: { show: false },
-        axisTicks: { show: false },
-        axisBorder: { show: false }
+        labels: {
+          show: false // Hides Y-axis labels completely
+        },
+        axisTicks: {
+          show: false // Hides Y-axis ticks
+        },
+        axisBorder: {
+          show: false // Hides Y-axis border
+        }
       },
       grid: {
-        show: true,
-        xaxis: { lines: { show: false } },
-        yaxis: { lines: { show: false } }
+        show: true, // Controls gridlines visibility
+        xaxis: {
+          lines: {
+            show: false // Hides vertical gridlines
+          }
+        },
+        yaxis: {
+          lines: {
+            show: false // Hides horizontal gridlines
+          }
+        }
+        
       },
-      legend: { show: false }
+      legend: {
+        show: false // ✅ Hides the legend
+      }
     };
-  
-    console.log("Processed Chart Series:", this.chartOptions.series);
   }
   
   groupHeatmapDataIntoRows(heatmapData: any[], rows = 3) {
     const groupedData = [];
-    const itemsPerRow = Math.ceil(heatmapData.length / rows);
+    const itemsPerRow = Math.ceil(heatmapData.length / rows); // Calculate items per row
   
     // Group the data into rows
     for (let i = 0; i < rows; i++) {
@@ -490,17 +531,16 @@ export class GroupsListComponent {
       groupedData.push(heatmapData.slice(start, end));
     }
   
-    // Pad rows with empty values (use valid placeholders)
+    // Pad rows with empty values (null) to align smaller rows at the bottom
     const maxLength = Math.max(...groupedData.map(group => group.length));
     groupedData.forEach(group => {
       while (group.length < maxLength) {
-        group.unshift({ date: " ", count: null }); // Use an empty string for x and null for y
+        group.unshift({ x: null, y: null }); // Add padding at the start of the row
       }
     });
   
     return groupedData;
   }
-  
   
 
   renameSite(type:any,group:any){
@@ -538,17 +578,5 @@ export class GroupsListComponent {
 
       }
     })
-  }
-
-  getSiteType(type: string): string {
-    if (type === 'Rectangle') {
-      return 'assets/svg-icons/rectangle-icon.svg'
-    } else   if (type === 'Polygon') {
-      return 'assets/svg-icons/polygon-icon.svg'
-    }  if (type === 'Point') {
-      return 'assets/svg-icons/pin-location-icon.svg'
-    }
-
-    return '';
   }
 }
