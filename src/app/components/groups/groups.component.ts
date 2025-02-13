@@ -55,7 +55,8 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   sitesData:any;
   @ViewChild("chart") chart: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
-    
+  colorRanges: any[] = [];
+
   constructor(
     private satelliteService:SatelliteService,
     private overlayContainer: OverlayContainer,
@@ -182,8 +183,17 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   }
 
   setClass(){
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu'];
     const containerElement = this.overlayContainer.getContainerElement();
-    containerElement.classList.add('custom-cdk-overlay-container');  
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add('custom-menu-container');  
+  }
+
+  setMainClass(){
+    const classesToRemove = ['custom-menu-container','filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu'];
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add('site-menu');
   }
 
   //Add group functionality
@@ -201,13 +211,13 @@ export class GroupsComponent implements OnInit,AfterViewInit {
    this.openDialog(data)
   }
 
-  renameGroup(type:any,group:any){
-    const data = {type:type, group:group}
+  renameGroup(type:any,group:any,value:any){
+    const data = {type:type, group:group,value:value}
     this.openDialog(data)
   }
 
-  deleteGroup(type:any,group:any){
-    const data = {type:type, group:group}
+  deleteGroup(type:any,group:any,value){
+    const data = {type:type, group:group,value:value}
     this.openDialog(data)
   }
 
@@ -221,11 +231,25 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Dialog closed', result);
         if(result){
-          if(data?.group){
+          if(data?.type=='addGroup'){
             this.getGroups();
             this._snackBar.open('Group updated successfully.', 'Ok', {
               duration: 2000  // Snackbar will disappear after 300 milliseconds
             });
+          } else if(data.type === 'addSubgroup') {
+            console.log(data,'addSubgroupaddSubgroupaddSubgroupaddSubgroup');
+            
+            const payload = {group_id:data?.group?.id || data.parent}
+            this.satelliteService.getNestedGroup(payload).subscribe({
+              next: (resp) => {
+                console.log(resp,'getNestedGroupgetNestedGroupgetNestedGroupgetNestedGroup');
+        
+                this.nestedGroupsData = resp
+        
+              }})
+          } else if(data.value ==='renameGroup' || data.value ==='deleteGroup') {
+            this.getGroups()
+            
           } else {
             if (data?.type == 'rename') {
               
@@ -358,9 +382,9 @@ export class GroupsComponent implements OnInit,AfterViewInit {
           // Generate unique color ranges based on heatmap values
          
     
-          setTimeout(() => {
+         
             this.initializeCharts();
-          }, 300);
+        
         },
         error: (err: any) => {
           console.error('API call failed', err);
@@ -369,27 +393,43 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     }
     
      // Initialize the ApexCharts heatmap after receiving site data.
-     initializeCharts() {
+    initializeCharts() {
       if (!this.siteDetail || !this.siteDetail.heatmap) {
         return;
       }
-      
-      let maxValue = Math.max(...this.siteDetail.heatmap.map(entry => entry.count));
-      if (maxValue < 100) {
-        maxValue = 100; // Default max value to 100 if less than 100
-      }
-      const rangeStep = Math.ceil(maxValue / 6);
     
-     
+      const heatmapData = this.siteDetail.heatmap.map(entry => entry.count);
+      const maxValue = Math.max(...heatmapData); // No hardcoded 100
+      const minValue = Math.min(...heatmapData);
+      const rangeCount = Math.max(5, Math.floor((maxValue - minValue) / 5));
+      const rangeStep = Math.ceil((maxValue - minValue) / rangeCount); // 5 dynamic ranges
+
+  const colorStatus = ['']
+// ✅ Generate dynamic color ranges
+const colorRanges = Array.from({ length: 5 }, (_, i) => {
+  const from = minValue + i * rangeStep;
+  const to = i === 4 ? maxValue : from + rangeStep - 1; // Ensure the last range covers maxValue
+  return {
+    from,
+    to,
+    color: this.getColor(from, heatmapData), // Dynamic color using getColor
+    name: `${from} - ${to}`
+  };
+});
+
+
+this.colorRanges = colorRanges;
     
       const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
+      console.log("groupedDatagroupedDatagroupedData", groupedData);
+      
     
       this.chartOptions = {
         series: groupedData.map((group, index) => ({
-          name: `Site`,
+          name: 'Site',
           data: group.map((entry) => ({
-            x: entry.date || " ", // Ensure x is a valid string
-            y: entry.count !== null ? entry.count : null // Ensure y is valid
+            x: entry.date ?? "no data", // Use "Empty" for padding values
+            y: entry.count ?? 0 // Use `null` for padding counts
           }))
         })),
         chart: {
@@ -403,15 +443,21 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         plotOptions: {
           heatmap: {
             shadeIntensity: 0.5,
+            enableShades: false,
             colorScale: {
-              ranges: [
-                { from: 0, to: rangeStep, name: "Very Low", color: "#272F34" },
-                { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#2A2130" },
-                { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#122B64" },
-                { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#386118" },
-                { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#FFC300" },
-                { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#C70039" }
-              ]
+              // ranges: [
+              //   { from: 0, to: 0, name: "Zero", color: "#272F34" }, // Neutral gray for zero
+              //   { from: 1, to: rangeStep, name: "Very Low", color: "#2ECC71" }, // Light Green
+              //   { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#218838" }, // Darker Green
+              //   { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#B22222" }, // Dark Red
+              //   { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#D32F2F" }, // Stronger Red
+              //   { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#C70039" }, // Deep Red
+              //   { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#8B0000" } // Darkest Red
+              // ]
+              ranges: colorRanges,
+              min: minValue,
+              max: maxValue
+              
             }
           }
         },
@@ -426,29 +472,55 @@ export class GroupsComponent implements OnInit,AfterViewInit {
           }
         },
         xaxis: {
-          labels: { show: false },
-          axisTicks: { show: false },
-          axisBorder: { show: false }
+          labels: {
+            show: false // Hides X-axis labels completely
+          },
+          axisTicks: {
+            show: false // Hides X-axis ticks
+          },
+          axisBorder: {
+            show: false // Hides X-axis border
+          }
         },
         yaxis: {
-          labels: { show: false },
-          axisTicks: { show: false },
-          axisBorder: { show: false }
+          labels: {
+            show: false // Hides Y-axis labels completely
+          },
+          axisTicks: {
+            show: false // Hides Y-axis ticks
+          },
+          axisBorder: {
+            show: false // Hides Y-axis border
+          }
         },
         grid: {
-          show: true,
-          xaxis: { lines: { show: false } },
-          yaxis: { lines: { show: false } }
+          show: true, // Controls gridlines visibility
+          xaxis: {
+            lines: {
+              show: false // Hides vertical gridlines
+            }
+          },
+          yaxis: {
+            lines: {
+              show: false // Hides horizontal gridlines
+            }
+          }
+          
         },
-        legend: { show: false }
+        legend: {
+          show: false // ✅ Hides the legend
+        }
       };
-    
-      console.log("Processed Chart Series:", this.chartOptions.series);
     }
     
     groupHeatmapDataIntoRows(heatmapData: any[], rows = 3) {
+      // Remove the last value to ensure the length is exactly 30
+      if (heatmapData.length > 30) {
+        heatmapData.splice(-1, 1);
+      }
+    
       const groupedData = [];
-      const itemsPerRow = Math.ceil(heatmapData.length / rows);
+      const itemsPerRow = 10; // Each row must have 10 items
     
       // Group the data into rows
       for (let i = 0; i < rows; i++) {
@@ -456,14 +528,6 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         const end = start + itemsPerRow;
         groupedData.push(heatmapData.slice(start, end));
       }
-    
-      // Pad rows with empty values (use valid placeholders)
-      const maxLength = Math.max(...groupedData.map(group => group.length));
-      groupedData.forEach(group => {
-        while (group.length < maxLength) {
-          group.unshift({ date: " ", count: null }); // Use an empty string for x and null for y
-        }
-      });
     
       return groupedData;
     }
@@ -506,6 +570,30 @@ export class GroupsComponent implements OnInit,AfterViewInit {
         }
       })
     }
+    getColor(value, data) {
+      const min = Math.min(...data);
+      const max = Math.max(...data);
+      const mean = data.reduce((sum, v) => sum + v, 0) / data.length;
+    
+        if (min ==0 && max == 0) return 'gray'
+      // Special case: Only one value
+      if (min === max) return `rgb(255, 0, 0)`; // Default red for single value
+    
+      // Clamp value between min and max
+      const clampedValue = Math.min(Math.max(value, min), max);
+    
+      // Normalize value between 0 and 1
+      const normalized = (clampedValue - min) / (max - min);
+    
+       if (normalized ==0) return 'gray'
+      // Calculate red (increases with value) and green (decreases with value)
+      const red = Math.round(255 * normalized);
+      const green = Math.round(255 * (1 - normalized));
+    
+      return `rgb(${red}, ${green}, 0)`; // Gradient from green to red
+    }
+    
+    
 
     getSiteType(type: string): string {
       if (type === 'Rectangle') {

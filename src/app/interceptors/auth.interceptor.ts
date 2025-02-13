@@ -43,7 +43,7 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
                         duration: 3000, // Snackbar duration in milliseconds
                         verticalPosition: 'top', // Position the snackbar at the top
                     });
-                } else if (err.status !== 404) { 
+                } else { 
                     snackBar.open(`${err.error.error || err.error.data}`, 'Close', {
                         duration: 3000,
                         verticalPosition: 'top',

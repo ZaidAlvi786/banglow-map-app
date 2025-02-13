@@ -39,3 +39,18 @@
       overflow: hidden !important;;
   }
 }
+::ng-deep {
+    .site-menu{
+        .cdk-overlay-connected-position-bounding-box {
+            top: auto !important;
+            right: auto !important;
+            width: 165px !important;
+            left: 630px !important;
+            bottom: -3px !important;
+        }
+        .mat-mdc-menu-panel {
+            background-color: #20272d !important;
+            box-shadow: 5px 5px 5px 0px #0000001a !important;
+        }
+    }
+}

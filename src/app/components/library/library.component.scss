@@ -1,3 +1,6 @@
+.w-100{
+  width: 100% !important;
+}
 #library::ng-deep {
   .mdc-text-field--outlined:not(.mdc-text-field--disabled)
     .mdc-notched-outline
@@ -129,6 +132,9 @@
 }
 #custom_table ::ng-deep .mat-mdc-row {
   height: inherit !important;
+}
+.content{
+  // height: 500px !important;
 }
 
 .single_browse {
@@ -291,12 +297,12 @@
 ::ng-deep .filter-overlay-container{
   .mat-mdc-menu-panel {
     background-color: #20272d !important;
-    width: 410px !important;
-    max-width: 470px !important;
+    width: 330px !important;
+    max-width: 400px !important;
     box-shadow: 5px 5px 5px 0px #0000001a !important;
   }
   .cdk-overlay-connected-position-bounding-box {
-    top: 120px !important;
+    top: 100px !important;
     left: 155px !important;
     width: 480px !important;
     height: 600px !important;
@@ -387,4 +393,35 @@
   .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
     background: #FCCA40;
   }
+  .custom-h{
+    height: 86vh;
+  }
+  @media screen and (min-width: 1706px) {
+    .custom-h{
+      height: 86vh;
+    }
+    
+  }
+  @media screen and (min-width: 1920px) {
+    .custom-h{
+      height: 89vh;
+    }
+    
+  }
+  @media screen and (min-width: 2304px) {
+    .custom-h{
+      height: 100vh;
+    }
+    body .content {
+      height: 0;
+  }
+  }
 }
+
+::ng-deep .filter-dialog-class{
+  .mat-mdc-dialog-surface{
+    background-color: #191E22 !important;
+    box-shadow: 0px 2px 1px 0px rgba(0, 0, 0, 0.50) !important;
+    border-radius: 5px !important;
+  }
+  }

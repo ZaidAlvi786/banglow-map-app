@@ -19,3 +19,102 @@
       font-size: 12px !important;
     }
   }
+
+  ::ng-deep {
+    .custom-slider .ngx-slider .ngx-slider-bar {
+      background: #ABB7C0;
+      height: 5px;
+    }
+  
+    // .custom-slider .ngx-slider {
+    //   width: 98% !important;
+    // }
+    .custom-slider .ngx-slider .ngx-slider-selection {
+      background: #FCCA40;
+    }
+  
+    .custom-slider .ngx-slider .ngx-slider-pointer {
+      width: 8px;
+      height: 22px;
+      top: auto; /* to remove the default positioning */
+      bottom: -10px;
+      background-color: #ABB7C0;
+      border-radius: 5px;
+    }
+  
+    .custom-slider .ngx-slider .ngx-slider-pointer:after {
+      display: none;
+    }
+  
+    .custom-slider .ngx-slider .ngx-slider-bubble {
+      bottom: 14px;
+    }
+  
+    .custom-slider .ngx-slider .ngx-slider-limit {
+      font-weight: bold;
+      color: #FCCA40;
+    }
+  
+    .custom-slider .ngx-slider .ngx-slider-tick {
+      width: 1px;
+      height: 10px;
+      margin-left: 4px;
+      border-radius: 0;
+      background: #ABB7C0;
+      top: -1px;
+    }
+  
+    .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
+      background: #FCCA40;
+    }
+    .custom-h{
+      height: 86vh;
+    }
+    @media screen and (min-width: 1706px) {
+      .custom-h{
+        height: 86vh;
+      }
+      
+    }
+    @media screen and (min-width: 1920px) {
+      .custom-h{
+        height: 89vh;
+      }
+      
+    }
+    @media screen and (min-width: 2304px) {
+      .custom-h{
+        height: 100vh;
+      }
+      body .content {
+        height: 0;
+    }
+    }
+  }
+
+  #filter::ng-deep {
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline
+      .mdc-notched-outline__notch {
+      border-color: #4a5863 !important;
+      border-right: none !important;
+      border-left: none !important;
+    }
+    .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
+      border-color: #4a5863 !important;
+    }
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline__trailing {
+      border-color: #4a5863 !important;
+    }
+    .mdc-floating-label {
+      color: #4a5863 !important;
+      font-weight: 700 !important;
+      font-size: 12px !important;
+    }
+    .mat-mdc-select-arrow svg{
+      fill: #ABB7C0 !important;
+    }
+  
+    
+  }

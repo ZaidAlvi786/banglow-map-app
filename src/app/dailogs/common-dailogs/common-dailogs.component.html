@@ -32,6 +32,126 @@
                 class="flex justify-center !text-[#ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]" (click)="closeDialog()">Cancel</button>
         </div>
     </div>
+} @else if(data?.type ==='filters'){
+    <div class="p-[20px]" (click)="$event.stopPropagation()">
+        <form class="grid grid-cols-2 font-Barlow gap-[10px]"
+            [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+            <span
+                class="text-sm text-secondaryText font-Barlow font-bold leading-[16px] col-span-2">Apply
+                filters</span>
+            <mat-form-field appearance="outline" id="filter" class="col-span-2">
+                <mat-label class="!text-secondaryText text-xs">Vendor name</mat-label>
+                <mat-select class="!text-secondaryText text-xs" multiple
+                    formControlName="vendor" name="vendor">
+                    @for (vendor of vendorsList; track vendor) {
+                    <mat-option [value]="vendor">{{vendor}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" id="filter" class="col-span-2">
+                <mat-label class="!text-secondaryText text-xs">Type</mat-label>
+                <mat-select class="!text-secondaryText text-xs" multiple
+                    formControlName="type" name="type">
+                    @for (type of typesList; track type) {
+                    <mat-option [value]="type">{{type}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" id="filter" class="col-span-2">
+                <mat-label class="!text-secondaryText text-xs">Vendor ID</mat-label>
+                <input class="!text-secondaryText text-xs" matInput type="text"
+                    formControlName="vendorId">
+            </mat-form-field>
+
+            <div class="flex-col gap-2 custom-slider pb-[10px] relative col-span-1">
+                
+                <mat-label class="!text-secondaryText text-xs">Cloud Cover
+                    (%)</mat-label>
+                <ngx-slider (click)="$event.stopPropagation()" class="z-20"
+                    *ngIf="sliderShow" #sliderElement [(value)]="min_cloud"
+                    [(highValue)]="max_cloud" [options]="options"></ngx-slider>
+                <span
+                    class="!text-secondaryText absolute -bottom-[5px] -left-[19px] text-xs">SAR</span>
+                <span
+                    class="!text-secondaryText absolute -bottom-[5px]  left-[45px] text-xs">0</span>
+                <span
+                    class="!text-secondaryText absolute -bottom-[5px] -right-[13px] text-xs">50+</span>
+            </div>
+            
+            <div class="flex-col gap-2 custom-slider col-span-1"
+                (click)="$event.stopPropagation()">
+                
+                <mat-label class="!text-secondaryText text-xs">Off NADIR Angle
+                    (°)</mat-label>
+                <ngx-slider *ngIf="sliderShow" #sliderElement
+                    [(value)]="min_angle" [(highValue)]="max_angle"
+                    [options]="angleOptions"
+                    (click)="$event.stopPropagation()"></ngx-slider>
+            </div>
+            <div class="flex-col gap-2 custom-slider col-span-1"
+                (click)="$event.stopPropagation()">
+                
+                <mat-label class="!text-secondaryText text-xs">Azimuth Angle
+                    (°)</mat-label>
+                <ngx-slider *ngIf="sliderShow" #sliderElement
+                    [(value)]="min_azimuth_angle" [(highValue)]="max_azimuth_angle"
+                    [options]="azimuthOptions"
+                    (click)="$event.stopPropagation()"></ngx-slider>
+            </div>
+            <div class="flex-col gap-2 custom-slider col-span-1"
+                (click)="$event.stopPropagation()">
+                
+                <mat-label class="!text-secondaryText text-xs">Holdback Seconds
+                    (°)</mat-label>
+                <ngx-slider *ngIf="sliderShow" #sliderElement
+                    [(value)]="min_holdback_seconds" [(highValue)]="max_holdback_seconds"
+                    [options]="holdbackOptions"
+                    (click)="$event.stopPropagation()"></ngx-slider>
+            </div>
+            <div class="flex-col gap-2 custom-slider col-span-1"
+                (click)="$event.stopPropagation()">
+                
+                <mat-label class="!text-secondaryText text-xs">Illumination Azimuth Angle
+                    (°)</mat-label>
+                <ngx-slider *ngIf="sliderShow" #sliderElement
+                    [(value)]="min_illumination_azimuth_angle" [(highValue)]="max_illumination_azimuth_angle"
+                    [options]="illuminationAzimuthOptions"
+                    (click)="$event.stopPropagation()"></ngx-slider>
+            </div>
+            <div class="flex-col gap-2 custom-slider col-span-1"
+                (click)="$event.stopPropagation()">
+                
+                <mat-label class="!text-secondaryText text-xs">Illumination Elevation Angle
+                    (°)</mat-label>
+                <ngx-slider *ngIf="sliderShow" #sliderElement
+                    [(value)]="min_illumination_elevation_angle" [(highValue)]="max_illumination_elevation_angle"
+                    [options]="illuminationElevationOptions"
+                    (click)="$event.stopPropagation()"></ngx-slider>
+            </div>
+            <div class="flex-col gap-2 custom-slider col-span-1"
+                (click)="$event.stopPropagation()">
+                <mat-label class="!text-secondaryText text-xs">GSD (m)</mat-label>
+
+                <ngx-slider *ngIf="sliderShow"
+                    (click)="$event.stopPropagation()" #sliderElement
+                    [(value)]="min_gsd" [(highValue)]="max_gsd"
+                    [options]="gsd_options"></ngx-slider>
+            </div>
+           
+            <div class="flex gap-3 justify-center col-span-2">
+                <button (click)="closeDialog()"
+                    class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-secondary-heiglight text-secondaryText"
+                    type="button">
+                    Cancel
+                </button>
+                <button
+                    class="text-xs w-1/2 leading-[16px] py-[7px] font-semibold my-[5px] mr-[7px] rounded-[8px] px-[15px] bg-yellow text-[#453303]"
+                    type="submit">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
 } @else {
     <div class="bg-primaryBg"  id="delete">
         <div class="p-[15px] flex flex-col gap-[15px]">

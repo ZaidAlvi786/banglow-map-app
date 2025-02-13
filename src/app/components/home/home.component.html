@@ -1,6 +1,6 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
   <div 
-    class="h-screen min-h-[700px] cursor-default relative"
+    class="h-screen min-h-[700px] cursor-default relative overflow-hidden"
     [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? '!bg-[#234436]' : ' z-30'"
   >
     <div
@@ -17,13 +17,32 @@
           
         ></app-header>
       </div>
-      <div class="relative cursor-default">
-        <mat-drawer [ngClass]="OpenEventCalendar ? '!w-[1088px]':'!w-[840px]'"  #drawer class="!bg-primaryBg !top-[40px] !block !z-[999999999999] library" mode="side">
-         @if (drawer._animationState === 'open') {
+      <div class="relative cursor-default draggable-resizable-container" id="draggableContainer"  #draggableContainer>
+        <button class="drag-btn" id="dragBtn"><||></button>
+        <mat-drawer 
+          #drawer 
+          class="library"
+          [ngClass]="{ '!bg-primaryBg': true, 'open': drawer._animationState === 'open' }" 
+          mode="side"
+          >
+         <!-- @if (drawer._animationState === 'open') { -->
           <div class="z-[999999999999] h-full">
-          <app-sidebar-drawer (closeSidebar)="closeDrawer()" (onFilterset)="onFilterset($event)" (notifyParent)="receiveData($event)"  (addMarkerToMap)="handleMakerData($event)" (rowHoveredData)="highLightShape($event)" [popUpData]="popUpData" [shapeHoverData]="shapeHoverData" [zoomed_wkt]="zoomed_wkt_polygon" [polygon_wkt]="polygon_wkt" [type]="type" [endDate]="endDate" [startDate]="startDate"></app-sidebar-drawer>
+          <app-sidebar-drawer 
+            (closeSidebar)="closeDrawer()" 
+            (onFilterset)="onFilterset($event)" 
+            (notifyParent)="receiveData($event)"  
+            (addMarkerToMap)="handleMakerData($event)" 
+            (rowHoveredData)="highLightShape($event)" 
+            [popUpData]="popUpData" 
+            [shapeHoverData]="shapeHoverData" 
+            [zoomed_wkt]="zoomed_wkt_polygon" 
+            [polygon_wkt]="polygon_wkt" 
+            [type]="type" 
+            [endDate]="endDate" 
+            [startDate]="startDate"
+            ></app-sidebar-drawer>
           </div>
-         } 
+         <!-- }  -->
         </mat-drawer>
         <!-- @if (OpenEventCalendar) {
           <div class="z-[1000000] text-secondaryText " >
@@ -38,13 +57,13 @@
         [ngClass]="{
           'z-0': isGoogleLayerActive !== 'OpenStreetMapDark' && isGoogleLayerActive !== 'GoogleStreetMapDark',
           'opacity-50': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
-          'ml-[820px] !w-fill-available': drawer._animationState === 'open'
-        }"        
+        }" 
+         [ngStyle]="{ 'margin-left.px': sidebarWidth -marginleft}"             
       ></div>
       <div
-        class="flex justify-start w-[960px] end-0 gap-3 pr-[12px] absolute bottom-[12px]"
+        class="flex justify-start  end-0 gap-3 pr-[12px] absolute bottom-[12px]"
       >
-        <div class="relative z-50 " [ngClass]="drawer._animationState === 'open'? ' !w-fill-available':'w-full'">
+        <div class="relative z-50 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
           <app-footer #childComponent
             (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"
@@ -69,7 +88,7 @@
           class="absolute right-0 min-h-[120px] min-w-[40px] w-auto rounded-[5px] bg-secondaryBg z-40 mr-[12px] top-[50px]"
         >
           <div
-            class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
+            class="border-b relative border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
             [ngClass]="
               currentAction === 'location' ? 'bg-yellow rounded-t-[5px]' : ''
             "
@@ -139,5 +158,15 @@
 
   </div> -->
     </div>
+    <div *ngIf="vendorData" @slideInOut
+              class="absolute !top-[40px] !right-[10px] h-auto flex-col !z-50 w-64 flex items-center justify-center text-lg rounded-lg shadow-lg">
+              <div class="flex items-center justify-start w-[270px] h-[48px] bg-secondaryBg p-3">
+                <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeMarkerPopup()">
+                    <img class="rotate-180" src="assets/svg-icons/drawer-toggle-icon.svg" />
+                </span>
+            </div>
+              <app-map-controllers-popup [type]="'vendor'" ></app-map-controllers-popup>
+            </div>
+            <!-- <div *ngIf="loader" class="z-[100000000000] absolute top-[50%] left-[50%]" id="loader"> <ngx-ui-loader></ngx-ui-loader>ddssss</div> -->
   </div>
 </mat-drawer-container>

@@ -33,6 +33,11 @@ export class SatelliteService extends BaseService {
       params:data
     });
   }
+  getGroupsWithoutNesting(data: {search:any}): Observable<any> {
+    return this.get(createUrl("/get-groups-list-without-nesting"),{
+      params:data
+    });
+  }
   generateCirclePolygon(data: any): Observable<any> {
     return this.post(createUrl("/generate-circle-polygon/"), data);
   }
@@ -44,8 +49,10 @@ export class SatelliteService extends BaseService {
     return this.post(createUrl("/add-group-site"), data);
   }
 
-  getPolygonCalenderDays(data:any): Observable<any> {
-    return this.post(createUrl("/get-polygon-selection-acquisition-calender-days-frequency"),data)
+  getPolygonCalenderDays(data:any,params:any): Observable<any> {
+    return this.post(createUrl("/get-polygon-selection-acquisition-calender-days-frequency"),data,{
+      params:params
+    })
   }
   getSites(data: {name:any,page_number:any,per_page:any}): Observable<any> {
     return this.get(createUrl("/get-sites"),{
@@ -74,5 +81,16 @@ export class SatelliteService extends BaseService {
   }
   updateGroup(data:any): Observable<any> {
     return this.put(createUrl("/update-group"),data)
+  }
+
+  getCollectionHistory(queryParams): Observable<any> {
+    return this.get(createUrl("/get-collection-history"),{
+      params:queryParams
+    });
+  }
+  removeGroup(queryParams): Observable<any> {
+    return this.delete(createUrl("/remove-group-and-its-sites"),{
+      params:queryParams
+    });
   }
 }

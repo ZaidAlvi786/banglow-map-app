@@ -9,7 +9,6 @@ import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@ang
 import { CustomDateAdapter } from '../../customFIles/cutom-adaptor';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
-import moment from 'moment'; 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
