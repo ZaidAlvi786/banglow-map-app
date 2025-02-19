@@ -1,4 +1,4 @@
-<div class="w-[250px] h-[98vh] overflow-auto bg-primaryBg p-[15px]">
+<div class="w-[280px] h-[98vh] overflow-auto bg-primaryBg p-[15px]">
   <!-- Title -->
   <div class="flex justify-end items-center pb-[15px]">
     <!-- <p class="text-sm m-0">Working</p> -->
@@ -23,6 +23,19 @@
         </div>
       </div>
   } -->
+      <div class="flex justify-center flex-wrap items-center gap-[10px] mb-[5px]">
+  <div *ngFor="let range of colorRanges" class="flex items-center flex-col gap-[5px]"
+  (mouseenter)="hoveredRange = range.name"
+  (mouseleave)="hoveredRange = null" >
+    <ng-container 
+          
+     >
+        <span [style.background]="range.color" class="w-[15px] h-[15px] rounded-[5px]"></span>
+        <span class="text-secondaryText text-[10px]">{{ range.name }}</span>
+    </ng-container>
+    
+  </div>
+</div>
   <div *ngFor="let month of calendarData" class="month border border-solid border-custom-border">
     <!-- <div class="flex flex-wrap gap-[10px] pb-[10px] justify-center">
       <div class="flex gap-[5px]" *ngFor="let legend of legens_calendar">
@@ -49,6 +62,7 @@
           [style.background-color]="day?.backgroundValue"
           [style.color]="day?.colorValue"
           class="day group relative"
+          [ngClass]="hoveredRange == day.rangeName? '!bg-[#93b3ce]':''"
           (mouseenter)="calculateTooltipPosition($event, day)"
           (mouseleave)="clearTooltipPosition(day)"
         >

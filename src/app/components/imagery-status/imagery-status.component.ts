@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -33,6 +34,11 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { startWith } from "rxjs";
 import { error } from "console";
+import { animate, state, style, transition, trigger } from "@angular/animations";
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import { UtcDateTimePipe } from "../../pipes/date-format.pipe";
+
 dayjs.extend(utc);
 @Component({
   selector: "app-imagery-status",
@@ -48,23 +54,42 @@ dayjs.extend(utc);
     MatInputModule,
     MatMenuModule,
     NgxDaterangepickerMd,
+    MatIconModule,
+    MatButtonModule,
+    UtcDateTimePipe
   ],
   templateUrl: "./imagery-status.component.html",
   styleUrl: "./imagery-status.component.scss",
+  animations: [
+    trigger("detailExpand", [
+      state("collapsed", style({ height: "0px", minHeight: "0" })),
+      state("expanded", style({ height: "*" })),
+      transition(
+        "expanded <=> collapsed",
+        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
+      ),
+    ]),
+  ],
 })
 export class ImageryStatusComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<any>(/* your data source */);
   columns = [
     { id: "acquisition_datetime", displayName: "Date", visible: true },
-    { id: "vendor_name", displayName: "Vendor", visible: true },
+    // { id: "vendor_name", displayName: "Vendor", visible: true },
     { id: "successful", displayName: "Successful", visible: true },
     { id: "failed", displayName: "Failed", visible: true },
     { id: "total", displayName: "Total", visible: true },
   ];
 
+  expandedElement: any | null;
+
+
+  innerDisplayedColumns = ['date','vendor_name','successful', 'failed', 'total'];
+
   get displayedColumns(): string[] {
     return [
       ...this.columns.filter((c) => c.visible).map((c) => c.id), // Keep expand column always visible
+      'expand'
     ];
   }
   total_count: any;
@@ -112,6 +137,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     private renderer: Renderer2,
     private sharedService: SharedService,
     private overlayContainer: OverlayContainer,
+    private cd: ChangeDetectorRef
    
   ) {
   }
@@ -124,6 +150,14 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
     // If today, set end_date to current time, else set to 23:59 UTC
     this.end_date = now.isSame(today, 'day') ? now : today.endOf('day');
+  }
+
+
+  toggleRow(element: any) {
+    console.log("elementelement", element);
+    
+    element.records && element.records?.length ? (this.expandedElement = this.expandedElement === element ? null : element) : null;
+    // this.cd.detectChanges();
   }
 
   ngOnInit(): void {
@@ -146,8 +180,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         window.addEventListener("resize", this.setDynamicHeight.bind(this));
       }, 300);
     }
-    this.dataSource.sort = this.sort;
-    console.log(this.dataSource, "sortsortsortsortsort");
+    // this.dataSource.sort = this.sort;
     const div = this.scrollableDiv?.nativeElement;
 
     // Add scroll event listener
@@ -162,10 +195,11 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     this.satelliteService.getCollectionHistory(queryParams).subscribe({
       next: (resp) => {
         console.log(resp, "resprespresprespresprespresprespresprespresp");
-        this.dataSource.data = resp.data.records.map((item, idx) => ({
-          ...item,
-          index: idx,
-        }));
+        this.dataSource.data = resp.data.records
+        // .map((item, idx) => ({
+        //   ...item,
+        //   index: idx,
+        // }));
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.data.total_records;
       },
@@ -218,7 +252,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         setTimeout(() => {
           this.canTriggerAction = true;
           this.isAtBottom = false; // Reset at bottom flag
-        }, 3000); // 3 seconds delay
+        }, 2000); // 3 seconds delay
       }
     }
   };
@@ -353,32 +387,52 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
       
       console.log(this.vendor.value,'vendorvendorvendorvendorvendorvendorvendor');
-      
-    if(this.vendor?.value?.length>0 || this.vendor.value !== null){
-      const queryParams ={
-        ...this.filterParams,
-        vendor_name: this.vendor.value?.join(','),
 
+      // Check vendor filter
+      const newVendorValue = this.vendor?.value?.length > 0 ? this.vendor.value.join(',') : null;
+      if (newVendorValue !== this.filterParams.vendor_name) {
+        this.filterParams = {
+          ...this.filterParams,
+          vendor_name: newVendorValue,
+        };
+        this.filterCount++;
       }
-      this.filterParams = {...queryParams}
-    }
-     if (this.start_date.startDate !== null) {
-      console.log('eeeeeeeeeeee');
-     const queryParams = {
-      ...this.filterParams,
-      start_date: dayjs(this.start_date).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
-     }
-     this.filterParams = {...queryParams,...this.filterParams}
-    }
-     if (this.end_date.endDate !==null) {
-      console.log('ddddddddddddddd');
       
-      const queryParams = {
-       ...this.filterParams,
-       end_date: dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ')
+      // Check start_date filter
+      if (this.start_date.startDate !== null) {
+        console.log('Start Date Applied');
+        
+        const formattedStartDate = dayjs(this.start_date.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+      
+        if (this.filterParams.start_date !== formattedStartDate) {
+          this.filterParams = {
+            ...this.filterParams,
+            start_date: formattedStartDate,
+          };
+          this.filterCount++;
+        }
       }
-      this.filterParams = {...queryParams,...this.filterParams}
-     }
+      
+      // Check end_date filter
+      if (this.end_date.endDate !== null) {
+        console.log('End Date Applied');
+        
+        const formattedEndDate = dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+      
+        if (this.filterParams.end_date !== formattedEndDate) {
+          this.filterParams = {
+            ...this.filterParams,
+            end_date: formattedEndDate,
+          };
+          this.filterCount++;
+        }
+      }
+      
+      // Add pagination params
+      
+      // Log the number of applied filters
+      console.log('Total Applied Filters:', this.filterCount);
+      
 
     const params = {
       ...this.filterParams,
@@ -446,6 +500,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //Filter reset Function
   resetFilter(): void {
+    this.filterCount = 0
     this.vendor.reset()
     this.start_date = ''
     this.end_date = ''

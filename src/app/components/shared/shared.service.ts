@@ -25,6 +25,8 @@ export class SharedService {
   vendorData$ = this.vendorData.asObservable()
   private groupData = new BehaviorSubject<any>(null);
   groupData$ = this.groupData.asObservable()
+  private siteMarkerData = new BehaviorSubject<any>(null);
+  siteMarkerData$ = this.siteMarkerData.asObservable()
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {
@@ -61,5 +63,9 @@ setVendorData(data: any): void {
 
 setGroupData(data: any): void {
   this.groupData.next(data);
+}
+
+setSiteMarkerData(data: any): void {
+  this.siteMarkerData.next(data);
 }
 }

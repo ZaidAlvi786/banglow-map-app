@@ -29,10 +29,12 @@ export const LoadingInterceptor = (
   if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
     mainLoader.setValue(true)
     ngxLoader.startLoader('customLoader');
+    ngxLoader.startLoader('buttonLoader');
    
   } else if (paramString?.includes('enableLoader')) {
     ngxLoader.startLoader('customLoader');
     mainLoader.setValue(true)
+    ngxLoader.startLoader('buttonLoader');
     console.log("enableLoaderenableLoaderenableLoader");
     
 
@@ -44,10 +46,11 @@ export const LoadingInterceptor = (
     finalize(() => {
       if(!paramString?.includes('library')  && !req.url.includes('/get-sites')){
       ngxLoader.stopLoader('customLoader');
+      ngxLoader.stopLoader('buttonLoader');
       mainLoader.setValue(false)
       } else  if (paramString?.includes('enableLoader')) {
         ngxLoader.startLoader('customLoader');
-
+        ngxLoader.stopLoader('buttonLoader');
         console.log("enableLoaderenableLoaderenableLoader");
 
         mainLoader.setValue(false)

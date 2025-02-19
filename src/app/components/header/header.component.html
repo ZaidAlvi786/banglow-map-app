@@ -28,9 +28,15 @@
     <input #searchInput type="text" placeholder="Search ..." class="bg-inherit placeholder:!text-secondary-heiglight border-0 outline-0 w-full !text-secondaryText text-xs font-bold font-Barlow" />
     <img height="14px" width="14px" src="assets/svg-icons/search-icon.svg" alt="" />
 </span>
-<span class="flex items-center justify-center min-w-[60px] w-auto h-[40px] border-r-0 border-l- border-y-0 border-secondary cursor-pointer">
-    <img src="assets/svg-icons/notification-icon.svg" alt="" />
-</span>
+<div>
+    <span class="flex items-center justify-center min-w-[60px] w-auto h-[40px] border-r-0 border-l- border-y-0 border-secondary cursor-pointer">
+        <img src="assets/svg-icons/notification-icon.svg" alt="" (click)="setClass()" [matMenuTriggerFor]="menu" />
+    </span>
+    <mat-menu class="bg-secondaryBg"   #menu="matMenu" id="site">
+        <app-notifications ></app-notifications>
+    </mat-menu>
+</div>
+
 <span class="flex items-center justify-center min-w-[60px] w-auto h-[40px] border-r-0 border-l border-y-0 border-secondary cursor-pointer">
     <img src="assets/svg-icons/user-icon.svg" alt="" />
 </span>

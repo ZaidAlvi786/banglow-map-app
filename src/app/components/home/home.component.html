@@ -3,6 +3,10 @@
     class="h-screen min-h-[700px] cursor-default relative overflow-hidden"
     [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? '!bg-[#234436]' : ' z-30'"
   >
+  @if (footprintLoader) {
+    <div class="!z-[1000000000000] top-0 absolute  !bg-[rgba(32,39,45,0.2)]
+    h-screen w-full" ><ngx-ui-loader loaderId="buttonLoader"></ngx-ui-loader></div>
+}
     <div
       class="cursor-default"
       [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? 'bg-[#131f07]  z-30 h-full' : ' z-30 h-full'"
@@ -40,6 +44,7 @@
             [type]="type" 
             [endDate]="endDate" 
             [startDate]="startDate"
+            [sidebarWidth]="sidebarWidth"
             ></app-sidebar-drawer>
           </div>
          <!-- }  -->
@@ -149,7 +154,20 @@
         <img src="assets/svg-icons/layer-icon.svg" alt="pin location icon" />
       </div> -->
         </div>
+        <div
+        class="p-[10px] right-0 top-[235px] mr-[12px] absolute rounded-[5px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
+        [ngClass]="
+          footPrintActive ? 'bg-yellow rounded-b-[5px]' : 'bg-secondaryBg'
+        "
+        (click)="handleFootprintToggle()"
+      >
+        <img class="h-[20px] w-[20px]"
+          [src]="footPrintActive ? 'assets/svg-icons/footprint-active-icon.svg':'assets/svg-icons/footprint-hide-icon.svg'"
+          alt="Footprint icon"
+        />
       </div>
+      </div>
+      
 
       <!-- <div class="drawing-controls z-30 relative flex gap-3 text-white">
     <button (click)="setDrawType('Polygon')">Draw Polygon</button>

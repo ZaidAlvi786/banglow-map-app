@@ -14,6 +14,7 @@ import { ImageryStatusComponent } from "../imagery-status/imagery-status.compone
 export class SidebarDrawerComponent implements OnInit {
   @Input() type: string = "";
   @Input() polygon_wkt:any
+  @Input() sidebarWidth:any
   @Output() closeSidebar = new EventEmitter<boolean>();
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();

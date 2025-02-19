@@ -57,17 +57,17 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   // @ViewChild('img') 'img': ElementRef;
   ngOnInit(): void {
     this.currentIndex = this.data?.currentIndex;
-    console.log("dialog dat: ", this.data);
   }
 
   myMethod(): void {
     // API by viewChild
     this.panZoom().zoomIn('lastPoint');
+    this.panZoom().centerContent(100)
   }
   
 
   ngAfterViewInit() {
-    this.centerImage();
+    // this.centerImage();
   }
 
   closeDialog(): void {
@@ -180,19 +180,19 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   }
 
   
- centerImage() {
-    const containerRect = this.container.nativeElement.getBoundingClientRect();
-    const img = this.img.nativeElement;
-    img.style.width = 300+'px';
-    img.style.height = 400+'px';
+//  centerImage() {
+//     const containerRect = this.container.nativeElement.getBoundingClientRect();
+//     const img = this.img.nativeElement;
+//     img.style.width = 300+'px';
+//     img.style.height = 400+'px';
 
-    const containerWidth = containerRect.width;
-    const containerHeight = containerRect.height;
+//     const containerWidth = containerRect.width;
+//     const containerHeight = containerRect.height;
 
-    const imgWidth = img.naturalWidth;
-    const imgHeight = img.naturalHeight;
+//     const imgWidth = img.naturalWidth;
+//     const imgHeight = img.naturalHeight;
 
-  }
+//   }
 
   startPan(event: MouseEvent) {
     this.isDragging = true;
@@ -239,7 +239,6 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   
     // Adjust the translate values to keep the image centered
     this.scale = newScale;
-    console.log(containerCenterX,'containerCenterXcontainerCenterXcontainerCenterXcontainerCenterX',newScale);
     
     this.translateX = containerCenterX -200 ;
     this.translateY = containerCenterY-150;
@@ -248,7 +247,6 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
 
   get transformStyle() {
     if (this.scale <= 1.4) {
-      console.log('ssssssssssssssssssss');
       
       return `translate(365.517px, 260.9985px) scale(1)`;
     }

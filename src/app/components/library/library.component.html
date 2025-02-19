@@ -383,134 +383,136 @@
                                     (click)="resetSorting()">Reset</span>
                             </div>
                         </div>
-        <div class="mx-[20px]">
-            <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
-        </div>
+                        <div class="mx-[20px]">
+                            <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
+                        </div>
                         <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
                         </div>
                         @if (viewType=='browse') {
-                        <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>
-                            <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
-                                @if(dataSource?.data?.length){
-
-                                <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-red-600"
-                                    *ngIf="overlapListData.length>0">
-                                    <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
-                                    <div class="flex flex-start all_wrap flex-wrap">
-                                        <div *ngFor="let item of getInviewList(0, focused_captures_count);let index = index"
-                                            class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
-                                            <div class="flex flex-col">
-                                                <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
-                                                    (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
-                                                    (click)="openImagePreviewDialog(index)">
-                                                    @if (item?.presigned_url) {
-                                                    <img [src]="item?.presigned_url" alt="Map"
-                                                        class="w-full h-full object-contain">
-                                                    } @else {
-                                                    <span
-                                                        class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
-                                                        not found</span>
-                                                    }
-                                                    <div
-                                                        class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                        <img src="assets/svg-icons/magnifying-icon.svg" alt=""
-                                                            srcset="">
+                            <div class="flex flex-col  overflow-scroll" [ngStyle]="{'width': 'calc(100vh - {{{sidebarWidth}}}px)'}">
+                                <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>
+                                    <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
+                                        @if(dataSource?.data?.length){
+        
+                                        <div class="flex flex-col w-full gap-[10px] pb-[5px]"
+                                            *ngIf="overlapListData.length>0">
+                                            <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
+                                            <div class="flex flex-start all_wrap flex-wrap">
+                                                <div *ngFor="let item of getInviewList(0, focused_captures_count);let index = index"
+                                                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                                                    <div class="flex flex-col">
+                                                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
+                                                            (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
+                                                            (click)="openImagePreviewDialog(index)">
+                                                            @if (item?.presigned_url) {
+                                                            <img [src]="item?.presigned_url" alt="Map"
+                                                                class="w-full h-full object-contain">
+                                                            } @else {
+                                                            <span
+                                                                class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
+                                                                not found</span>
+                                                            }
+                                                            <div
+                                                                class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                                <img src="assets/svg-icons/magnifying-icon.svg" alt=""
+                                                                    srcset="">
+                                                            </div>
+                                                        </div>
+        
+                                                        <div class="flex justify-between">
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-
-                                                <div class="flex justify-between">
-                                                    <span
-                                                        class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
-                                                    <span
-                                                        class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
-                                                </div>
                                             </div>
+        
                                         </div>
-                                    </div>
-
-                                </div>
-                                <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-white"
-                                    *ngIf="zoomed_captures_count>0">
-                                    <span class="text-sm text-secondaryText leading-[18px]">In View</span>
-                                    <div class="flex flex-start all_wrap flex-wrap">
-                                        <div *ngFor="let item of getInviewList(focused_captures_count, zoomed_captures_count + focused_captures_count+1);let index = index"
-                                            class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
-                                            <div class="flex flex-col">
-                                                <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
-                                                    (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
-                                                    (click)="openImagePreviewDialog(index)">
-                                                    @if (item?.presigned_url) {
-                                                    <img [src]="item?.presigned_url" alt="Map"
-                                                        class="w-full h-full object-contain">
-                                                    } @else {
-                                                    <span
-                                                        class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
-                                                        not found</span>
-                                                    }
-                                                    <div
-                                                        class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                        <img src="assets/svg-icons/magnifying-icon.svg" alt=""
-                                                            srcset="">
+                                        <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-white"
+                                            *ngIf="zoomed_captures_count>0">
+                                            <span class="text-sm text-secondaryText leading-[18px]">In View</span>
+                                            <div class="flex flex-start all_wrap flex-wrap">
+                                                <div *ngFor="let item of getInviewList(focused_captures_count, zoomed_captures_count + focused_captures_count+1);let index = index"
+                                                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                                                    <div class="flex flex-col">
+                                                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
+                                                            (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
+                                                            (click)="openImagePreviewDialog(index)">
+                                                            @if (item?.presigned_url) {
+                                                            <img [src]="item?.presigned_url" alt="Map"
+                                                                class="w-full h-full object-contain">
+                                                            } @else {
+                                                            <span
+                                                                class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
+                                                                not found</span>
+                                                            }
+                                                            <div
+                                                                class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                                <img src="assets/svg-icons/magnifying-icon.svg" alt=""
+                                                                    srcset="">
+                                                            </div>
+                                                        </div>
+        
+                                                        <div class="flex justify-between">
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-
-                                                <div class="flex justify-between">
-                                                    <span
-                                                        class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
-                                                    <span
-                                                        class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                            </div>
+        
+                                        </div>
+                                        <div class="flex flex-start all_wrap flex-wrap">
+                                            <div *ngFor="let item of getFilteredData(); let index = index"
+                                                class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+        
+                                                <div class="flex flex-col" [ngClass]="{
+                                    
+                                  }">
+                                                    <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
+                                                        (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
+                                                        (click)="openImagePreviewDialog(index)">
+                                                        @if (item?.presigned_url) {
+                                                        <img [src]="item?.presigned_url" alt="Map"
+                                                            class="w-full h-full object-contain">
+                                                        } @else {
+                                                        <span
+                                                            class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
+                                                            not found</span>
+                                                        }
+                                                        <div
+                                                            class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                            <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+                                                        </div>
+                                                    </div>
+        
+                                                    <div class="flex justify-between">
+                                                        <span
+                                                            class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                                        <span
+                                                            class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                                    </div>
                                                 </div>
+                                                <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
                                             </div>
                                         </div>
-                                    </div>
-
-                                </div>
-                                <div class="flex flex-start all_wrap flex-wrap">
-                                    <div *ngFor="let item of getFilteredData(); let index = index"
-                                        class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
-
-                                        <div class="flex flex-col" [ngClass]="{
-                            'border-r-2 border-r-solid !border-r-red-600': item.id === lastMatchId
-                          }">
-                                            <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
-                                                (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
-                                                (click)="openImagePreviewDialog(index)">
-                                                @if (item?.presigned_url) {
-                                                <img [src]="item?.presigned_url" alt="Map"
-                                                    class="w-full h-full object-contain">
-                                                } @else {
-                                                <span
-                                                    class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
-                                                    not found</span>
-                                                }
-                                                <div
-                                                    class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                    <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
-                                                </div>
-                                            </div>
-
-                                            <div class="flex justify-between">
-                                                <span
-                                                    class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
-                                                <span
-                                                    class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
-                                            </div>
+                                        } @else {
+                                        <div class="w-full flex justify-center items-center">
+                                            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
+                                                found</span>
                                         </div>
-                                        <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
+                                        }
+        
+        
                                     </div>
                                 </div>
-                                } @else {
-                                <div class="w-full flex justify-center items-center">
-                                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
-                                        found</span>
-                                </div>
-                                }
-
-
                             </div>
-                        </div>
                         }@else {
-                        <div class="overflow-auto content " #scrollableDiv>
+                        <div class="overflow-auto content mat-table-container" #scrollableDiv>
                             @if (dataSource) {
                             <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
@@ -656,6 +658,14 @@
                                                         <span class="text-secondaryText">{{ element?.constellation}}</span>
                                                     </div>
                                                     <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Centroid Local: </span> 
+                                                        <span class="text-secondaryText">{{ element?.centroid_local}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Centroid Region: </span> 
+                                                        <span class="text-secondaryText">{{ element?.centroid_region}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
                                                         <span class="text-secondary-heiglight font-semibold">Platform: </span> 
                                                         <span class="text-secondaryText">{{ element?.platform}}</span>
                                                     </div>
@@ -717,7 +727,7 @@
                                                         </span>
                                                         <div class="flex gap-2" *ngFor="let center of element.centroid">
                                                             <span
-                                                                class="text-secondaryText">{{center.toFixed(2)}}</span>
+                                                                class="text-secondaryText">{{center.toFixed(4)}}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -729,10 +739,10 @@
                                 <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
                                     class="bg-secondaryBg"></tr>
                                 <tr mat-row
+                                    [id]="'vendor-row-' + row.vendor_id"
                                     *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex"
                                     class="hover:bg-secondaryHighlight cursor-pointer" [ngClass]="{
                         '!border-b-2 border-b-solid !border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count + focused_captures_count,
-                        'border-b-2 border-b-solid !border-b-red-600': focused_captures_count > 0 && (i + 1) === focused_captures_count,
                         '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id,
                       }" (click)="expandedElement = expandedElement === row ? null : row;"
                                     (mouseover)="onRowHover(row)" (mouseout)="onRowHover(null)">
@@ -813,6 +823,30 @@
                         (calendarEventsOpen)="calendarEventsOpen()"
                         [calendarApiData]="calendarApiData"></app-map-calendar>
                 </div>
+                } @if(overlapListData.length>0){
+                    <div class="z-[1000000] text-secondaryText">
+                        <div class="w-[280px] h-[98vh] overflow-auto bg-primaryBg p-[15px]">
+                            <!-- Title -->
+                            <div class="flex justify-end items-center pb-[15px]">
+                              <!-- <p class="text-sm m-0">Working</p> -->
+                              <img (click)="closeOverlay()"  class="cursor-pointer" src="assets/svg-icons/drawer-toggle-icon.svg" />
+                            </div>
+                            <div class="flex flex-col font-Barlow rounded-sm">
+                                <div class="flex gap-[15px] p-[10px] bg-secondaryBg">
+                                    <span class="text-secondaryText text-sm w-[140px]">ID</span>
+                                    <span class="text-secondaryText text-sm">Vendor</span>
+                                </div>
+
+                                <div *ngFor="let data of overlapListData;let ind=index" class="flex gap-[15px] cursor-pointer p-[10px] border-b border-b-solid border-b-secondaryBg"
+                                 (click)="expandRow(data.vendor_id)" 
+                                (mouseenter)="tableRowHovered = data.vendor_id"
+                                (mouseleave)="tableRowHovered = null" >
+                                    <span class="text-secondaryText text-sm w-[140px] break-words">{{data?.vendor_id}}</span>
+                                    <span class="text-secondaryText text-sm">{{data?.vendor_name}}</span>
+                                </div>
+                            </div>
+                          </div>
+                    </div>
                 }
             </div>
         </div>

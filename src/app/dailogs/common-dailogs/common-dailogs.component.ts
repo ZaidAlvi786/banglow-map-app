@@ -350,30 +350,95 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     
       // Function to add a filter and increment counter
       const addFilter = (key: string, value: any, defaultValue: any) => {
-        console.log(value,'valuevaluevaluevaluevaluevaluevalue',key);
-        console.log(defaultValue,'defaultValuedefaultValuedefaultValuedefaultValuedefaultValue',key);
-        
         if (value !== defaultValue) {
           queryParams[key] = value;
+          return true;
+        }
+        return false;
+      };
+      
+      const addMinMaxFilter = (
+        minKey: string,
+        minValue: any,
+        minDefault: any,
+        maxKey: string,
+        maxValue: any,
+        maxDefault: any
+      ) => {
+        const minChanged = minValue !== minDefault;
+        const maxChanged = maxValue !== maxDefault;
+
+        if (minChanged || maxChanged) {
+          queryParams[minKey] = minValue;
+          queryParams[maxKey] = maxValue;
           filterCount++;
         }
       };
-    
-      // Apply filters if they differ from default values
-      addFilter("max_cloud_cover", this.max_cloud, defaultValues.maxCloud);
-      addFilter("min_cloud_cover", minCloud, defaultValues.minCloud);
-      addFilter("max_off_nadir_angle", this.max_angle, defaultValues.maxAngle);
-      addFilter("min_off_nadir_angle", this.min_angle, defaultValues.minAngle);
-      addFilter("max_gsd", this.max_gsd, defaultValues.maxGsd);
-      addFilter("min_gsd", this.min_gsd, defaultValues.minGsd);
-      addFilter("min_azimuth_angle", this.min_azimuth_angle, defaultValues.minAzimuthAngle);
-      addFilter("max_azimuth_angle", this.max_azimuth_angle, defaultValues.maxAzimuthAngle);
-      addFilter("min_holdback_seconds", this.min_holdback_seconds, defaultValues.minHoldbackSeconds);
-      addFilter("max_holdback_seconds", this.max_holdback_seconds, defaultValues.maxHoldbackSeconds);
-      addFilter("min_illumination_azimuth_angle", this.min_illumination_azimuth_angle, defaultValues.minIlluminationAzimuthAngle);
-      addFilter("max_illumination_azimuth_angle", this.max_illumination_azimuth_angle, defaultValues.maxIlluminationAzimuthAngle);
-      addFilter("min_illumination_elevation_angle", this.min_illumination_elevation_angle, defaultValues.minIlluminationElevationAngle);
-      addFilter("max_illumination_elevation_angle", this.max_illumination_elevation_angle, defaultValues.maxIlluminationElevationAngle);
+
+      // Apply filters ensuring both min and max are included if either changes
+      addMinMaxFilter(
+        "min_cloud_cover",
+        minCloud,
+        defaultValues.minCloud,
+        "max_cloud_cover",
+        this.max_cloud,
+        defaultValues.maxCloud
+      );
+
+      addMinMaxFilter(
+        "min_off_nadir_angle",
+        this.min_angle,
+        defaultValues.minAngle,
+        "max_off_nadir_angle",
+        this.max_angle,
+        defaultValues.maxAngle
+      );
+
+      addMinMaxFilter(
+        "min_gsd",
+        this.min_gsd,
+        defaultValues.minGsd,
+        "max_gsd",
+        this.max_gsd,
+        defaultValues.maxGsd
+      );
+
+      addMinMaxFilter(
+        "min_azimuth_angle",
+        this.min_azimuth_angle,
+        defaultValues.minAzimuthAngle,
+        "max_azimuth_angle",
+        this.max_azimuth_angle,
+        defaultValues.maxAzimuthAngle
+      );
+
+      addMinMaxFilter(
+        "min_holdback_seconds",
+        this.min_holdback_seconds,
+        defaultValues.minHoldbackSeconds,
+        "max_holdback_seconds",
+        this.max_holdback_seconds,
+        defaultValues.maxHoldbackSeconds
+      );
+
+      addMinMaxFilter(
+        "min_illumination_azimuth_angle",
+        this.min_illumination_azimuth_angle,
+        defaultValues.minIlluminationAzimuthAngle,
+        "max_illumination_azimuth_angle",
+        this.max_illumination_azimuth_angle,
+        defaultValues.maxIlluminationAzimuthAngle
+      );
+
+      addMinMaxFilter(
+        "min_illumination_elevation_angle",
+        this.min_illumination_elevation_angle,
+        defaultValues.minIlluminationElevationAngle,
+        "max_illumination_elevation_angle",
+        this.max_illumination_elevation_angle,
+        defaultValues.maxIlluminationElevationAngle
+      );
+      
       let vendorId
       // Get vendor-related values from the form
       if(this.formGroup.get('vendorId')?.value.length!==0 || this.data?.filterParams?.vendor_id){

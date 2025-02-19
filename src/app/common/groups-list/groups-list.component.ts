@@ -18,6 +18,7 @@ import {
   ApexChart,
   ApexPlotOptions
 } from "ng-apexcharts";
+import dayjs from 'dayjs';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -30,6 +31,15 @@ export type ChartOptions = {
   grid: ApexGrid; // ✅ Add grid type
   legend: ApexLegend;
 };
+type CalendarDay = {
+  date: string;
+  value: number | null;
+  colorValue: string;
+  backgroundValue: string;
+  rangeName:string;
+};
+type CalendarWeek = CalendarDay[];
+type CalendarMonth = { name: string; weeks: CalendarWeek[] };
 @Component({
   selector: 'app-groups-list',
   standalone: true,
@@ -55,8 +65,20 @@ export class GroupsListComponent {
     options: any;
     activeSite:any;
     sitesData:any;
+    hoveredRange: string | null = null;
      @ViewChild("chart") chart: ChartComponent;
       public chartOptions: Partial<ChartOptions>;
+      tooltipPosition: any = {};
+      weekDays: string[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+      calendarData: CalendarMonth[] = [];
+      colorRanges = [
+        { name: "Very Low", color: "#70ed8b" }, // Light Green
+        { name: "Low", color: "#5bc06c" }, // Medium Green
+        { name: "Medium", color: "#319a43" }, // Darker Green
+        { name: "High", color: "#12561d" }, // Yellow
+        { name: "Very High", color: "#bf4e4e" }, // Orange
+        { name: "Extreme", color: "#ff0000" } // Red
+    ]
   constructor(private overlayContainer: OverlayContainer,
     private dialog: MatDialog,
     private satelliteService:SatelliteService,
@@ -69,7 +91,6 @@ export class GroupsListComponent {
     
     if (group !== this.activeIndex) {
       this.activeIndex = group
-      console.log('activeIndexactiveIndexactiveIndexactiveIndex',group);
       this.selectedGroup.emit({ group });
       this.SharedService.setGroupData(group)
     
@@ -82,7 +103,6 @@ export class GroupsListComponent {
     this.backgroundColor = this.isExpanded ? '#232B32' : '#191E22';
     
     if (this.isExpanded) {
-      console.log('Togglinggggggggggggggggggggggggggggg',group);
       
       
     } 
@@ -111,7 +131,6 @@ export class GroupsListComponent {
       data = { type: type, parent: group.id}
     }
 
-    console.log(group, 'sssssssssssssssssss');
 
     this.openDialog(data)
   }
@@ -147,7 +166,6 @@ export class GroupsListComponent {
         panelClass: 'custom-dialog-class',
       });
       dialogRef.afterClosed().subscribe((result) => {
-        console.log('Dialog closed', result);
         if(result){
           if(data.type === 'addSubgroup'){
             this.SharedService.setNestedGroup(true);
@@ -213,10 +231,8 @@ export class GroupsListComponent {
 
   //Padding adjustments
   getPadding(value){
-    console.log(value,'valuevaluevaluevaluevaluevaluevaluevaluevalue');
     
     const newValue = parseInt(value) -10;
-    console.log(newValue.toString(),'valuevaluevaluevaluevaluevaluevaluevaluevalue');
     
     return newValue.toString()
   }
@@ -228,7 +244,6 @@ export class GroupsListComponent {
 
   //Get site details
     getSitesDetail(site){
-      console.log(site,'sitesitesitesitesitesitesitesitesite');
       
       if(this.activeSite !== site.id){
         let queryParams = {
@@ -241,6 +256,17 @@ export class GroupsListComponent {
       } else {
         this.activeSite = null
       }
+    }
+    markerData(siteDetail:any){
+      const [lon, lat] = siteDetail?.coordinates?.coordinates[0][0];
+
+      // Creating an object with lat and lon
+      const data = {
+        lat: lat,
+        lon: lon,
+        id: siteDetail.id
+      };
+      this.SharedService.setSiteMarkerData(data)
     }
     //Intialize chart
         //  initializeCharts() {
@@ -380,17 +406,16 @@ export class GroupsListComponent {
   getSitesData(queryParams: any) {
     this.satelliteService.getSites(queryParams).subscribe({
       next: (resp) => {
-        console.log(resp, 'successsuccesssuccesssuccesssuccess');
         this.sitesData = resp.data;
         this.siteDetail = resp.data[0];
-  
+        this.generateCalendarData(resp.data[0].heatmap)
         // Generate unique color ranges based on heatmap values
   
         // Define heatmap options with color ranges
       
   
         setTimeout(() => {
-          this.initializeCharts();
+          // this.initializeCharts();
         }, 300);
       },
       error: (err: any) => {
@@ -423,102 +448,102 @@ export class GroupsListComponent {
   }
 
   //Intialize chart
-  initializeCharts() {
-    if (!this.siteDetail || !this.siteDetail.heatmap) {
-      return;
-    }
+  // initializeCharts() {
+  //   if (!this.siteDetail || !this.siteDetail.heatmap) {
+  //     return;
+  //   }
   
-    let maxValue = Math.max(...this.siteDetail.heatmap.map(entry => entry.count));
-    if (maxValue < 100) {
-      maxValue = 100; // Default max value to 100 if less than 100
-    }
-    const rangeStep = Math.ceil(maxValue / 6);
+  //   let maxValue = Math.max(...this.siteDetail.heatmap.map(entry => entry.count));
+  //   if (maxValue < 100) {
+  //     maxValue = 100; // Default max value to 100 if less than 100
+  //   }
+  //   const rangeStep = Math.ceil(maxValue / 6);
   
-    const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
+  //   const groupedData = this.groupHeatmapDataIntoRows(this.siteDetail.heatmap, 3);
   
-    this.chartOptions = {
-      series: groupedData.map((group, index) => ({
-        name: `Week ${index + 1}`,
-        data: group.map((entry) => ({
-          x: entry.date,
-          y: entry.count
-        }))
-      })),
-      chart: {
-        height: 110,
-        width: 320,
-        type: "heatmap",
-        toolbar: {
-          show: false // Hides the toolbar
-        }
-      },
-      plotOptions: {
-        heatmap: {
-          shadeIntensity: 0.5,
-          colorScale: {
-            ranges: [
-              { from: 0, to: 0, name: "Zero", color: "#272F34" }, // Neutral gray for zero
-              { from: 1, to: rangeStep, name: "Very Low", color: "#2ECC71" }, // Light Green
-              { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#218838" }, // Darker Green
-              { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#B22222" }, // Dark Red
-              { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#D32F2F" }, // Stronger Red
-              { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#C70039" }, // Deep Red
-              { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#8B0000" } // Darkest Red
-            ]
-          }
-        }
-      },
-      dataLabels: {
-        enabled: false // Hides data labels inside heatmap cells
-      },
-      title: {
-        text: "", // Hides the title
-        align: "left",
-        style: {
-          fontSize: "0px" // Ensures title is visually hidden
-        }
-      },
-      xaxis: {
-        labels: {
-          show: false // Hides X-axis labels completely
-        },
-        axisTicks: {
-          show: false // Hides X-axis ticks
-        },
-        axisBorder: {
-          show: false // Hides X-axis border
-        }
-      },
-      yaxis: {
-        labels: {
-          show: false // Hides Y-axis labels completely
-        },
-        axisTicks: {
-          show: false // Hides Y-axis ticks
-        },
-        axisBorder: {
-          show: false // Hides Y-axis border
-        }
-      },
-      grid: {
-        show: true, // Controls gridlines visibility
-        xaxis: {
-          lines: {
-            show: false // Hides vertical gridlines
-          }
-        },
-        yaxis: {
-          lines: {
-            show: false // Hides horizontal gridlines
-          }
-        }
+  //   this.chartOptions = {
+  //     series: groupedData.map((group, index) => ({
+  //       name: `Week ${index + 1}`,
+  //       data: group.map((entry) => ({
+  //         x: entry.date,
+  //         y: entry.count
+  //       }))
+  //     })),
+  //     chart: {
+  //       height: 110,
+  //       width: 320,
+  //       type: "heatmap",
+  //       toolbar: {
+  //         show: false // Hides the toolbar
+  //       }
+  //     },
+  //     plotOptions: {
+  //       heatmap: {
+  //         shadeIntensity: 0.5,
+  //         colorScale: {
+  //           ranges: [
+  //             { from: 0, to: 0, name: "Zero", color: "#272F34" }, // Neutral gray for zero
+  //             { from: 1, to: rangeStep, name: "Very Low", color: "#2ECC71" }, // Light Green
+  //             { from: rangeStep + 1, to: rangeStep * 2, name: "Low", color: "#218838" }, // Darker Green
+  //             { from: rangeStep * 2 + 1, to: rangeStep * 3, name: "Medium", color: "#B22222" }, // Dark Red
+  //             { from: rangeStep * 3 + 1, to: rangeStep * 4, name: "High", color: "#D32F2F" }, // Stronger Red
+  //             { from: rangeStep * 4 + 1, to: rangeStep * 5, name: "Very High", color: "#C70039" }, // Deep Red
+  //             { from: rangeStep * 5 + 1, to: maxValue, name: "Extreme", color: "#8B0000" } // Darkest Red
+  //           ]
+  //         }
+  //       }
+  //     },
+  //     dataLabels: {
+  //       enabled: false // Hides data labels inside heatmap cells
+  //     },
+  //     title: {
+  //       text: "", // Hides the title
+  //       align: "left",
+  //       style: {
+  //         fontSize: "0px" // Ensures title is visually hidden
+  //       }
+  //     },
+  //     xaxis: {
+  //       labels: {
+  //         show: false // Hides X-axis labels completely
+  //       },
+  //       axisTicks: {
+  //         show: false // Hides X-axis ticks
+  //       },
+  //       axisBorder: {
+  //         show: false // Hides X-axis border
+  //       }
+  //     },
+  //     yaxis: {
+  //       labels: {
+  //         show: false // Hides Y-axis labels completely
+  //       },
+  //       axisTicks: {
+  //         show: false // Hides Y-axis ticks
+  //       },
+  //       axisBorder: {
+  //         show: false // Hides Y-axis border
+  //       }
+  //     },
+  //     grid: {
+  //       show: true, // Controls gridlines visibility
+  //       xaxis: {
+  //         lines: {
+  //           show: false // Hides vertical gridlines
+  //         }
+  //       },
+  //       yaxis: {
+  //         lines: {
+  //           show: false // Hides horizontal gridlines
+  //         }
+  //       }
         
-      },
-      legend: {
-        show: false // ✅ Hides the legend
-      }
-    };
-  }
+  //     },
+  //     legend: {
+  //       show: false // ✅ Hides the legend
+  //     }
+  //   };
+  // }
   
   groupHeatmapDataIntoRows(heatmapData: any[], rows = 3) {
     const groupedData = [];
@@ -579,4 +604,190 @@ export class GroupsListComponent {
       }
     })
   }
+
+    generateCalendarData(apiData: Record<string, number>): void {
+             // Clear existing calendar data
+             this.calendarData = [];
+         
+             const dates = Object.keys(apiData).map((date) => dayjs(date));
+             if (dates.length === 0) return;
+         
+             const start = dayjs.min(dates)!;
+             const end = dayjs.max(dates)!;
+             const dataMap = new Map(Object.entries(apiData));
+             let current = start;
+         
+             // Get the maximum value from apiData (minimum threshold is 200)
+             const actualMax = Math.max(...Object.values(apiData));
+             const maxValue = Math.max(actualMax, 20);
+         
+             // Define function to determine range and color
+             const getRangeData = (value: number): { color: string; range: string } => {
+              if (value === 0) return { color: "", range: "No Data" }; // White for zero values
+              if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
+              if (value <= maxValue * 0.3) return { color: "#5bc06c", range: "Low" }; // Medium Green
+              if (value <= maxValue * 0.5) return { color: "#319a43", range: "Medium" }; // Darker Green
+              if (value <= maxValue * 0.7) return { color: "#12561d", range: "High" }; // Yellow
+              if (value <= maxValue * 0.9) return { color: "#bf4e4e", range: "Very High" }; // Orange
+              return { color: "#ff0000", range: "Extreme" }; // Red
+             };
+         
+             while (current.isBefore(end) || current.isSame(end, "month")) {
+                 const monthDays: CalendarDay[] = [];
+                 const monthStart = current.startOf("month");
+                 const monthEnd = current.endOf("month");
+                 let day = monthStart;
+         
+                 while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+                     const dateString = day.format("YYYY-MM-DD");
+                     const value = dataMap.get(dateString) || 0; // Default to 0 if no value
+         
+                     // Get background color and range category
+                     const { color, range } = getRangeData(value);
+         
+                     monthDays.push({
+                         date: dateString,
+                         value,
+                         colorValue: '#ffffff',
+                         backgroundValue: color,
+                         rangeName: range, // Store the category name
+                     });
+         
+                     day = day.add(1, "day");
+                 }
+         
+                 this.calendarData.push({
+                     name: current.format("MMMM YYYY"), // Includes the year
+                     weeks: this.generateWeeksForMonth(monthDays),
+                 });
+         
+                 current = current.add(1, "month");
+             }
+         }
+        
+      
+        generateWeeksForMonth(monthDays: CalendarDay[]): CalendarWeek[] {
+          const weeks: CalendarWeek[] = [];
+          let week: CalendarWeek = [];
+          monthDays.forEach((day) => {
+            week.push(day);
+            if (week.length === 7) {
+              weeks.push(week);
+              week = [];
+            }
+          });
+          if (week.length) weeks.push(week);
+          return weeks;
+        }
+      
+        getColor(value: number, data): string {
+          const min = Math.min(...data);
+          const max = Math.max(...data);
+          const mean = data.reduce((sum, v) => sum + v, 0) / data.length;
+      
+          // Special case: Only one value in the dataset
+        if (min === max) {
+          return `rgb(255, 0, 0)`; // Default to red for a single value
+        }
+        // Clamp the value to the range [min, max]
+        const clampedValue = Math.min(Math.max(value, min), max);
+      
+        // Normalize value to a range of 0-1
+        const normalized = (clampedValue - min) / (max - min);
+      
+        // Calculate red and green intensities
+         const red = Math.round(255 * normalized);     // Red increases with the value
+         const green = Math.round(255 * (1 - normalized)); // Green decreases with the value
+      
+        // Return the gradient color
+        return `rgb(${red}, ${green}, 0)`;
+      //  // Clamp the value to the range [min, max]
+      //  const clampedValue = Math.min(Math.max(value, min), max);
+      
+      //  // Map value to a 0-1 range
+      //  const normalized = (clampedValue - min) / (max - min);
+      
+      //  // Calculate red and green intensities
+      //  const red = Math.round(255 * normalized);     // Red increases with the value
+      //  const green = Math.round(255 * (1 - normalized)); // Green decreases with the value
+      
+      //  // Return the color in rgb format
+      //  return `rgb(${red}, ${green}, 0)`; // Blue is fixed at 0 for shades of red and green
+      
+      
+          // if (value <= mean) {
+          //   // Below or at the mean: Lighter red shades
+          //   const normalized = (value - min) / (mean - min);
+          //   const red = 255;
+          //   const green = Math.round(255 * (1 - normalized));
+          //   const blue = Math.round(255 * (1 - normalized));
+          //   return `rgb(${red}, ${green}, ${blue})`;
+          // } else {
+          //   // Above the mean: Transition from red to green
+          //   const normalized = (value - mean) / (max - mean);
+          //   const red = Math.round(255 * (1 - normalized));
+          //   const green = Math.round(255 * normalized);
+          //   return `rgb(${red}, ${green}, 0)`;
+          // }
+        }
+        
+        
+      
+        getDate(month: string, day: any): string {
+          // Create the full date string like '2024-12-01' by combining year, month, and day
+          const fullDate = `${day.date}`;
+          // Use dayjs to format the full date
+          const formattedDate = dayjs(fullDate).format('MMMM DD YYYY');
+          return fullDate;
+        }
+      
+        getDayFromDate(fullDate: string): number {
+          return dayjs(fullDate).date(); // Extracts the day of the month from the full date
+        }
+      
+      
+      //Tooltip positioning functions  
+      
+      calculateTooltipPosition(event: MouseEvent, day: any): void {
+        const dayElement = event.currentTarget as HTMLElement;
+        const dayRect = dayElement.getBoundingClientRect();
+        const tooltipWidth = 185; // Match your tooltip's min-width
+        const tooltipHeight = 100; // Approximate tooltip height
+      
+        // Horizontal positioning
+        let left: number, right: number;
+        if (dayRect.right + tooltipWidth <= window.innerWidth) {
+          left = dayRect.right;
+          right = undefined;
+        } else if (dayRect.left - tooltipWidth >= 0) {
+          left = dayRect.left - tooltipWidth;
+          right = undefined;
+        } else {
+          left = Math.max(10, window.innerWidth - tooltipWidth - 10);
+          right = undefined;
+        }
+      
+        // Vertical positioning
+        let top: number, bottom: number;
+        if (dayRect.bottom + tooltipHeight <= window.innerHeight) {
+          top = dayRect.bottom;
+          bottom = undefined;
+        } else {
+          bottom = window.innerHeight - dayRect.top + 10;
+          top = undefined;
+        }
+      
+        this.tooltipPosition[day.date] = {
+          position: 'fixed',
+          left: left + 'px',
+          top: top ? top + 'px' : 'unset',
+          bottom: bottom ? bottom + 'px' : 'unset',
+          'z-index': 9999999999,
+          // Include other styles from your original class
+        };
+      }
+      
+      clearTooltipPosition(day: any): void {
+        delete this.tooltipPosition[day.date];
+      }
 }
