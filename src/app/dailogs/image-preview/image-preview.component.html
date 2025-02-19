@@ -3,28 +3,31 @@
         <div class="flex flex-col">
           <div class="relative 2k:!h-[900px] mac16:!h-[730px] mxl:!h-[545px] lxl:!h-[800px] w-full">
             <div
-            #container
+            
             class="2k:!h-[900px] mac16:!h-[730px] mxl:!h-[545px] lxl:!h-[800px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
           >
             @if (data?.images?.presigned_url) {
               <div
-                class="image-container"
-                #container
+                class="cursor-grab"
+                
                 style="position: absolute; top: 0px; bottom: 0; left: 0; right: 0;"
 
               >
               <ngx-panzoom
               #PanZoom
               [zoomLevels]="20"
-              [zoomStepDuration]="0.1"
-              [freeMouseWheelFactor]="0.01"
-              [zoomToFitZoomLevelFactor]="0.9"
+              [initialZoomLevel]=".1" 
+              [neutralZoomLevel]=".1"
+              [zoomStepDuration]="20"
+              [freeMouseWheelFactor]=".0005"
+              [zoomToFitZoomLevelFactor]="1"
               [initialPanX]="400"
-              [initialPanY]="200"
+              [initialPanY]="100"
+              [zoomButtonIncrement]=".3"
             >
               <div class="relative">
                 <img
-                #img
+                
                 [src]="data?.images?.presigned_url"
                 alt="Preview"
                 class="object-contain"
@@ -83,7 +86,7 @@
                 <div class="flex flex-col gap-[10px] w-[140px] mac16:!w-[237px] flex-0 items-start justify-center">
                   <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">ID</span>
                     <div class="flex items-center gap-[15px] self-stretch w-full">
-                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px] w-[140px] mac16:!w-[237px]">{{data?.images?.vendor_id}}</span>
+                      <span class="text-secondaryText break-words text-center text-sm font-medium leading-[18px] w-[140px] mac16:!w-[237px]">{{data?.images?.vendor_id}}</span>
                     </div>
                 </div>
               </div>
@@ -98,15 +101,15 @@
         <div class="flex flex-col">
           <div class="relative 2k:!h-[900px] mac16:!h-[730px] mxl:!h-[545px] lxl:!h-[800px] w-full">
             <div
-            #container
+            
             class="2k:!h-[900px] mxl:!h-[545px] mac16:!h-[730px] lxl:!h-[800px] overflow-auto relative resizable-image bg-secondary-heiglight flex justify-center items-center"
           >
             @if (data.images.data[currentIndex].presigned_url) {
              
               <div
-              class="image-container"
+              class="cursor-grab"
               style="position: absolute; top: 0px; bottom: 0; left: 0; right: 0;"
-              #container
+              
        
             >
             <!-- <pinch-zoom [wheel]="true">
@@ -114,23 +117,26 @@
 
           </pinch-zoom> -->
 
-          <ngx-panzoom
-          #PanZoom
-          [zoomLevels]="20"
-          [zoomStepDuration]="0.1"
-          [freeMouseWheelFactor]="0.01"
-          [zoomToFitZoomLevelFactor]="0.9"
-          [initialPanX]="400"
-          [initialPanY]="200"
-        >
-          <div class="relative">
-            <img
-            #img
-            [src]="data?.images?.data[currentIndex]?.presigned_url"
-            class="object-contain"
-          />
-          </div>
-        </ngx-panzoom>
+            <ngx-panzoom
+            #PanZoom
+            [zoomLevels]="20"
+            [initialZoomLevel]=".1" 
+            [neutralZoomLevel]=".1"
+            [zoomStepDuration]="20"
+            [freeMouseWheelFactor]=".0005"
+            [zoomToFitZoomLevelFactor]="1"
+            [initialPanX]="400"
+            [initialPanY]="100"
+            [zoomButtonIncrement]=".3"
+          >
+            <div class="relative">
+              <img
+              
+              [src]="data?.images?.data[currentIndex]?.presigned_url"
+              class="object-contain"
+            />
+            </div>
+          </ngx-panzoom>
      
 
             </div>
@@ -190,7 +196,7 @@
                   <div class="flex flex-col gap-[10px] w-[140px] mac16:!w-[237px] flex-0 items-start justify-center">
                     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">ID</span>
                       <div class="flex items-center gap-[15px] self-stretch w-full">
-                        <span class="text-secondaryText text-center text-sm font-medium leading-[18px] w-[140px] mac16:!w-[237px]">{{data?.images?.data[currentIndex]?.vendor_id}}</span>
+                        <span class="text-secondaryText break-words text-center text-sm font-medium leading-[18px] w-[140px] mac16:!w-[237px]">{{data?.images?.data[currentIndex]?.vendor_id}}</span>
                       </div>
                   </div>
                 </div>

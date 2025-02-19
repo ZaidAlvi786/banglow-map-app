@@ -15,13 +15,16 @@ import {
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { SharedService } from "../shared/shared.service";
+import { NotificationsComponent } from "../notifications/notifications.component";
+import { OverlayContainer } from "@angular/cdk/overlay";
+import { MatMenuModule } from "@angular/material/menu";
 // import { LoadingBarComponent } from "../shared/loading-bar";
 // declare var google: any;
 
 @Component({
   selector: "app-header",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,NotificationsComponent,MatMenuModule],
   templateUrl: "./header.component.html",
   styleUrl: "./header.component.scss",
 })
@@ -34,7 +37,7 @@ export class HeaderComponent implements OnInit,OnChanges {
 
   private autocomplete!: google.maps.places.Autocomplete;
   private _isDrawerOpen: boolean = false;
-  constructor(private sharedService:SharedService,){
+  constructor(private sharedService:SharedService,private overlayContainer: OverlayContainer){
 
   }
   @Input()
@@ -67,7 +70,6 @@ export class HeaderComponent implements OnInit,OnChanges {
   // If the drawer is already open and the same type is clicked, do nothing
   
   if(this.toggleType !== type){
-    console.log('typetypetypetypetypetypetype: ' , type);
     this.sharedService.setIsOpenedEventCalendar(false);
     this.toggleType = type;
     this.isDrawerOpen = true;
@@ -88,7 +90,6 @@ export class HeaderComponent implements OnInit,OnChanges {
 }
 
 private initializeAutocomplete() {
-  console.log('Initializing autocomplete');
 
   const input = this.searchInput.nativeElement;
 
@@ -106,7 +107,6 @@ private initializeAutocomplete() {
         // If a valid place is selected
         const lat = place.geometry.location?.lat();
         const lng = place.geometry.location?.lng();
-        console.log("Selected place:", place, lat, lng);
 
         this.searchEvent.emit(place);
       } else {
@@ -142,7 +142,6 @@ private handleCoordinateInput(input: string) {
   }
 
   if (latitude !== undefined && longitude !== undefined) {
-    console.log("Parsed coordinates:", latitude, longitude);
 
     // Construct a minimal PlaceResult object
     const place: google.maps.places.PlaceResult = {
@@ -172,5 +171,12 @@ private convertDMSToDecimal(degrees: string, minutes: string, seconds: string, d
 
   hideMenu(){
     this.sharedService.setRightMenuHide(false)
+  }
+
+  setClass(){
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu','custom-menu-container'];
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add('notification-container');  
   }
 }

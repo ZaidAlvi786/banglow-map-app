@@ -6,7 +6,7 @@
     <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight"
       >Imagery Logs</span
     >
-        
+
     <div class="flex items-center justify-center gap-[15px]">
       <div class="relative flex justify-center items-center">
         <button
@@ -34,11 +34,7 @@
           (closed)="onMenuClose()"
         >
           <div class="p-[15px]" (click)="$event.stopPropagation()">
-            <div
-              class="flex flex-col font-Barlow gap-[15px] w-[330px]"
-              
-             
-            >
+            <div class="flex flex-col font-Barlow gap-[15px] w-[330px]">
               <span
                 class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]"
                 >Apply filters</span
@@ -56,7 +52,12 @@
                   }
                 </mat-select>
               </mat-form-field>
-              <mat-form-field (click)="openStartDatePicker()" appearance="outline" id="filter-imagery" class="">
+              <mat-form-field
+                (click)="openStartDatePicker()"
+                appearance="outline"
+                id="filter-imagery"
+                class=""
+              >
                 <mat-label>Start date</mat-label>
                 <input
                   #startDatePicker
@@ -72,7 +73,12 @@
                   (focus)="onStartDateFocus()"
                 />
               </mat-form-field>
-              <mat-form-field (click)="openEndDatePicker()" appearance="outline" id="filter-imagery" class="">
+              <mat-form-field
+                (click)="openEndDatePicker()"
+                appearance="outline"
+                id="filter-imagery"
+                class=""
+              >
                 <mat-label>End date</mat-label>
                 <input
                   #endDatePicker
@@ -115,7 +121,11 @@
           </div>
         </mat-menu>
       </div>
-      <span class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer" (click)="resetFilter()">Reset</span>
+      <span
+        class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer"
+        (click)="resetFilter()"
+        >Reset</span
+      >
       <span
         class="w-[16px] h-[14px] cursor-pointer"
         (click)="closeLibraryDrawer()"
@@ -125,7 +135,11 @@
     </div>
   </div>
 
-  <div class="overflow-auto content scrollbar scrollbar-thumb-secondaryText scrollbar-track-gray-200 "  id="imagery_table" #scrollableDiv>
+  <div
+    class="overflow-auto content scrollbar scrollbar-thumb-secondaryText scrollbar-track-gray-200"
+    id="imagery_table"
+    #scrollableDiv
+  >
     @if (dataSource) {
     <div
       class="w-full flex justify-center items-center"
@@ -152,7 +166,6 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          mat-sort-header
           class="min-w-[185px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Date
@@ -162,27 +175,7 @@
           *matCellDef="let row"
           class="min-w-[185px] min-h-[52px] !pl-[10px] flex items-center !border-b !border-b-solid !border-b-secondaryText"
         >
-          <span class="text-secondaryText font-Barlow">{{
-            getFormattedDate(row) + " " + formatUtcTime(row)
-          }}</span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="vendor_name">
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-          class="min-w-[115px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
-        >
-          Vendor
-        </th>
-        <td
-          mat-cell
-          *matCellDef="let row"
-          class="min-w-[115px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
-        >
-          {{ row?.vendor_name }}
+          <span class="text-secondaryText font-Barlow">{{ row?.date }}</span>
         </td>
       </ng-container>
 
@@ -190,7 +183,6 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          mat-sort-header
           class="min-w-[70px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Successful
@@ -200,7 +192,7 @@
           *matCellDef="let row"
           class="min-w-[70px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
-          {{ row?.message?.valid_records }}
+          {{ row?.total_success }}
         </td>
       </ng-container>
 
@@ -208,7 +200,6 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          mat-sort-header
           class="min-w-[90px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Failed
@@ -218,7 +209,7 @@
           *matCellDef="let row"
           class="min-w-[90px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
-          {{ row?.message?.invalid_records }}
+          {{ row?.total_failed }}
         </td>
       </ng-container>
 
@@ -226,7 +217,6 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          mat-sort-header
           class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Total
@@ -236,7 +226,135 @@
           *matCellDef="let row"
           class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
-          {{ row?.message?.total_records }}
+          {{ row?.total }}
+        </td>
+        
+      </ng-container>
+
+      <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef aria-label="row actions" class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"></th>
+        <td mat-cell *matCellDef="let element"   class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText">
+          <button mat-icon-button aria-label="expand row" (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
+            @if (expandedElement === element) {
+              <mat-icon>keyboard_arrow_up</mat-icon>
+            } @else {
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            }
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+      <ng-container matColumnDef="expandedDetail">
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [attr.colspan]="displayedColumns.length"
+        >
+          <div
+            class="example-element-detail"
+            *ngIf="element.records?.length"
+            [@detailExpand]="
+              element == expandedElement ? 'expanded' : 'collapsed'
+            "
+          >
+            <div class="inner-table mat-elevation-z8">
+              <table  mat-table [dataSource]="element.records">
+                <ng-container matColumnDef="date">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    Date Time
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    {{ row?.start_datetime | utcDateTimePipe }} UTC
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="vendor_name">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    Vendor Name
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    {{ row?.vendor_name }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="successful">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    Successful
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    {{ row?.message?.valid_records }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="failed">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    Failed
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    {{ row?.message?.invalid_records }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="total">
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    Total
+                  </th>
+                  <td
+                    mat-cell
+                    *matCellDef="let row"
+                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                  >
+                    {{ row?.message?.total_records }}
+                  </td>
+                </ng-container>
+
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="innerDisplayedColumns; sticky: true"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: innerDisplayedColumns"
+                ></tr>
+              </table>
+            </div>
+          </div>
         </td>
       </ng-container>
 
@@ -248,15 +366,22 @@
       <tr
         mat-row
         *matRowDef="
+          let element;
           let row;
           let i = dataIndex;
           columns: displayedColumns;
-          trackBy: trackByIndex
         "
+        [class.example-element-row]="element.records?.length"
+        [class.example-expanded-row]="expandedElement === element"
+        (click)="toggleRow(element)"
         class="hover:bg-secondaryHighlight cursor-pointer"
       ></tr>
 
-      <!-- <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr> -->
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['expandedDetail']"
+        class="example-detail-row"
+      ></tr>
     </table>
     } @else {
     <div class="w-full flex justify-center items-center">

@@ -1,0 +1,18 @@
+::ng-deep .notification-container{
+    .cdk-overlay-connected-position-bounding-box {
+        top: auto !important;
+        width: 400px !important;
+        left: auto !important;
+        bottom: -3px !important;
+        right: 75px !important;
+    }
+    .mat-mdc-menu-panel {
+        background-color: #20272d !important;
+        box-shadow: 5px 5px 5px 0px #0000001a !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .mat-mdc-menu-content{
+        overflow: hidden !important;;
+    }
+}

@@ -54,3 +54,104 @@
         }
     }
 }
+
+/* Style the entire scrollbar */
+::-webkit-scrollbar {
+    width: 7px; /* Horizontal scrollbar width */
+    height: 7px; /* Vertical scrollbar height */
+  }
+  
+  /* Style the scrollbar track */
+  ::-webkit-scrollbar-track {
+    background: #20272d;
+    border-radius: 10px;
+  }
+  
+  /* Style the scrollbar thumb */
+  ::-webkit-scrollbar-thumb {
+    // background: #20272d;
+    background: #abb7c0;
+    border-radius: 10px;
+  }
+  
+  /* Change the thumb color on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
+  
+  .calendar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .close-btn {
+    align-self: flex-end;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .month {
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .month-header {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .weekday-labels {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 14px;
+    color: #757575;
+  }
+  
+  .weeks {
+    display: grid;
+    gap: 5px;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  
+  .week {
+    display: contents;
+  }
+  
+  .day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  
+  .day.color-1 {
+    background-color: #ffebee;
+  }
+  
+  .day.color-2 {
+    background-color: #ffcdd2;
+  }
+  
+  .day.color-3 {
+    background-color: #e57373;
+  }
+  
+  .day.color-4 {
+    background-color: #d32f2f;
+    color: white;
+  }
+  

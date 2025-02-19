@@ -102,7 +102,7 @@
                 (click)="$event.stopPropagation()">
                 
                 <mat-label class="!text-secondaryText text-xs">Holdback Seconds
-                    (°)</mat-label>
+                    (s)</mat-label>
                 <ngx-slider *ngIf="sliderShow" #sliderElement
                     [(value)]="min_holdback_seconds" [(highValue)]="max_holdback_seconds"
                     [options]="holdbackOptions"

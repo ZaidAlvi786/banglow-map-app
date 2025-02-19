@@ -95,7 +95,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
       })
     ).subscribe({
       next: (resp) => {
-        console.log(resp, 'API Response');
         this.groups = resp;
         this.cdr.detectChanges()
       },
@@ -114,7 +113,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   ngAfterViewInit(): void {
     this.sharedService.vendorData$.subscribe((v) => {
-      console.log(v,'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv');
       
       this.vendorData = v;
       if(this.vendorData){
@@ -122,7 +120,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
       }
     })
     this.sharedService.groupData$.subscribe((group)=>{
-      console.log(group,'groupgroupgroupgroupgroup');
       this.activeGroup = group;
     })
   }
@@ -134,7 +131,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     if(this.vendorData){
       this.data = {type:this.type, vendorData:this.vendorData}
     }
-    console.log(this.data, 'datataatatatatatattat');
     this.renderGroup = this.myTemplate;
     this.activeTimeDate = this.data?.markerData?.percentages[this.selectedTimeFrame]
     if (this.data.type === 'marker') {
@@ -162,7 +158,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
       }
       this.satelliteService.getGroupsForAssignment(data).subscribe({
         next: (resp) => {
-          console.log(resp, 'respresprespresprespresprespresprespresp');
           this.groups = resp
 
         }
@@ -174,7 +169,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   onKeyPress(event: KeyboardEvent): void {
     const inputValue = (event.target as HTMLInputElement).value;
-    console.log(inputValue, 'inputValueinputValueinputValue'); // Log the current input value to the console
     const data = {
       group_name: inputValue
     }
@@ -185,7 +179,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     //     this.groups = resp?.data
 
     //   }})
-    console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
 
     this.searchInput.next(inputValue);
   }
@@ -215,7 +208,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
 
   //Function to generate circle plygon when marker added to the map
   handleMarkerAdded(data: any) {
-    console.log(data, 'mark');
 
     const payload = {
       latitude: data.latitude,
@@ -226,7 +218,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
       next: (resp) => {
 
         this.pointData = resp.data;
-        console.log('pointDatapointDatapointData', resp);
       }
     })
   }
@@ -246,7 +237,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
         site_type: this.pointData?.type
       }
     } else {
-      console.log('kkkkkkkkkk');
       
       payload = {
         name: this.name,
@@ -263,7 +253,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
         this.snackBar.open('Site has been added.', 'Ok', {
           duration: 2000  // Snackbar will disappear after 300 milliseconds
         });
-        console.log(resp, 'successsuccesssuccesssuccess');
         this.siteData = resp
         this.addGroup = true;  // This will execute if the API call is successful
         const data = {
@@ -307,7 +296,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   }
 
   selectedGroupEvent(event: any) {
-    console.log(event, 'selectedeventeventeventevent');
     this.activeGroup = event;
   }
   
@@ -324,7 +312,6 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   }
 
   copyToClipboard(data: any): void {
-    console.log(data,'datadatadatadatadatadatadatadatadata');
     
    if (data.distance) {
       const text =  data
@@ -541,7 +528,6 @@ imagePreview(data:any,type:any) {
  
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log("Selected date range:", result);
       }
     });
   }
@@ -567,7 +553,6 @@ openDialog(data:any){
         panelClass: 'custom-dialog-class',
       });
       dialogRef.afterClosed().subscribe((result) => {
-        console.log('Dialog closed', result);
         if(result){
          
             this.snackBar.open('Group Added successfully.', 'Ok', {

@@ -82,8 +82,7 @@ object-fit: cover !important;
 .library{
 width: 100%;
 // height: 682.575px !important;
-height: 94% !important;
-
+// height: 94% !important;
 }
 
 /* Sidebar (mat-drawer) container styling */
@@ -92,7 +91,7 @@ position: absolute;
 top: 41px;
 left: 0;
 width: 820px; /* Default width */
-height: 100% !important;
+// height: 100% !important;
 z-index: 99999;
 // background: var(--primaryBg);
 // overflow: hidden;
@@ -103,9 +102,6 @@ border-right: 1px solid var(--custom-border); /* Optional border for clarity */
 @media (min-width: 1537px) {
   .draggable-resizable-container {
     top: 42px;
-  }
-  .library{
-    height: 100% !important;
   }
 }
 
