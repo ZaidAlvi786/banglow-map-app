@@ -28,16 +28,34 @@ export const LoadingInterceptor = (
   
   if(!paramString?.includes('library') && !req.url.includes('/get-sites')){
     mainLoader.setValue(true)
-    ngxLoader.start();
+    ngxLoader.startLoader('customLoader');
+    ngxLoader.startLoader('buttonLoader');
    
+  } else if (paramString?.includes('enableLoader')) {
+    ngxLoader.startLoader('customLoader');
+    mainLoader.setValue(true)
+    ngxLoader.startLoader('buttonLoader');
+    console.log("enableLoaderenableLoaderenableLoader");
+    
+
   } else {
-    mainLoader.setValue(false)
+    // mainLoader.setValue(false)
   }
 
   return next(req).pipe(
     finalize(() => {
-      ngxLoader.stop();
+      if(!paramString?.includes('library')  && !req.url.includes('/get-sites')){
+      ngxLoader.stopLoader('customLoader');
+      ngxLoader.stopLoader('buttonLoader');
       mainLoader.setValue(false)
+      } else  if (paramString?.includes('enableLoader')) {
+        ngxLoader.startLoader('customLoader');
+        ngxLoader.stopLoader('buttonLoader');
+        console.log("enableLoaderenableLoaderenableLoader");
+
+        mainLoader.setValue(false)
+    
+      }
     })
   );
 };

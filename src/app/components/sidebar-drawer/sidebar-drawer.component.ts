@@ -2,17 +2,19 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { LibraryComponent } from "../library/library.component";
 import { SitesComponent } from "../sites/sites.component";
 import { GroupsComponent } from "../groups/groups.component";
+import { ImageryStatusComponent } from "../imagery-status/imagery-status.component";
 
 @Component({
   selector: "app-sidebar-drawer",
   standalone: true,
-  imports: [LibraryComponent,SitesComponent,GroupsComponent],
+  imports: [LibraryComponent,SitesComponent,GroupsComponent,ImageryStatusComponent],
   templateUrl: "./sidebar-drawer.component.html",
   styleUrl: "./sidebar-drawer.component.scss",
 })
 export class SidebarDrawerComponent implements OnInit {
   @Input() type: string = "";
   @Input() polygon_wkt:any
+  @Input() sidebarWidth:any
   @Output() closeSidebar = new EventEmitter<boolean>();
   @Output() notifyParent: EventEmitter<any> = new EventEmitter();
   @Output() addMarkerToMap: EventEmitter<any> = new EventEmitter();

@@ -6,16 +6,20 @@ import {
   HostListener,
   Inject,
   OnInit,
+  signal,
+  viewChild,
   ViewChild,
 } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import dayjs from "dayjs";
 import { DateFormatPipe, TimeFormatPipe } from "../../pipes/date-format.pipe";
+import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
+import { NgxPanZoomModule, PanZoomComponent, PanZoomModel } from "ngx-panzoom";
 
 @Component({
   selector: "app-image-preview",
   standalone: true,
-  imports: [CommonModule,DateFormatPipe,TimeFormatPipe],
+  imports: [CommonModule,DateFormatPipe,TimeFormatPipe, NgxPanZoomModule],
   templateUrl: "./image-preview.component.html",
   styleUrl: "./image-preview.component.scss",
 })
@@ -24,6 +28,10 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     public dialogRef: MatDialogRef<ImagePreviewComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
+
+  readonly panZoom = viewChild(PanZoomComponent);
+  readonly panzoomModel = signal<PanZoomModel>(undefined!);
+
   currentIndex:any;
   // isZoomed = false;
 //  isDragging = false;
@@ -36,21 +44,30 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
   tempOffsetX: number = 0; // Temporary offset during drag
   tempOffsetY: number = 0; // Temporary offset during drag
   isZoomed: boolean = false; // Zoom toggle state
+  translateX: number = 0;
+  translateY: number = 0;
+  scale: number = 1;
 
-  @ViewChild("img", { static: false }) img!: ElementRef;
-
+ 
+  initialTranslateX = 0;
+  initialTranslateY = 0;
+  // @ViewChild("img", { static: false }) img!: ElementRef;
+  @ViewChild('img') img!: ElementRef;
   @ViewChild('container') 'container': ElementRef;
   // @ViewChild('img') 'img': ElementRef;
   ngOnInit(): void {
     this.currentIndex = this.data?.currentIndex;
-    console.log("dialog dat: ", this.data);
   }
 
+  myMethod(): void {
+    // API by viewChild
+    this.panZoom().zoomIn('lastPoint');
+    this.panZoom().centerContent(100)
+  }
+  
+
   ngAfterViewInit() {
-    // this.adjustImageHeight();
-    if (!this.img) {
-      console.error("Image element not found");
-    }
+    // this.centerImage();
   }
 
   closeDialog(): void {
@@ -104,65 +121,7 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
         this.nextImage(); // Call nextImage() on right arrow key press
       }
     }
-
-    onClick(event: MouseEvent): void {
-      this.isZoomed = !this.isZoomed;
     
-      const imgElement = this.img.nativeElement;
-      const containerElement = this.container.nativeElement;
-    
-      if (this.isZoomed) {
-        const rect = containerElement.getBoundingClientRect();
-        const clickX = event.clientX - rect.left;
-        const clickY = event.clientY - rect.top;
-    
-        imgElement.style.transformOrigin = `${clickX}px ${clickY}px`;
-        imgElement.style.transform = 'scale(3)';
-      } else {
-        imgElement.style.transform = 'scale(1)';
-        this.resetDragState();
-      }
-    }
-    
-    // onMouseDown(event: MouseEvent): void {
-    //   if (!this.isZoomed) return;
-    
-    //   this.isDragging = true;
-    //   this.startX = event.clientX - this.offsetX;
-    //   this.startY = event.clientY - this.offsetY;
-    // }
-    
-    mouseMoveHandler(event: MouseEvent): void {
-      if (!this.isDragging) return;
-    
-      const imgElement = this.img.nativeElement;
-    
-      this.offsetX = event.clientX - this.startX;
-      this.offsetY = event.clientY - this.startY;
-    
-      imgElement.style.transform = `scale(3) translate(${this.offsetX}px, ${this.offsetY}px)`;
-    }
-    
-    // onMouseUp(): void {
-    //   this.isDragging = false;
-    // }
-    
-    onMouseLeave(): void {
-      if (!this.isZoomed) return;
-      this.isDragging = false;
-    }
-    
-    onMouseEnter(): void {
-      // Re-enable dragging when mouse enters the container.
-      if (this.isZoomed) this.isDragging = false;
-    }
-    
-    // private resetDragState(): void {
-    //   this.isDragging = false;
-    //   this.offsetX = 0;
-    //   this.offsetY = 0;
-    // }
-
     // Round off value
     roundOff(value: number): any {
       return Math.round(value);
@@ -212,28 +171,6 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     this.applyTransform();
   }
 
-  // Handle drag start
-  onMouseDown(event: MouseEvent): void {
-    if (this.zoomLevel > 1) {
-      this.isDragging = true;
-      this.startX = event.clientX - this.offsetX;
-      this.startY = event.clientY - this.offsetY;
-    }
-  }
-
-  // Handle drag move
-  onMouseMove(event: MouseEvent): void {
-    if (this.isDragging) {
-      this.offsetX = event.clientX - this.startX;
-      this.offsetY = event.clientY - this.startY;
-      this.applyTransform();
-    }
-  }
-
-  // Handle drag end
-  onMouseUp(): void {
-    this.isDragging = false;
-  }
 
   // Apply transformations for zoom and drag
   private applyTransform(): void {
@@ -242,10 +179,82 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     imgElement.style.cursor = this.zoomLevel > 1 ? "grab" : "grab";
   }
 
-  // Reset drag state when zoom is toggled off
-  private resetDragState(): void {
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.applyTransform();
+  
+//  centerImage() {
+//     const containerRect = this.container.nativeElement.getBoundingClientRect();
+//     const img = this.img.nativeElement;
+//     img.style.width = 300+'px';
+//     img.style.height = 400+'px';
+
+//     const containerWidth = containerRect.width;
+//     const containerHeight = containerRect.height;
+
+//     const imgWidth = img.naturalWidth;
+//     const imgHeight = img.naturalHeight;
+
+//   }
+
+  startPan(event: MouseEvent) {
+    this.isDragging = true;
+    this.startX = event.clientX;
+    this.startY = event.clientY;
+    this.initialTranslateX = this.translateX;
+    this.initialTranslateY = this.translateY;
+  }
+
+  doPan(event: MouseEvent) {
+    if (!this.isDragging) return;
+
+    const deltaX = event.clientX - this.startX;
+    const deltaY = event.clientY - this.startY;
+
+    this.translateX = this.initialTranslateX + deltaX;
+    this.translateY = this.initialTranslateY + deltaY;
+  }
+
+  endPan() {
+    this.isDragging = false;
+  }
+
+  zoomImage(event: WheelEvent) {
+    event.preventDefault();
+  
+    const zoomIntensity = 0.05;
+    const delta = event.deltaY < 0 ? 1 + zoomIntensity : 1 - zoomIntensity;
+    const newScale = this.scale * delta;
+    const minScale = 1;
+    const maxScale = 10;
+  
+    if (newScale < minScale || newScale > maxScale) return;
+  
+    const containerRect = this.container.nativeElement.getBoundingClientRect();
+    const img = this.img.nativeElement;
+  
+    const containerCenterX = containerRect.width / 2;
+    const containerCenterY = containerRect.height / 2;
+  
+    // Calculate the center of the image
+    const imgCenterX = img.clientWidth * this.scale / 2;
+    const imgCenterY = img.clientHeight * this.scale / 2;
+  
+    // Adjust the translate values to keep the image centered
+    this.scale = newScale;
+    
+    this.translateX = containerCenterX -200 ;
+    this.translateY = containerCenterY-150;
+  }
+  
+
+  get transformStyle() {
+    if (this.scale <= 1.4) {
+      
+      return `translate(365.517px, 260.9985px) scale(1)`;
+    }
+    return `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
+  }
+
+  @HostListener('window:mouseup')
+  onWindowMouseUp() {
+    this.isDragging = false;
   }
 }

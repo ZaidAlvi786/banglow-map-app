@@ -1,719 +1,854 @@
 <div class="flex h-full flex-col gap-3 z-[1000000000]" (click)="hideMenu()">
     <div class="flex">
-        <div class="flex flex-col gap-3 !w-[840px]">
-    <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
-        <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
-        <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeLibraryDrawer()">
-            <img src="assets/svg-icons/drawer-toggle-icon.svg" />
-        </span>
-    </div>
-
-    @if (analyticsData) {
-    <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
-
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
-            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Selection area</span>
-            <span class="text-sm font-medium leading-[18px] text-secondaryText font-Barlow">{{analyticsData?.area}} km2</span>
-        </div>
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
-            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
-            <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
-                <span class="text-sm font-medium leading-[18px] text-secondaryText">{{name}}</span>
-                <button mat-button
-                    class="cursor-pointer hover:!bg-secondaryBg !h-[18px] !text-yellow font-semibold text-xs leading-[18px]"
-                    [matMenuTriggerFor]="menu" (click)="setClass()">Save</button>
-            </div>
-            <mat-menu class="bg-primaryBg" #menu="matMenu" id="library">
-                <div class="p-[15px] flex flex-col gap-[10px]">
-                    <div class="flex flex-col gap-3" (click)="$event.stopPropagation()">
-                        <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Save
-                            selection</span>
-                        <mat-form-field id="library" appearance="outline" class="!w-[320px]"
-                            (click)="$event.stopPropagation()">
-                            <mat-label>Name</mat-label>
-                            <input [(ngModel)]="name" matInput placeholder="Placeholder">
-                        </mat-form-field>
-                    </div>
-                    <span (click)="$event.stopPropagation();"><mat-checkbox class="example-margin"
-                            [(ngModel)]="checked">Notify me of new updates</mat-checkbox></span>
-                    <button (click)="addSite('site')"
-                        class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
-                    <button
-                        class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">Cancel</button>
-                </div>
-            </mat-menu>
-        </div>
-        <div class="w-[190px] flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
-            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
-            @if(selectedGroup == null){
-                <div class="flex relative items-center gap-[15px] self-stretch w-full">
-                  <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
-                  [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
-                  <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
-                    <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()" >
-                      <!-- Groups Section -->
-                      <div class="container">
-                        @for (group of groups; track group;let index = $index) {
-                          <ng-container>
-                            <app-groups-list [group]="group" (selectedGroup)="selectedGroupEvent($event)" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
-                          </ng-container>
-                        }
-                      </div>
-                  
-                      <!-- Search and Assign Section -->
-                      <div class="flex flex-col gap-3">
-                        <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
-                        <mat-form-field
-                          id="library"
-                          appearance="outline"
-                          class="!w-[320px]"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <mat-label>Search groups</mat-label>
-                          <input matInput placeholder="Search ..." (keyup)="onKeyPress($event)" >
-                          <img src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
-                        </mat-form-field>
-                      </div>
-                  
-                      <!-- Checkbox Section -->
-                      <span>
-                        <mat-checkbox
-                          class="example-margin"
-                          [(ngModel)]="checked"
-                          (click)="$event.stopPropagation()"
-                          >Notify me of new updates</mat-checkbox
-                        >
-                      </span>
-                  
-                      <!-- Buttons -->
-                      <button (click)="saveGroup()"
-                        class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]"
-                      >
-                        Save
-                      </button>
-                      <button (click)="closeMenu()"
-                        class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </mat-menu>        
-              </div>
-              } @else {
-                <div class="flex relative items-center gap-[15px] self-stretch w-full">
-                  <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
-                </div>
-              }
-        </div>
-        <div class="w-[190px] flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
-            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Objects</span>
-            <span class="text-sm font-medium leading-[18px] text-secondaryText">{{analyticsData?.total_count}}</span>
-        </div>
-
-    </div>
-
-    <div id="not_found" class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
-        <div class="mx-[15px] gap-[5px] flex font-Barlow">
-            <div
-                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
-                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                    Oldest
-                </span>
-                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{analyticsData?.oldest_date | dateFormat}}
-                </span>
-
-                <div class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Date time:</span>
-                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
-                    </div>
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Vendor:</span>
-                        <span>{{analyticsData?.oldest_info?.vendor_name }}</span>
-                    </div>
-                    
-                </div>
-            </div>
-            <!-- <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
-                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                    Newest
-                </span>
-                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
-                </span>
-            </div> -->
-            <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
-                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                    Total
-                </span>
-                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{formatNumber(analyticsData?.total_count)}}
+        <div class="flex flex-col gap-3 w-100">
+            <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
+                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
+                <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeLibraryDrawer()">
+                    <img src="assets/svg-icons/drawer-toggle-icon.svg" />
                 </span>
             </div>
-            <div
-                class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
-                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                    Avg
-                </span>
-                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
-                    {{analyticsData?.average_per_day.toFixed(2)}}
-                </span>
-            </div>
-            <div
-                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
-                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                    Most recent
-                </span>
-                <span class="text-sm font-semibold leading-[18px] text-yellow">
-                    {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
-                </span>
-                <div class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Date time:</span>
-                        <span>{{analyticsData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
-                    </div>
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Vendor:</span>
-                        <span>{{analyticsData?.newest_info?.vendor_name }}</span>
-                    </div>
-                    
-                </div>
-            </div>
-            <div
-                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
-                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                    Most recent clear
-                </span>
-                <span class="text-sm font-semibold leading-[18px] text-yellow">
-                    {{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | dateFormat}}
-                </span>
-                <div class="hidden absolute shadow-custom right-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Date time:</span>
-                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
-                    </div>
-                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                        <span>Vendor:</span>
-                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.vendor_name }}</span>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
+            <div class="flex flex-row gap-3">
+                <div class="flex flex-col  flex-0 custom-h overflow-x-hidden overflow-y-hidden">
+                    @if (analyticsData) {
+                    <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
 
-        <div class="mx-[15px] flex font-Barlow">
-            <div *ngFor="let level of percentageArray;let isLast = last"
-                class="w-[182px] group cursor-pointer flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
-                [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }">
-
-                <div class="custom-progress-container">
-                    <div class="custom-progress-bar" [ngStyle]="{ height: getValue(level.current_count,analyticsData?.total_count) + '%', background: '#ABB7C0' }">
-                    </div>
-                </div>
-                <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level.key }} Days</span>
-                <span class="flex text-sm font-semibold leading-[18px]"
-                    [ngStyle]="{ color: level.current_count >=level.previous_count ?'#22F57A':'#F52222' }">
-                    {{roundOff(level.percentage_change)}}%
-                    <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
-                        alt="up_icon" class="ml-1" />
-                </span>
-                <div class="absolute z-10 top-[348px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
-                    <div class="flex flex-col gap-[5px]">
-                        <span class="text-sm font-semibold leading-[18px] flex-wrap">{{roundOff(level.current_count)}} ({{level.key}} days)  ÷  {{roundOff(level.previous_count)}} ({{getDouble(level.key)}} days)</span>
-                    </div>    
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    } @else {
-    <div id="custom" class="w-full flex justify-center items-center">
-        <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
-    </div>
-    }
-
-
-    <div class="bg-secondaryBg w-full relative" id="custom_table" >
-        <div id="container"  class="flex m-[20px] justify-between items-center">
-            <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
-            <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                <button (click)="selectPreviewMethod('table')"
-                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
-                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image Library
-                     {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'? formatNumber(total_count):''}}</button>
-                <button (click)="selectPreviewMethod('browse')"
-                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
-                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
-                    {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'? formatNumber(total_count):''}}</button>
-            </div>
-            <div>
-                <div [matMenuTriggerFor]="columnsMenu" (click)="setColumnMenuClass()" class="p-[10px] cursor-pointer flex justify-center items-center rounded-[5px] border border-solid border-yellow">
-                    <img src="assets/svg-icons/toggle-column-icon.svg" alt="" width="20" height="20" />
-                </div>
-                <mat-menu class="bg-primaryBg p-[15px]" #columnsMenu="matMenu">
-                    
-                    <div class="bg-primaryBg flex flex-col gap-[10px]">
-                        <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                            <mat-label class="!text-secondaryText">Search columns</mat-label>
-                            <input matInput 
-                                placeholder="Search columns"
-                                [ngModel]="searchQuery"
-                                (ngModelChange)="onSearchChange($event)"
-                            class="!text-secondaryText placeholder:!text-secondaryText">
-                        </mat-form-field>
-                        <button class="text-secondaryBg bg-yellow p-[10px] rounded-[5px]" (click)="resetColumns()"> Reset Columns</button>
-                        <div *ngFor="let col of filteredColumns" class="menu-item" (click)="$event.stopPropagation()">
-                          <mat-checkbox [(ngModel)]="col.visible" 
-                          color="primary" 
-                          (click)="$event.stopPropagation()" 
-                          [disabled]="col.id === 'acquisition_datetime'"
-                          [checked]="col.id === 'acquisition_datetime' ? true : col.visible">
-                            <span class="text-secondaryText">{{col.displayName}}</span>
-                          </mat-checkbox>
-                        </div>
-                      </div>
-                </mat-menu>
-            </div>
-            <div class="Menu">
-                <div class="flex">
-                    <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                        <button (click)="selectedTimeZone('UTC')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px] text-secondary-heiglight rounded-[19px] px-[20px] "
-                            [ngClass]="selectedZone ==='UTC'?' bg-secondaryBg':''">UTC</button>
-                        <button (click)="selectedTimeZone('local')"
-                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px] text-secondary-heiglight rounded-[19px] px-[20px]"
-                            [ngClass]="selectedZone ==='local'?' bg-secondaryBg':''">Local
-                            time</button>
-                    </div>
-                    <div class="relative flex justify-center items-center">
-                        <button class=" flex gap-[5px] font-Barlow text-base font-medium justify-center items-center w-[70px] h-[50px] my-0 ml-[8px] rounded-[19px]" [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'" (click)="setFilterClass()" [matMenuTriggerFor]="filter" 
-                                #menuFilterTrigger="matMenuTrigger">
-                            <img [src]="filterCount>0 ? 'assets/svg-icons/filter-icon-active.svg':'assets/svg-icons/filter-icon.svg'" alt="">
-                            {{filterCount >0 ? filterCount :''}}
-                        </button>
-                        <mat-menu   #filter="matMenu" (click)="$event.stopPropagation()" id="filter" class="bg-primaryBg" (closed)="onMenuClose()">
-                           <div class="p-[15px]" (click)="$event.stopPropagation()">
-                            <form  class="flex flex-col font-Barlow gap-[15px] w-[330px]"  [formGroup]="formGroup" (ngSubmit)="onSubmit()">
-                                <span class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]">Apply filters</span>
-                                <mat-form-field appearance="outline" id="filter" >
-                                    <mat-label class="!text-secondaryText">Vendor name</mat-label>
-                                    <mat-select class="!text-secondaryText" multiple formControlName="vendor" name="vendor">
-                                    @for (vendor of vendorsList; track vendor) {
-                                        <mat-option [value]="vendor">{{vendor}}</mat-option>
-                                    }
-                                    </mat-select>
-                                </mat-form-field>
-                                <mat-form-field appearance="outline" id="filter" >
-                                    <mat-label class="!text-secondaryText">Vendor ID</mat-label>
-                                    <input class="!text-secondaryText" matInput type="text" formControlName="vendorId">
-                                </mat-form-field>
-
-                                <div  class="flex-col gap-2 custom-slider pb-[15px] relative" >
-                                    <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText">Min Cloud Cover</mat-label>
-                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_cloud">
-                                    </mat-form-field>
-                                    <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText">Max Cloud Cover</mat-label>
-                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_cloud">
-                                    </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">Cloud Cover (%)</mat-label>
-                                    <ngx-slider (click)="$event.stopPropagation()" class="z-20" *ngIf="sliderShow" #sliderElement [(value)]="min_cloud" [(highValue)]="max_cloud" [options]="options"></ngx-slider>
-                                    <span class="!text-secondaryText absolute -bottom-[5px] -left-[19px]">SAR</span>
-                                    <span class="!text-secondaryText absolute -bottom-[5px]  left-[45px]">0</span>
-                                    <span class="!text-secondaryText absolute -bottom-[5px] -right-[13px]">50+</span>
-                                </div>
-                                <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                    <mat-label>GSD</mat-label>
-                                    <input matInput type="text" formControlName="gsd">
-                                </mat-form-field> -->
-                                <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
-                                    <!-- <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText">Min Off NADIR Angle</mat-label>
-                                        <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="min_angle">
-                                    </mat-form-field>
-                                    <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText">Max Off NADIR Angle</mat-label>
-                                        <input class="!text-secondaryText" matInput [max]="360" type="number" formControlName="max_angle">
-                                    </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">Off NADIR Angle (°)</mat-label>
-                                    <ngx-slider *ngIf="sliderShow" #sliderElement [(value)]="min_angle" [(highValue)]="max_angle" [options]="angleOptions" (click)="$event.stopPropagation()"></ngx-slider>
-                                </div>
-                                <div class="flex-col gap-2 custom-slider" (click)="$event.stopPropagation()">
-                                    <!-- <mat-form-field  class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText">Min GSD</mat-label>
-                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="min_gsd">
-                                    </mat-form-field>
-                                    <mat-form-field class="w-1/2" appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                        <mat-label class="!text-secondaryText">Max GSD</mat-label>
-                                        <input class="!text-secondaryText" matInput [max]="100" type="number" formControlName="max_gsd">
-                                    </mat-form-field> -->
-                                    <mat-label class="!text-secondaryText">GSD (m)</mat-label>
-
-                                    <ngx-slider *ngIf="sliderShow" (click)="$event.stopPropagation()" #sliderElement [(value)]="min_gsd" [(highValue)]="max_gsd" [options]="gsd_options"></ngx-slider>
-                                </div>
-                                <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
-                                    <mat-label>Start date</mat-label>
-                                    <input matInput [matDatepicker]="start" formControlName="start_date">
-                                      <mat-hint>MM/DD/YYYY</mat-hint>
-                                      <mat-datepicker-toggle matIconSuffix [for]="start"></mat-datepicker-toggle>
-                                      <mat-datepicker #start></mat-datepicker>
-                                </mat-form-field> -->
-                                <div class="flex gap-3 justify-center">
-                                    <button (click)="closeFilterMenu()" class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-secondary-heiglight text-secondaryText" type="button" >
-                                        Cancel
-                                    </button>
-                                    <button class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-yellow text-[#453303]" type="submit">
-                                        Submit
-                                    </button>
-                                </div>
-                              </form>
-                           </div>
-                           
-                              
-                        </mat-menu>
-                    </div>
-                    <button (click)="calendarEventsOpen()" class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
-                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
-                        @if (isEventsOpened) {
-                        <img src="assets/svg-icons/calendar-icon-black.svg" alt="">
-                        } @else {
-                        <img src="assets/svg-icons/calendar-icon.svg" alt="">
-                        } </button>
-                </div>
-            </div>
-            <div class="flex justify-end">
-                <span class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer" (click)="resetSorting()">Reset</span>
-             </div>
-        </div>
-        <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader></div>
-        @if (viewType=='browse') {
-        <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>
-            <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
-               @if(dataSource?.data?.length){
-                
-                <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-red-600" *ngIf="overlapListData.length>0">
-                    <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
-                    <div class="flex flex-start all_wrap flex-wrap">
-                    <div *ngFor="let item of getInviewList(0, focused_captures_count);let index = index"
-                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
-                        <div class="flex flex-col" 
-                            >
-                            <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
-                            (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
-                                @if (item?.presigned_url) {
-                                    <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
-                                } @else {
-                                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image not found</span>
-                                }
-                                <div
-                                    class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
-                                </div>
-                            </div>
-    
-                            <div class="flex justify-between">
-                                <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
-                                <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                </div>
-                <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-white" *ngIf="zoomed_captures_count>0">
-                    <span class="text-sm text-secondaryText leading-[18px]">In View</span>
-                    <div class="flex flex-start all_wrap flex-wrap">
-                    <div *ngFor="let item of getInviewList(focused_captures_count, zoomed_captures_count + focused_captures_count+1);let index = index"
-                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
-                        <div class="flex flex-col" 
-                            >
-                            <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
-                            (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
-                                @if (item?.presigned_url) {
-                                    <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
-                                } @else {
-                                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image not found</span>
-                                }
-                                <div
-                                    class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
-                                </div>
-                            </div>
-    
-                            <div class="flex justify-between">
-                                <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
-                                <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-
-                </div>
-                <div class="flex flex-start all_wrap flex-wrap">
-                <div *ngFor="let item of getFilteredData(); let index = index"                 
-                 class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
-                
-                    <div class="flex flex-col" 
-                    [ngClass]="{
-                        'border-r-2 border-r-solid !border-r-red-600': item.id === lastMatchId
-                      }"
-                        >
-                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer" (mouseover)="onRowHover(item)"
-                        (mouseout)="onRowHover(null)" (click)="openImagePreviewDialog(index)">
-                            @if (item?.presigned_url) {
-                                <img [src]="item?.presigned_url" alt="Map" class="w-full h-full object-contain">
-                            } @else {
-                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image not found</span>
-                            }
+                        <div
+                            class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
+                            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Selection
+                                area</span>
+                            <span
+                                class="text-sm font-medium leading-[18px] text-secondaryText font-Barlow">{{analyticsData?.area}} km2</span>
                             <div
-                                class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                    <span> Total area enclosed within the selected bounding box.</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
+                            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
+                            <div
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                    <span>Save this selection and receive alerts whenever new footprints appear.</span>
+                                </div>
+
+                            </div>
+                            <div class="text-sm flex justify-between font-medium leading-[18px] text-secondaryText">
+                                <span class="text-sm font-medium leading-[18px] text-secondaryText">{{name}}</span>
+                                <button mat-button
+                                    class="cursor-pointer hover:!bg-secondaryBg !h-[18px] !text-yellow font-semibold text-xs leading-[18px]"
+                                    [matMenuTriggerFor]="menu" (click)="setClass()">Save</button>
+                            </div>
+                            <mat-menu class="bg-primaryBg" #menu="matMenu" id="library">
+                                <div class="p-[15px] flex flex-col gap-[10px]">
+                                    <div class="flex flex-col gap-3" (click)="$event.stopPropagation()">
+                                        <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Save
+                                            selection</span>
+                                        <mat-form-field id="library" appearance="outline" class="!w-[320px]"
+                                            (click)="$event.stopPropagation()">
+                                            <mat-label>Name</mat-label>
+                                            <input [(ngModel)]="name" matInput placeholder="Placeholder">
+                                        </mat-form-field>
+                                    </div>
+                                    <span (click)="$event.stopPropagation();"><mat-checkbox class="example-margin"
+                                            [(ngModel)]="checked">Notify me of new updates</mat-checkbox></span>
+                                    <button (click)="addSite('site')"
+                                        class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">Save</button>
+                                    <button
+                                        class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">Cancel</button>
+                                </div>
+                            </mat-menu>
+                        </div>
+                        <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
+                            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
+                            <div
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                    <span> Related points of interest.</span>
+                                </div>
+
+                            </div>
+                            @if(selectedGroup == null){
+                            <div class=" flex relative items-center gap-[15px] self-stretch w-full">
+                                <span
+                                    class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow"
+                                    (click)="getGroups();setClass()"
+                                    [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span>
+
+
+                                <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
+                                    <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
+                                        <!-- Groups Section -->
+                                        <div class="container">
+                                            @for (group of groups; track group;let index = $index) {
+                                            <ng-container>
+                                                <app-groups-list [group]="group"
+                                                    (selectedGroup)="selectedGroupEvent($event)" [index]="index"
+                                                    [backgroundColor]="'#191E22'"></app-groups-list>
+                                            </ng-container>
+                                            }
+                                        </div>
+
+                                        <!-- Search and Assign Section -->
+                                        <div class="flex flex-col gap-3">
+                                            <span
+                                                class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign
+                                                to group</span>
+                                            <mat-form-field id="library" appearance="outline" class="!w-[320px]"
+                                                (click)="$event.stopPropagation()">
+                                                <mat-label>Search groups</mat-label>
+                                                <input matInput placeholder="Search ..." (keyup)="onKeyPress($event)">
+                                                <img src="assets/svg-icons/search-icon.svg" alt="Search"
+                                                    class="w-[14px]" />
+                                            </mat-form-field>
+                                        </div>
+
+                                        <!-- Checkbox Section -->
+                                        <span>
+                                            <mat-checkbox class="example-margin" [(ngModel)]="checked"
+                                                (click)="$event.stopPropagation()">Notify me of new
+                                                updates</mat-checkbox>
+                                        </span>
+
+                                        <!-- Buttons -->
+                                        <button (click)="saveGroup()"
+                                            class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">
+                                            Save
+                                        </button>
+                                        <button (click)="closeMenu()"
+                                            class="flex justify-center text-[##ABB7C0] items-center text-center w-full h-[38px] py-[10px] bg-secondary-heiglight rounded-[5px]">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </mat-menu>
+                            </div>
+                            } @else {
+                            <div class="flex group relative items-center gap-[15px] self-stretch w-full">
+                                <span
+                                    class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
+                            </div>
+                            }
+                        </div>
+                        <div class="w-[190px] group flex flex-col gap-3 p-3 my-3 bg-secondaryBg rounded-[5px]">
+                            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Objects</span>
+                            <span
+                                class="text-sm font-medium leading-[18px] text-secondaryText">{{analyticsData?.total_count}}</span>
+
+                            <div
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] right-[13px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                    <span>Total area enclosed within the selected bounding box.</span>
+                                </div>
+
                             </div>
                         </div>
 
-                        <div class="flex justify-between">
-                            <span class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
-                            <span class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                    </div>
+
+                    <div id="not_found" class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
+                        <div class="mx-[15px] gap-[5px] flex font-Barlow">
+                            <div
+                                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center" (click)="openDialog(analyticsData.oldest_info.vendor_id)">
+                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                                    Oldest
+                                </span>
+                                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                                    {{analyticsData?.oldest_date | dateFormat}}
+                                </span>
+
+                                <div
+                                    class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Date time:</span>
+                                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | utcDateTimePipe}}
+                                            UTC</span>
+                                    </div>
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Vendor:</span>
+                                        <span>{{analyticsData?.oldest_info?.vendor_name }}</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- <div
+                    class="w-[182px] flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                        Newest
+                    </span>
+                    <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                        {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
+                    </span>
+                </div> -->
+                            <div
+                                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                                    Total
+                                </span>
+                                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                                    {{formatNumber(analyticsData?.total_count)}}
+                                </span>
+
+                                <div
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Total count in last 90 days</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div
+                                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                                    Avg
+                                </span>
+                                <span class="text-sm font-semibold leading-[18px] text-secondaryText">
+                                    {{analyticsData?.average_per_day.toFixed(2)}}
+                                </span>
+
+                                <div
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>{{formatNumber(analyticsData?.total_count)}} ÷ 90</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center" (click)="openDialog(analyticsData.newest_info.vendor_id)">
+                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                                    Most recent
+                                </span>
+                                <span class="text-sm font-semibold leading-[18px] text-yellow">
+                                    {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
+                                </span>
+                                <div
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Date time:</span>
+                                        <span>{{analyticsData?.newest_info?.acquisition_datetime | utcDateTimePipe}}
+                                            UTC</span>
+                                    </div>
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Vendor:</span>
+                                        <span>{{analyticsData?.newest_info?.vendor_name }}</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div
+                                class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center" (click)="openDialog(analyticsData.newest_clear_cloud_cover_info.vendor_id)">
+                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                                    Most recent clear
+                                </span>
+                                <span class="text-sm font-semibold leading-[18px] text-yellow">
+                                    {{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | dateFormat}}
+                                </span>
+                                <div
+                                    class="hidden absolute shadow-custom right-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Date time:</span>
+                                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime |
+                                            utcDateTimePipe}} UTC</span>
+                                    </div>
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Vendor:</span>
+                                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.vendor_name }}</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mx-[15px] flex font-Barlow">
+                            <div *ngFor="let level of percentageArray;let isLast = last"
+                                class="w-[182px] group cursor-pointer flex p-[10px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
+                                [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }">
+
+                                <div class="custom-progress-container">
+                                    <div class="custom-progress-bar"
+                                        [ngStyle]="{ height: getValue(level.current_count,analyticsData?.total_count) + '%', background: '#ABB7C0' }">
+                                    </div>
+                                </div>
+                                <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level.key }}
+                                    Days</span>
+                                <span class="flex text-sm font-semibold leading-[18px]"
+                                    [ngStyle]="{ color: level.current_count >=level.previous_count ?'#22F57A':'#F52222' }">
+                                    {{roundOff(level.percentage_change)}}%
+                                    <img [src]="level.current_count >=level.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
+                                        alt="up_icon" class="ml-1" />
+                                </span>
+                                <div
+                                    class="absolute z-10 top-[348px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
+                                    <div class="flex flex-col gap-[5px]">
+                                        <span
+                                            class="text-sm font-semibold leading-[18px] flex-wrap">{{roundOff(level.current_count)}}
+                                            ({{level.key}} days) ÷ {{roundOff(level.previous_count)}}
+                                            ({{getDouble(level.key)}} days)</span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-                    <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
-                </div>
-                </div>
-               } @else {
-                <div class="w-full flex justify-center items-center">
-                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
-                </div>
-               }
-                
-                
-            </div>
-        </div>
-        }@else {
-        <div class="w-[840px] overflow-auto content " #scrollableDiv>
-            @if (dataSource) {
-                <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
-                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
-                </div>
-                <table id="library-table" style="    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;" mat-table (matSortChange)="onSortChange($event)" [dataSource]="dataSource" matSort multiTemplateDataRows
-                class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg" [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
-                <ng-container matColumnDef="acquisition_datetime">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[185px] !pl-[10px] text-secondaryText font-semibold">
-                        <mat-checkbox class="cursor-default" [aria-label]="'Select All'">
-                        </mat-checkbox>
-                        Date
-                    </th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[185px] !pl-[10px] flex items-center"
-                    
-                    >
-                        <mat-checkbox (click)="$event.stopPropagation()"
-                        (change)="expandedData(row)" [checked]="isRowSelected(row.id) || matchedObject?.id === row.id"
-                            [aria-label]="'Select Row'">
-                        </mat-checkbox>
-                        <span class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime,row?.centroid) +' '+ formatUtcTime(row)}}</span>
-                    </td>
-                </ng-container>
+                    } @else {
+                    <div id="custom" class="w-full flex justify-center items-center">
+                        <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
+                            found</span>
+                    </div>
+                    }
 
-                <ng-container matColumnDef="sensor">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[115px] !pl-[10px] text-secondaryText font-semibold">
-                        Sensor</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[115px] !pl-[10px] text-secondaryText">{{ row?.sensor }}
-                    </td>
-                </ng-container>
 
-                <ng-container matColumnDef="vendor_name">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[115px] !pl-[10px] text-secondaryText font-semibold">
-                        Vendor</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[115px] !pl-[10px] text-secondaryText">{{ row?.vendor_name }}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="cloud_cover">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[70px] !pl-[10px] text-secondaryText font-semibold">
-                        Clouds</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[70px] !pl-[10px] text-secondaryText">{{row?.vendor_name !== 'capella' && row?.vendor_name !== 'skyfi-umbra'? roundOff(row?.cloud_cover)+ '%':'SAR'}}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="gsd">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[90px] !pl-[10px] text-secondaryText font-semibold">
-                        Resolution</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[90px] !pl-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="type">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold">
-                        Type</th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[80px] !pl-[10px] text-secondaryText">{{ getTimePeriod(row?.acquisition_datetime,row?.centroid) }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="vendor_id">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header class="min-w-[165px] !pl-[10px] text-secondaryText font-semibold">ID
-                    </th>
-                    <td mat-cell *matCellDef="let row" class="min-w-[165px] !pl-[10px] text-secondaryText">
-                        <div class="flex">
-                            <span class="w-[100px] max-w-[260px] truncate">{{ row?.vendor_id }}</span>
-                            <span (click)="$event.stopPropagation();markerData(row)"><img src="assets/svg-icons/marker-icon.svg" alt=""></span>
-                            <span class="w-[16px] h-[16px] ml-[5px]" (click)="$event.stopPropagation();copyData(row)"><img src="assets/svg-icons/copy-icon.svg" alt=""></span>
-                        </div>
-                    </td>
-                </ng-container>
-
-                <!-- <ng-container matColumnDef="expand">
-                    <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
-                    <td mat-cell *matCellDef="let element">
-                        <button mat-icon-button aria-label="expand row"
-                            (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
-                            <mat-icon *ngIf="expandedElement !== element">keyboard_arrow_down</mat-icon>
-                            <mat-icon *ngIf="expandedElement === element">keyboard_arrow_up</mat-icon>
-                        </button>
-                    </td>
-                </ng-container> -->
-
-                <ng-container matColumnDef="expandedDetail">
-                    <td  mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
-                        <div class="example-element-detail"
-                            [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                            <div class="p-7 flex" *ngIf="expandedElement !== null">
-                                <div class="image relative bg-secondary-heiglight rounded-[5px]">
-                                    <img [src]="element?.presigned_url" alt="">
-                                    <img class="absolute cursor-pointer right-[20px] bottom-[15px]" src="assets/svg-icons/image-zoom-icon.svg" alt="" />
+                    <div class="bg-secondaryBg w-full relative mt-3" id="custom_table" style="height: 800px;">
+                        <div id="container" class="flex m-[20px] justify-between items-center flex-wrap gap-2">
+                            <!-- <p class="text-xs font-semibold leading-[18px] text-secondaryText">Image library 11</p> -->
+                            <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
+                                <button (click)="selectPreviewMethod('table')"
+                                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
+                                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image
+                                    Library
+                                    {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'?
+                                    formatNumber(total_count):''}}</button>
+                                <button (click)="selectPreviewMethod('browse')"
+                                    class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
+                                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
+                                    {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'?
+                                    formatNumber(total_count):''}}</button>
+                            </div>
+                            <div>
+                                <div [matMenuTriggerFor]="columnsMenu" (click)="setColumnMenuClass()"
+                                    class="p-[10px] cursor-pointer flex justify-center items-center rounded-[5px] border border-solid border-yellow">
+                                    <img src="assets/svg-icons/toggle-column-icon.svg" alt="" width="20" height="20" />
                                 </div>
-                                <div class="detail px-3">
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Constellation:
-                                        </span> <span class="text-secondaryText">{{element?.vendor_name}}</span> </div>
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Date Time:
-                                        </span> <span class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime,element?.centroid)}}</span> </div>
-                                        <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Day of Week:
-                                        </span> <span class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime,element?.centroid)}}</span> </div>
-                                        <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Image ID:
-                                        </span> <span class="text-secondaryText">{{element?.vendor_id}}</span> </div>
-                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
-                                        </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div> -->
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Cloud Cover:
-                                             </span> <span class="text-secondaryText">{{ element?.vendor_name !== 'capella' && element?.vendor_name !== 'skyfi-umbra' ? roundOff(element?.cloud_cover)+'%' : 'SAR' }}</span>
+                                <mat-menu class="bg-primaryBg p-[15px]" #columnsMenu="matMenu">
+
+                                    <div class="bg-primaryBg flex flex-col gap-[10px]">
+                                        <mat-form-field appearance="outline" id="filter"
+                                            (click)="$event.stopPropagation()">
+                                            <mat-label class="!text-secondaryText">Search columns</mat-label>
+                                            <input matInput placeholder="Search columns" [ngModel]="searchQuery"
+                                                (ngModelChange)="onSearchChange($event)"
+                                                class="!text-secondaryText placeholder:!text-secondaryText">
+                                        </mat-form-field>
+                                        <button class="text-secondaryBg bg-yellow p-[10px] rounded-[5px]"
+                                            (click)="resetColumns()"> Reset Columns</button>
+                                        <div *ngFor="let col of filteredColumns" class="menu-item"
+                                            (click)="$event.stopPropagation()">
+                                            <mat-checkbox [(ngModel)]="col.visible" color="primary"
+                                                (click)="$event.stopPropagation()"
+                                                [disabled]="col.id === 'acquisition_datetime'"
+                                                [checked]="col.id === 'acquisition_datetime' ? true : col.visible">
+                                                <span class="text-secondaryText">{{col.displayName}}</span>
+                                            </mat-checkbox>
+                                        </div>
                                     </div>
-                                    <!-- <div class="flex py-2"> <span
-                                        class="text-secondary-heiglight font-semibold">Constellation: </span> <span
-                                        class="text-secondaryText">{{element?.resolution}}</span> </div> -->
-                                    <div class="flex py-2"> <span
-                                            class="text-secondary-heiglight font-semibold">Platform: </span> <span
-                                            class="text-secondaryText">{{element?.sensor}}</span> </div>
-                                            <div class="flex py-2"> <span
-                                                class="text-secondary-heiglight font-semibold">GSD:</span> <span
-                                                class="text-secondaryText">{{roundOff(element?.gsd)}}m</span> </div>
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Area:
-                                        </span> <span class="text-secondaryText">{{element?.area}}km²</span> </div>
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Geo
-                                            referenced: </span> <span
-                                            class="text-secondaryText">{{element?.georeferenced?'True':'False'}}</span>
+                                </mat-menu>
+                            </div>
+                            <div class="Menu">
+                                <div class="flex">
+                                    <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
+                                        <button (click)="selectedTimeZone('UTC')"
+                                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px]  rounded-[19px] px-[20px] "
+                                            [ngClass]="selectedZone ==='UTC'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">UTC</button>
+                                        <button (click)="selectedTimeZone('local')"
+                                            class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px]  rounded-[19px] px-[20px]"
+                                            [ngClass]="selectedZone ==='local'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">Local
+                                            time</button>
                                     </div>
-                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
-                                    </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div> -->
-                                    <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Off NADIR Angle: </span> <span
-                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(2)}}°</span> 
+                                    <div class="relative flex justify-center items-center">
+                                        <button
+                                            class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center w-[60px] h-[40px] my-0 ml-[8px] rounded-[15px]"
+                                            [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'"
+                                            (click)="openFilterDialog()" 
+                                            >
+                                            <img [src]="filterCount>0 ? 'assets/svg-icons/filter-icon-active.svg':'assets/svg-icons/filter-icon.svg'"
+                                                alt="">
+                                            {{filterCount >0 ? filterCount :''}}
+                                        </button>
+                                        
                                     </div>
-                                    <div class="flex gap-2 py-2"> <span class="text-secondary-heiglight font-semibold">Centroid Lat: </span> <div
-                                        class="flex gap-2" *ngFor="let center of element.centroid">
-                                        <span  class="text-secondaryText">{{center.toFixed(2)}}</span></div> 
+                                    <button (click)="calendarEventsOpen()"
+                                        class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
+                                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
+                                        @if (isEventsOpened) {
+                                        <img src="assets/svg-icons/calendar-icon-black.svg" alt="">
+                                        } @else {
+                                        <img src="assets/svg-icons/calendar-icon.svg" alt="">
+                                        } </button>
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <span
+                                    class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer"
+                                    (click)="resetSorting()">Reset</span>
+                            </div>
+                        </div>
+                        <div class="mx-[20px]">
+                            <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
+                        </div>
+                        <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
+                        </div>
+                        @if (viewType=='browse') {
+                            <div class="flex flex-col  overflow-scroll" [ngStyle]="{'width': 'calc(100vh - {{{sidebarWidth}}}px)'}">
+                                <div class="w-[840px] overflow-auto browser-content" #scrollableDiv>
+                                    <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
+                                        @if(dataSource?.data?.length){
+        
+                                        <div class="flex flex-col w-full gap-[10px] pb-[5px]"
+                                            *ngIf="overlapListData.length>0">
+                                            <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
+                                            <div class="flex flex-start all_wrap flex-wrap">
+                                                <div *ngFor="let item of getInviewList(0, focused_captures_count);let index = index"
+                                                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                                                    <div class="flex flex-col">
+                                                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
+                                                            (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
+                                                            (click)="openImagePreviewDialog(index)">
+                                                            @if (item?.presigned_url) {
+                                                            <img [src]="item?.presigned_url" alt="Map"
+                                                                class="w-full h-full object-contain">
+                                                            } @else {
+                                                            <span
+                                                                class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
+                                                                not found</span>
+                                                            }
+                                                            <div
+                                                                class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                                <img src="assets/svg-icons/magnifying-icon.svg" alt=""
+                                                                    srcset="">
+                                                            </div>
+                                                        </div>
+        
+                                                        <div class="flex justify-between">
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+        
+                                        </div>
+                                        <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-white"
+                                            *ngIf="zoomed_captures_count>0">
+                                            <span class="text-sm text-secondaryText leading-[18px]">In View</span>
+                                            <div class="flex flex-start all_wrap flex-wrap">
+                                                <div *ngFor="let item of getInviewList(focused_captures_count, zoomed_captures_count + focused_captures_count+1);let index = index"
+                                                    class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+                                                    <div class="flex flex-col">
+                                                        <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
+                                                            (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
+                                                            (click)="openImagePreviewDialog(index)">
+                                                            @if (item?.presigned_url) {
+                                                            <img [src]="item?.presigned_url" alt="Map"
+                                                                class="w-full h-full object-contain">
+                                                            } @else {
+                                                            <span
+                                                                class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
+                                                                not found</span>
+                                                            }
+                                                            <div
+                                                                class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                                <img src="assets/svg-icons/magnifying-icon.svg" alt=""
+                                                                    srcset="">
+                                                            </div>
+                                                        </div>
+        
+                                                        <div class="flex justify-between">
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                                            <span
+                                                                class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+        
+                                        </div>
+                                        <div class="flex flex-start all_wrap flex-wrap">
+                                            <div *ngFor="let item of getFilteredData(); let index = index"
+                                                class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
+        
+                                                <div class="flex flex-col" [ngClass]="{
+                                    
+                                  }">
+                                                    <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
+                                                        (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
+                                                        (click)="openImagePreviewDialog(index)">
+                                                        @if (item?.presigned_url) {
+                                                        <img [src]="item?.presigned_url" alt="Map"
+                                                            class="w-full h-full object-contain">
+                                                        } @else {
+                                                        <span
+                                                            class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Image
+                                                            not found</span>
+                                                        }
+                                                        <div
+                                                            class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                            <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
+                                                        </div>
+                                                    </div>
+        
+                                                    <div class="flex justify-between">
+                                                        <span
+                                                            class="text-secondaryText text-xs font-bold">{{getFormattedDate(item?.acquisition_datetime,item?.centroid)}}</span>
+                                                        <span
+                                                            class="text-secondaryText text-xs font-bold">{{formatUtcTime(item)}}</span>
+                                                    </div>
+                                                </div>
+                                                <!-- <div [ngClass]="zoomed_captures_count > 0 && (index+1) == zoomed_captures_count  ? 'h-[1px] w-[800px] -bottom-[5px] bg-white absolute left-0':'hidden'"></div> -->
+                                            </div>
+                                        </div>
+                                        } @else {
+                                        <div class="w-full flex justify-center items-center">
+                                            <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
+                                                found</span>
+                                        </div>
+                                        }
+        
+        
                                     </div>
                                 </div>
                             </div>
+                        }@else {
+                        <div class="overflow-auto content mat-table-container" #scrollableDiv>
+                            @if (dataSource) {
+                            <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
+                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
+                                    found</span>
+                            </div>
+                            <table id="library-table"
+                                style="    background-color: rgb(32 39 45 / var(--tw-bg-opacity, 1)) !important;"
+                                mat-table (matSortChange)="onSortChange($event)" [dataSource]="dataSource" matSort
+                                multiTemplateDataRows
+                                class="font-Barlow mat-elevation-z8 bg-primaryBg w-full border border-secondaryText rounded-lg"
+                                [ngClass]="dataSource.data.length ? 'opacity-100':'opacity-0'">
+                                <ng-container matColumnDef="acquisition_datetime">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[185px] !pl-[10px] text-secondaryText font-semibold">
+                                        <mat-checkbox class="cursor-default" [aria-label]="'Select All'">
+                                        </mat-checkbox>
+                                        Date
+                                    </th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[185px] !pl-[10px] flex items-center">
+                                        <mat-checkbox (click)="$event.stopPropagation()" (change)="expandedData(row)"
+                                            [checked]="isRowSelected(row.id) || matchedObject?.id === row.id"
+                                            [aria-label]="'Select Row'">
+                                        </mat-checkbox>
+                                        <span
+                                            class="text-secondaryText font-Barlow">{{getFormattedDate(row?.acquisition_datetime,row?.centroid)
+                                            +' '+ formatUtcTime(row)}}</span>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="sensor">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[115px] !pl-[10px] text-secondaryText font-semibold">
+                                        Sensor</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[115px] !pl-[10px] text-secondaryText">{{ row?.sensor }}
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="vendor_name">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[115px] !pl-[10px] text-secondaryText font-semibold">
+                                        Vendor</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[115px] !pl-[10px] text-secondaryText">{{ row?.vendor_name }}
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="cloud_cover">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[70px] !pl-[10px] text-secondaryText font-semibold">
+                                        Clouds</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[70px] !pl-[10px] text-secondaryText">{{row?.vendor_name !==
+                                        'capella' && row?.vendor_name !== 'skyfi-umbra'? roundOff(row?.cloud_cover)+
+                                        '%':'SAR'}}</td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="gsd">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[90px] !pl-[10px] text-secondaryText font-semibold">
+                                        Resolution</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[90px] !pl-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="type">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold">
+                                        Type</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.type| titlecase }}
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="vendor_id">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[165px] !pl-[10px] text-secondaryText font-semibold">ID
+                                    </th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[165px] !pl-[10px] text-secondaryText">
+                                        <div class="flex">
+                                            <span class="">{{ row?.vendor_id }}</span>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="expand">
+                                    <th mat-header-cell *matHeaderCellDef aria-label="row actions" class="w-[120px]">
+                                        &nbsp;</th>
+                                    <td mat-cell mat-cell *matCellDef="let row" class="w-[120px]">
+                                        <div class="flex">
+                                            <div class="w-[30px] h-[16px] ml-[5px]"
+                                                (click)="$event.stopPropagation();markerData(row)"><img
+                                                    src="assets/svg-icons/marker-icon.svg" alt=""></div>
+                                            <div class="w-[30px] h-[16px] ml-[5px] mr-[6px]"
+                                                (click)="$event.stopPropagation();copyData(row)"><img
+                                                    src="assets/svg-icons/copy-icon.svg" alt=""></div>
+                                        </div>
+                                        <!-- <button mat-icon-button aria-label="expand row"
+                                (click)="(expandedElement = expandedElement === element ? null : element); $event.stopPropagation()">
+                                <mat-icon *ngIf="expandedElement !== element">keyboard_arrow_down</mat-icon>
+                                <mat-icon *ngIf="expandedElement === element">keyboard_arrow_up</mat-icon>
+                            </button> -->
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="expandedDetail">
+                                    <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+                                        <div class="example-element-detail"
+                                            [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+                                            <div class="p-7 flex" *ngIf="expandedElement !== null">
+                                                <div class="image relative bg-secondary-heiglight rounded-[5px]">
+                                                    <img class="w-[350px]" [src]="element?.presigned_url" alt="">
+                                                    <img class="absolute cursor-pointer right-[20px] bottom-[15px]"
+                                                        src="assets/svg-icons/image-zoom-icon.svg" alt="" />
+                                                </div>
+                                                <div class="detail px-3">
+                                                    <div class="flex py-2"> <span
+                                                            class="text-secondary-heiglight font-semibold">Vendor:
+                                                        </span> <span
+                                                            class="text-secondaryText">{{element?.vendor_name}}</span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                            class="text-secondary-heiglight font-semibold">Date Time:
+                                                        </span> <span
+                                                            class="text-secondaryText">{{getFormattedDate(element?.acquisition_datetime,element?.centroid)}}</span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                        class="text-secondary-heiglight font-semibold">Image ID:
+                                                        </span> <span
+                                                            class="text-secondaryText">{{element?.vendor_id}}</span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                        class="text-secondary-heiglight font-semibold">Cloud Cover:
+                                                        </span> <span class="text-secondaryText">{{ element?.vendor_name
+                                                            !== 'capella' && element?.vendor_name !== 'skyfi-umbra' ?
+                                                            roundOff(element?.cloud_cover)+'%' : 'SAR' }}</span>
+                                                     </div>
+                                                     <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Constellation: </span> 
+                                                        <span class="text-secondaryText">{{ element?.constellation}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Centroid Local: </span> 
+                                                        <span class="text-secondaryText">{{ element?.centroid_local}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Centroid Region: </span> 
+                                                        <span class="text-secondaryText">{{ element?.centroid_region}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Platform: </span> 
+                                                        <span class="text-secondaryText">{{ element?.platform}}</span>
+                                                    </div>
+                                                    
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">GSD:</span>
+                                                        <span
+                                                            class="text-secondaryText">{{roundOff(element?.gsd)}}m
+                                                        </span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                        class="text-secondary-heiglight font-semibold">Off NADIR
+                                                        Angle: </span> <span
+                                                        class="text-secondaryText">{{element?.sun_elevation.toFixed(2)}}°</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Azimuth Angle: </span> 
+                                                        <span class="text-secondaryText">{{element?.azimuth_angle? element?.azimuth_angle.toFixed(2):'0'}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Satellite Azimuth Angle: </span> 
+                                                        <span class="text-secondaryText">{{element?.illumination_azimuth_angle? element?.illumination_azimuth_angle.toFixed(2):'0'}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Illumination Elevation Angle: </span> 
+                                                        <span class="text-secondaryText">{{element?.illumination_elevation_angle? element?.illumination_elevation_angle.toFixed(2):'0'}}</span>
+                                                    </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Publication Date Time: </span> 
+                                                        <span class="text-secondaryText">{{element?.publication_datetime? getFormattedDate(element?.publication_datetime):null}}</span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                            class="text-secondary-heiglight font-semibold">Day of Week:
+                                                        </span><span
+                                                            class="text-secondaryText">{{getDayOfWeek(element?.acquisition_datetime,element?.centroid)}}</span>
+                                                    </div>
+                                                    
+                                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Time:
+                                            </span> <span class="text-secondaryText">{{formatUtcTime(element?.acquisition_datetime)}}</span> </div> -->
+                                                    <!-- <div class="flex py-2"> <span
+                                            class="text-secondary-heiglight font-semibold">Constellation: </span> <span
+                                            class="text-secondaryText">{{element?.resolution}}</span> </div> -->
+                                                   
+                                                    <div class="flex py-2"> <span
+                                                            class="text-secondary-heiglight font-semibold">Area:
+                                                        </span> <span
+                                                            class="text-secondaryText">{{element?.area}}km²</span>
+                                                    </div>
+                                                    <div class="flex py-2"> <span
+                                                            class="text-secondary-heiglight font-semibold">Geo
+                                                            referenced: </span> <span
+                                                            class="text-secondaryText">{{element?.georeferenced?'True':'False'}}</span>
+                                                    </div>
+                                                    <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
+                                        </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div> -->
+                                                    
+                                                    <div class="flex gap-2 py-2"> <span
+                                                            class="text-secondary-heiglight font-semibold">Centroid Lat:
+                                                        </span>
+                                                        <div class="flex gap-2" *ngFor="let center of element.centroid">
+                                                            <span
+                                                                class="text-secondaryText">{{center.toFixed(4)}}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
+                                    class="bg-secondaryBg"></tr>
+                                <tr mat-row
+                                    [id]="'vendor-row-' + row.vendor_id"
+                                    *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex"
+                                    class="hover:bg-secondaryHighlight cursor-pointer" [ngClass]="{
+                        '!border-b-2 border-b-solid !border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count + focused_captures_count,
+                        '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id,
+                      }" (click)="expandedElement = expandedElement === row ? null : row;"
+                                    (mouseover)="onRowHover(row)" (mouseout)="onRowHover(null)">
+                                </tr>
+
+                                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
+                                    class="example-detail-row"></tr>
+                            </table>
+                            } @else {
+                            <div class="w-full flex justify-center items-center">
+                                <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
+                                    found</span>
+                            </div>
+                            }
+
                         </div>
-                    </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="bg-secondaryBg"></tr>
-                <tr mat-row *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex" 
-                class="hover:bg-secondaryHighlight cursor-pointer"
-                [ngClass]="{
-                    '!border-b-2 border-b-solid !border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count + focused_captures_count,
-                    'border-b-2 border-b-solid !border-b-red-600': focused_captures_count > 0 && (i + 1) === focused_captures_count,
-                    '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id,
-                  }"
+                        }
+                        <!-- @if (vendorData) {
+                <div class="flex p-[15px] top-0 left-4 absolute w-[273px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40 shadow-lg"
+                (mouseout)="imageHoverView(null)">
+                    <span class="w-[240px] h-[300px]"
                   
-                (click)="expandedElement = expandedElement === row ? null : row;"
-                (mouseover)="onRowHover(row)"
-                (mouseout)="onRowHover(null)"
-               >
-                </tr>
+                    >
+                    <img class="max-h-[300px] w-full" [src]="vendorData?.presigned_url" alt="" />
+                    </span>
+                    <div class="flex flex-col items-start gap-[5px] self-stretch">
+                      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                          <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
+                          <span class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite('hovered')">
+                              <img src="/assets/svg-icons/vector-icon.svg" alt="" />
+                          </span>          
+                      </div>
+                    </div>
+                    <div class="flex flex-col items-start gap-[5px] self-stretch">
+                      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
+                      <div class="flex items-center gap-[15px] self-stretch w-full">
+                          <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{vendorData?.address}}</span>
+                          <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(vendorData?.address)">
+                              <img src="/assets/svg-icons/copy-icon.svg" alt="" />
+                          </span>          
+                      </div>
+                   </div>
+                   <div class="flex flex-col items-start gap-[5px] self-stretch">
+                    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
+                    <div class="flex items-center gap-[15px] self-stretch w-full">
+                        <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{vendorData?.nearest_site?.name}}</span>
+                        <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
+                            <img src="/assets/svg-icons/poi-icon.svg" alt="" />
+                        </span>          
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+                    <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{vendorData?.type}}</span>
+                      <span class="h-[15px] w-[15px] cursor-pointer">
+                       @if (vendorData?.type ==='Night') {
+                        <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+                       } @else {
+                        <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+                       }
+                    </span>  
+                    </div>    
+                    <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+                      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{vendorData?.vendor_name != 'skyfi' ? vendorData?.cloud_cover.toFixed(3) : 'SAR'}}%</span>
+                      <span class="h-[15px] w-[15px] cursor-pointer">
+                        <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
+                    </span>  
+                    </div>         
+                </div>
+                  </div>
+            } -->
+                    </div>
+                </div>
+                @if (isEventsOpened && calendarApiData) {
+                <div class="z-[1000000] text-secondaryText ">
+                    <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate"
+                        (calendarEventsOpen)="calendarEventsOpen()"
+                        [calendarApiData]="calendarApiData"></app-map-calendar>
+                </div>
+                } @if(overlapListData.length>0){
+                    <div class="z-[1000000] text-secondaryText">
+                        <div class="w-[280px] h-[98vh] overflow-auto bg-primaryBg p-[15px]">
+                            <!-- Title -->
+                            <div class="flex justify-end items-center pb-[15px]">
+                              <!-- <p class="text-sm m-0">Working</p> -->
+                              <img (click)="closeOverlay()"  class="cursor-pointer" src="assets/svg-icons/drawer-toggle-icon.svg" />
+                            </div>
+                            <div class="flex flex-col font-Barlow rounded-sm">
+                                <div class="flex gap-[15px] p-[10px] bg-secondaryBg">
+                                    <span class="text-secondaryText text-sm w-[140px]">ID</span>
+                                    <span class="text-secondaryText text-sm">Vendor</span>
+                                </div>
 
-                <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
-            </table>
-            } @else {
-                <div class="w-full flex justify-center items-center">
-                    <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not found</span>
-                </div>
-            }
-            
-        </div>
-        }
-        <!-- @if (vendorData) {
-            <div class="flex p-[15px] top-0 left-4 absolute w-[273px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40 shadow-lg"
-            (mouseout)="imageHoverView(null)">
-                <span class="w-[240px] h-[300px]"
-              
-                >
-                <img class="max-h-[300px] w-full" [src]="vendorData?.presigned_url" alt="" />
-                </span>
-                <div class="flex flex-col items-start gap-[5px] self-stretch">
-                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
-                  <div class="flex items-center gap-[15px] self-stretch w-full">
-                      <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
-                      <span class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite('hovered')">
-                          <img src="/assets/svg-icons/vector-icon.svg" alt="" />
-                      </span>          
-                  </div>
-                </div>
-                <div class="flex flex-col items-start gap-[5px] self-stretch">
-                  <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Address</span>
-                  <div class="flex items-center gap-[15px] self-stretch w-full">
-                      <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{vendorData?.address}}</span>
-                      <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(vendorData?.address)">
-                          <img src="/assets/svg-icons/copy-icon.svg" alt="" />
-                      </span>          
-                  </div>
-               </div>
-               <div class="flex flex-col items-start gap-[5px] self-stretch">
-                <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
-                <div class="flex items-center gap-[15px] self-stretch w-full">
-                    <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{vendorData?.nearest_site?.name}}</span>
-                    <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
-                        <img src="/assets/svg-icons/poi-icon.svg" alt="" />
-                    </span>          
-                </div>
-              </div>
-              <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
-                <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-                  <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{vendorData?.type}}</span>
-                  <span class="h-[15px] w-[15px] cursor-pointer">
-                   @if (vendorData?.type ==='Night') {
-                    <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
-                   } @else {
-                    <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
-                   }
-                </span>  
-                </div>    
-                <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-                  <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{vendorData?.vendor_name != 'skyfi' ? vendorData?.cloud_cover.toFixed(3) : 'SAR'}}%</span>
-                  <span class="h-[15px] w-[15px] cursor-pointer">
-                    <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
-                </span>  
-                </div>         
+                                <div *ngFor="let data of overlapListData;let ind=index" class="flex gap-[15px] cursor-pointer p-[10px] border-b border-b-solid border-b-secondaryBg"
+                                 (click)="expandRow(data.vendor_id)" 
+                                (mouseenter)="tableRowHovered = data.vendor_id"
+                                (mouseleave)="tableRowHovered = null" >
+                                    <span class="text-secondaryText text-sm w-[140px] break-words">{{data?.vendor_id}}</span>
+                                    <span class="text-secondaryText text-sm">{{data?.vendor_name}}</span>
+                                </div>
+                            </div>
+                          </div>
+                    </div>
+                }
             </div>
-              </div>
-        } -->
+        </div>
     </div>
 </div>
-    @if (isEventsOpened && calendarApiData) {
-        <div class="z-[1000000] text-secondaryText " >
-          <app-map-calendar [endDateCal]="endDate" [startDateCal]="startDate" (calendarEventsOpen)="calendarEventsOpen()" [calendarApiData]="calendarApiData"></app-map-calendar>
-        </div>
-      }
-   </div>
-</div>
-
-<!-- (mouseover)="imageHoverView(row)"  -->

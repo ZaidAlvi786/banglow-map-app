@@ -1,6 +1,6 @@
 <div class="h-full overflow-hidden">
     @if (type=='library') {  <div>
-        <app-library [endDate]="endDate" (onFilterset)="onFiltersetData($event)" [shapeHoverData]="shapeHoverData"  [popUpData]="popUpData" [zoomed_wkt]="zoomed_wkt" [startDate]="startDate" (closeDrawer)="closeDrawer($event)" (rowHoveredData)="highlightData($event)" (notifyParent)="handleData($event)" (addMarkerToMap)="handelMarkerData($event)" [polygon_wkt]="polygon_wkt"></app-library>
+        <app-library [endDate]="endDate" [sidebarWidth]="sidebarWidth" (onFilterset)="onFiltersetData($event)" [shapeHoverData]="shapeHoverData"  [popUpData]="popUpData" [zoomed_wkt]="zoomed_wkt" [startDate]="startDate" (closeDrawer)="closeDrawer($event)" (rowHoveredData)="highlightData($event)" (notifyParent)="handleData($event)" (addMarkerToMap)="handelMarkerData($event)" [polygon_wkt]="polygon_wkt"></app-library>
     </div>
 } 
 <!-- @else if(type === 'Sites'){
@@ -8,5 +8,7 @@
 } -->
  @else if(type === 'Groups'){
     <app-groups (closeDrawer)="closeDrawer($event)"></app-groups>
+} @else if (type === 'Imagery') {
+    <app-imagery-status (closeDrawer)="closeDrawer($event)"></app-imagery-status>
 }
 </div>

@@ -8,17 +8,21 @@
     </div> -->
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Name</span>
+       @if (data?.status === 'view'){
+        <div class="w-full text-secondaryText leading-[18px] font-Barlow text-sm">{{data?.markerData?.site_details?.site_name}}</div>
+       } @else {
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
-            <span class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite()">
-                <img src="/assets/svg-icons/vector-icon.svg" alt="" />
-            </span>          
-        </div>
+          <input [(ngModel)]="name" class="!bg-transparent !outline-none w-full text-secondaryText" matInput type="text" placeholder="Untitled point" />
+          <span *ngIf="data?.status !== 'view'" class="h-[16px] w-[16px] cursor-pointer" matTooltip="Add sites" (click)="addSite()">
+              <img src="/assets/svg-icons/vector-icon.svg" alt="" />
+          </span>          
+      </div>
+       }
     </div>
    @if(data.type !== 'polygon'){ <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{toDecimal(data?.pointData?.latitude)}},{{toDecimal(data?.pointData?.longitude)}}</span>
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{toDecimal(data?.pointData?.latitude)}},{{toDecimal(data?.pointData?.longitude)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.pointData)">
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
@@ -27,22 +31,21 @@
     }
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Group</span>
-        @if(selectedGroup == null){
+        @if(selectedGroup !== null){
           <div class="flex relative items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 cursor-pointer font-Barlow font-sm font-medium leading-[18px] text-yellow" (click)="getGroups();setClass()"
-            [matMenuTriggerFor]="addGroup ? assign : null">Assign to a group</span> 
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
+          </div>
+        }
+        @if (data?.status =='view'){
+          <div class="w-full text-yellow leading-[18px] font-Barlow text-sm">{{data?.markerData?.site_details?.group_name}}</div>
+        }@else {
+          <div class="flex relative justify-between items-center gap-[15px] self-stretch w-full">
+            
+            <span [ngClass]="data?.status ==='view'? 'cursor-default':'cursor-pointer'" class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow" (click)="data?.status !== 'view' && getGroups();setClass()"
+            [matMenuTriggerFor]="data?.status !== 'view' ? assign : null">Assign to a group</span> 
             <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
               <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
                 <!-- Groups Section -->
-                <div class="container">
-                  @for (group of groups; track group;let index = $index) {
-                    <ng-container>
-                      <app-groups-list [group]="group" (selectedGroup)="selectedGroupEvent($event)" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
-                    </ng-container>
-                  }
-                </div>
-            
-                <!-- Search and Assign Section -->
                 <div class="flex flex-col gap-3">
                   <span class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign to group</span>
                   <mat-form-field
@@ -53,19 +56,29 @@
                   >
                     <mat-label>Search groups</mat-label>
                     <input matInput placeholder="Search ..." (keyup)="onKeyPress($event)" >
-                    <img src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
+                    <img  src="assets/svg-icons/search-icon.svg" alt="Search" class="w-[14px]" />
                   </mat-form-field>
                 </div>
+                <div class="max-h-[230px] overflow-y-scroll scrollbar scrollbar-thumb-secondaryText !scrollbar-track-gray-200">
+                  @for (group of groups; track group;let index = $index) {
+                    <ng-container>
+                      <app-groups-list [group]="group" [index]="index" [backgroundColor]="'#191E22'"></app-groups-list>
+                    </ng-container>
+                  }
+                </div>
+            
+                <!-- Search and Assign Section -->
+                
             
                 <!-- Checkbox Section -->
-                <span>
+                <!-- <span>
                   <mat-checkbox
                     class="example-margin"
                     [(ngModel)]="checked"
                     (click)="$event.stopPropagation()"
                     >Notify me of new updates</mat-checkbox
                   >
-                </span>
+                </span> -->
             
                 <!-- Buttons -->
                 <button (click)="saveGroup()"
@@ -79,27 +92,39 @@
                   Cancel
                 </button>
               </div>
-            </mat-menu>        
+            </mat-menu>    
+            <div *ngIf="data?.status !== 'view'" class="flex justify-center items-center text-center h-[25px] cursor-pointer w-[25px] border border-solid border-yellow rounded-full text-yellow" (click)="addNewGroup('addGroup')">
+              <span>+</span>
+            </div>    
         </div>
-        } @else {
-          <div class="flex relative items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow">{{selectedGroup?.name}}</span>
-          </div>
-        }
+      }
     </div>
     <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Image acquisition</span>
         
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex items-center gap-[5px] self-stretch">
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
+                    <div [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                    class="hidden absolute rounded-[10px] z-10  shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Date time:</span>
+                          <span>{{data?.markerData?.oldest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
+                      </div>
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Vendor:</span>
+                          <span>{{data?.markerData?.oldest_info?.vendor_name }}</span>
+                      </div>
+                      
+                  </div>
                 </div>
                 <div class="flex h-[60px] group min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Newest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}</span>
-                    <div class="hidden absolute rounded-[10px] z-10 top-[285px] shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                    class="hidden absolute rounded-[10px] z-10  shadow-custom left-[25px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                       <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                           <span>Date time:</span>
                           <span>{{data?.markerData?.newest_info?.acquisition_datetime | utcDateTimePipe}} UTC</span>
@@ -111,13 +136,28 @@
                       
                   </div>
                 </div>
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Total</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.total_count}}</span>
+                    <div  [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                    class="hidden absolute shadow-custom rounded-[10px] z-10  text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>Total count in last 90 days</span>
+                      </div>
+                      
+                  </div>
+                    
                 </div>
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex h-[60px] min-w-[70.25px] p-[8px] group bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Avg</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.average_per_day?.toFixed(3)}}</span>
+                    <div [ngClass]="data.type === 'marker' ? 'top-[295px]' : 'top-[235px]'"
+                     class="hidden absolute shadow-custom rounded-[10px] z-10  text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                      <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                          <span>{{data?.markerData?.total_count}} ÷ 90 </span>
+                      </div>
+                      
+                  </div>
                 </div>
             </div>
             <div class="p-[3px] flex justify-between items-center self-stretch rounded-[50px] bg-secondaryBg">
@@ -143,8 +183,8 @@
                 </span>
             </div>
             <div class="flex items-center gap-[5px] self-stretch">
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{roundOff(activeTimeDate?.percentage_change)}}%</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{roundOff(activeTimeDate?.percentage_change)}}%</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     @if (activeTimeDate?.current_count >activeTimeDate?.previous_count) {<img src="/assets/svg-icons/increase-icon.svg" alt="" />}
                     @else if (activeTimeDate?.current_count < activeTimeDate?.previous_count) {
@@ -155,8 +195,8 @@
             <div class="flex flex-col items-start gap-[5px] self-stretch">
                 <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Most recent</span>
             <div class="flex items-center gap-[5px] self-stretch">
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
-                <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText">{{ data?.markerData?.newest_info?.vendor_name !== 'capella' && data?.markerData?.newest_info?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.markerData?.newest_info?.cloud_cover) + '%' : 'SAR' }}</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow w-full">{{getTimeIfWithin24Hours(data?.markerData?.newest_info?.acquisition_datetime)}}</span>
+                <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText">{{ data?.markerData?.newest_info?.vendor_name !== 'capella' && data?.markerData?.newest_info?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.markerData?.newest_info?.cloud_cover) + '%' : 'SAR' }}</span>
                 <span class="flex w-[15px] h-[15px] flex-col justify-center items-center gap-[10px]">
                     <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
                 </span>
@@ -170,7 +210,7 @@
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendors</span>
         
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
-            <div class="flex items-center gap-[5px] self-stretch">
+            <div class="flex flex-wrap justify-center items-center gap-[5px] self-stretch">
               @for (vendor of getVendors(data?.markerData?.vendor_count || {}); track vendor;let index = $index) {
                 <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px] capitalize">{{vendor}}</span>
@@ -186,11 +226,11 @@
       
    </div>
   } @else if (data.type === 'vendor') {
-    <div class="flex p-[15px] relative flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg z-40">
+    <div class="flex p-[15px] max-w-[270px] relative overflow-y-scroll scrollbar scrollbar-thumb-secondaryText scrollbar-track-gray-200 h-[86vh] flex-col items-start gap-[15px] rounded-b-l-[10px] bg-secondaryBg z-40">
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/calender-icon.svg" alt="" />
             </span>          
@@ -199,7 +239,7 @@
       <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Day of Week</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/poi-icon.svg" alt="" />
             </span>          
@@ -217,7 +257,7 @@
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}},  {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}},  {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.vendorData?.coordinates_record?.coordinates[0])">
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
@@ -227,51 +267,128 @@
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}</span>         
+            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}</span>         
         </div> 
       </div>    
       <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
         <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
           <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendor</span>
           <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name}}</span>
+            <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name}}</span>
           </div>
         <!-- </div> -->
       </div>         
   </div>
-    
-    <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
-      <div class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
-        <span class="h-[15px] w-[15px] cursor-pointer">
-         @if (data?.vendorData?.type ==='Night') {
-          <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
-         } @else {
-          <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
-         }
-      </span>  
-      <div class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Constellation</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.constellation}}</span>         
+      </div> 
+    </div>
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Azimuth Angle</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle}}</span>         
+      </div> 
+    </div>      
+</div><div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Centroid Local</span>
+    <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_local}}</span>         
+    </div> 
+  </div>
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Centroid Region</span>
+    <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_region}}</span>         
+    </div> 
+  </div>      
+</div>
+<div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Illumination Angle</span>
+    <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_azimuth_angle}}</span>         
+    </div> 
+  </div>    
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Satellite Angle</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.illumination_azimuth_angle}}</span>
+      </div>
+    <!-- </div> -->
+  </div>         
+</div>
+<div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Platform</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.platform}}</span>
+      </div>
+    <!-- </div> -->
+  </div>       
+  <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+    <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Publication</span>
+      <div class="flex items-center gap-[15px] self-stretch w-full">
+        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{getDateTimeFormat(data?.vendorData?.publication_datetime, data?.vendorData?.centroid)}}</span>
+      </div>
+    <!-- </div> -->
+  </div> 
+  </div>    
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+    <div
+      class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+      <span
+        class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
+      <span class="h-[15px] w-[15px] cursor-pointer">
+        @if (data?.vendorData?.type ==='Night') {
+        <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+        } @else {
+        <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
+        }
+      </span>
+      <div
+        class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
         <div class="flex flex-col gap-[5px]">
           <span class="text-secondary-heiglight">UTC time:</span>
           <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'utc')}}</span>
         </div>
         <div class="flex flex-col gap-[5px]">
           <span class="text-secondary-heiglight">Local time:</span>
-          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local', data?.vendorData?.centroid)}}</span>
+          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local',
+            data?.vendorData?.centroid)}}</span>
         </div>
       </div>
-      </div>    
-      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !== 'capella' && data?.vendorData?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' : 'SAR' }}</span>
-        <span class="h-[15px] flex w-[15px] cursor-pointer">
-          <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
-      </span>  
-      </div>         
+    </div>
+    <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !==
+        'capella' && data?.vendorData?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' :
+        'SAR' }}</span>
+      <span class="h-[15px] flex w-[15px] cursor-pointer">
+        <img src="/assets/svg-icons/cloud-icon.svg" alt="" />
+      </span>
+    </div>
+  </div>
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">   
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="text-secondary-heiglight text-sm font-semibold">Centroid Lat:
+      </span>
+      <div class="flex gap-2" *ngFor="let center of data?.vendorData?.centroid">
+        <span class="text-secondaryText">{{center.toFixed(4)}}</span>
+      </div>
+      <!-- </div> -->
+    </div>
   </div>
   <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow font-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
+        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
         <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
             <img src="/assets/svg-icons/poi-icon.svg" alt="" />
         </span>          

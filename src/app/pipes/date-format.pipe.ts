@@ -51,3 +51,22 @@ export class UtcDateTimePipe implements PipeTransform {
     return date.utc().format('YYYY-MM-DD HH:mm:ss'); 
   }
 }
+@Pipe({
+  name: 'utcMonthDatePipe',
+  standalone: true,
+})
+export class UtcMonthDatePipe implements PipeTransform {
+  transform(value: string | Date): string {
+    if (!value) {
+      return ''; // Handle null or undefined values
+    }
+
+    const date = moment(value);
+    if (!date.isValid()) {
+      return ''; // Handle invalid dates
+    }
+
+    return date.utc().format('MMM DD'); // Format as "Nov 15"
+  }
+}
+

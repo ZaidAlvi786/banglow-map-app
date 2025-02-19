@@ -59,6 +59,8 @@ import { MatSliderModule } from "@angular/material/slider";
 import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
+import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
+
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -136,6 +138,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
   @Input() polygon_wkt:any;
+  @Input() sidebarWidth:any;
   //#endregion
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
   //#region variables
@@ -169,7 +172,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   get displayedColumns(): string[] {
     return [
       ...this.columns.filter(c => c.visible).map(c => c.id),
-      // 'expand' // Keep expand column always visible
+      'expand' // Keep expand column always visible
     ];
   }
   total_count:any
@@ -216,7 +219,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   set startDate(value: any) {
     if (value !== this._startDate) {
       this._startDate = value;
-      console.log('startDate updated:', this._startDate);
       let queryParams = this.filterParams;
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -234,7 +236,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           // Start the loader
          
         
-          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -268,7 +270,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   set endDate(value: any) {
     if (value !== this._endDate) {
       this._endDate = value;
-      console.log('endDate updated:', this._endDate);
       // Add logic to handle the updated value, e.g., validate the date range
     }
   }
@@ -280,10 +281,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   set shapeHoverData(value: any) {
     if (value !== this._shapeHoverData) {
       this._shapeHoverData = value;
-      console.log('_shapeHoverData _shapeHoverData _shapeHoverData:', this.shapeHoverData);
       // Add logic to handle the updated value, e.g., update calculations or UI
     } else {
-      console.log('shapeHoverDatashapeHoverDatashapeHoverData');
       
     }
   }
@@ -312,7 +311,6 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 set zoomed_wkt(value: string) {
   if (value !== this._zoomed_wkt) {
     this._zoomed_wkt = value;
-    console.log('librarylibrarylibrarylibrarylibrary', this.page_size);
 
     if (this.debounceTimeout) {
       clearTimeout(this.debounceTimeout); // Clear the existing timeout if any
@@ -332,7 +330,6 @@ set zoomed_wkt(value: string) {
         start_date: this.startDate,
         end_date: this.endDate,
         source: 'library',
-       
         focused_records_ids: this.idArray
       };
       const payload = {
@@ -340,17 +337,19 @@ set zoomed_wkt(value: string) {
       };
       if (this._zoomed_wkt !== '') {
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
-       
-        console.log(queryParams,'focused_records_idsfocused_records_idsfocused_records_idsfocused_records_ids');
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
       }
+      if(this.isRefresh){
       this.loader = true;
       this.ngxLoader.start(); // Start the loader
       this.page_number = '1';
       this.filterParams = {...queryParams}
-      
-      this.getSatelliteCatalog(payload, queryParams);
+        this.getSatelliteCatalog(payload, queryParams);
+      }
+      if (this.isRefresh && this.scrollableDiv) {
+        this.scrollableDiv.nativeElement.scrollTop = 0;
+      }
     }, 800);
      // Debounce time: 600ms
   }
@@ -360,7 +359,6 @@ set zoomed_wkt(value: string) {
   this.canTriggerAction = true
   if (div) {
     div.addEventListener('wheel', this.handleWheelEvent);
-    console.log('valuevaluevaluevaluevalue', value);
   }
  
 }
@@ -374,19 +372,15 @@ set zoomed_wkt(value: string) {
   set popUpData(value: any) {
     if (value !== this._popUpData && value !== null) {
       this._popUpData = value;
-      console.log('popUpData popUpData popUpData popUpData:', this._popUpData);
       this.matchedObject = this.dataSource.data.find(item => item.id === this.popUpData?.id);
 
       if (this.matchedObject) {
-        console.log('Matched Object:', this.matchedObject);
         // Access the matched object's value as needed
        // Replace 'value' with the actual key you need
         this.isRowSelected(this.matchedObject.id)
         this.expandedData(this.matchedObject)
-        console.log('Matched Value:', value);
       } else {
        
-        console.log('No matching object found');
       }
       
       // Add logic to handle the updated value, e.g., update calculations or UI
@@ -400,6 +394,7 @@ set zoomed_wkt(value: string) {
   }
 
   vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
+  typesList:any[]=['morning','midday','evening','overnight'];
   // Default values for manual filters
   defaultMinCloud = -10;
   defaultMaxCloud = 60;
@@ -407,6 +402,14 @@ set zoomed_wkt(value: string) {
   defaultMaxAngle = 55;
   defaultMinGsd = 0;
   defaultMaxGsd = 4;
+  defaultMinAzimuthAngle = 0;
+  defaultMaxAzimuthAngle = 365;
+  defaultMinholdbackSecond = -1;
+  defaultMaxHoldbackSecond = 5100000;
+  defaultMinIlluminationAzimuthAngle = 0;
+  defaultMaxIlluminationAzimuthAngle = 365;
+  defaultMinIlluminationElevationAngle = 0;
+  defaultMaxIlluminationElevationAngle = 365;
   max_cloud:number = this.defaultMaxCloud
   min_cloud: number = this.defaultMinCloud;
   options: Options = {
@@ -429,6 +432,14 @@ set zoomed_wkt(value: string) {
   };
   max_angle:number = this.defaultMaxAngle;
   min_angle: number = this.defaultMinAngle;
+  min_azimuth_angle:number = this.defaultMinAzimuthAngle;
+  max_azimuth_angle:number = this.defaultMaxAzimuthAngle;
+  min_holdback_seconds:number = this.defaultMinholdbackSecond;
+  max_holdback_seconds:number = this.defaultMaxHoldbackSecond;
+  min_illumination_azimuth_angle:number = this.defaultMinIlluminationAzimuthAngle;
+  max_illumination_azimuth_angle:number = this.defaultMaxIlluminationAzimuthAngle;
+  min_illumination_elevation_angle:number = this.defaultMinIlluminationElevationAngle;
+  max_illumination_elevation_angle:number = this.defaultMaxIlluminationElevationAngle;
   angleOptions: Options = {
     step: 5,
     showTicks: true,
@@ -439,6 +450,62 @@ set zoomed_wkt(value: string) {
         return '0';
       } else if (value === 55) {
         return '50+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  azimuthOptions: Options = {
+    step: 10,
+    showTicks: true,
+    floor: 0,
+    ceil: 365,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 365) {
+        return '360+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  holdbackOptions: Options = {
+    step: 150000,
+    showTicks: true,
+    floor: -1,
+    ceil: 5100000,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 5100000) {
+        return '5000000+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  illuminationAzimuthOptions: Options = {
+    step: 10,
+    showTicks: true,
+    floor: 1,
+    ceil: 365,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 365) {
+        return '360+';
+      }
+      return `${value}°`; // Default for other values
+    },
+  };
+  illuminationElevationOptions: Options = {
+    step: 10,
+    showTicks: true,
+    floor: 1,
+    ceil: 365,
+    translate: (value: number, label: LabelType): string => {
+      if (value === 0) {
+        return '0';
+      } else if (value === 365) {
+        return '360+';
       }
       return `${value}°`; // Default for other values
     },
@@ -465,6 +532,7 @@ set zoomed_wkt(value: string) {
   searchSubject$ = new Subject<string>();
   filteredColumns = this.columns;
   lastMatchId:any = null
+  isRefresh: boolean = true;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -489,7 +557,6 @@ set zoomed_wkt(value: string) {
           })
         ).subscribe({
           next: (resp) => {
-            console.log(resp, 'API Response');
             this.groups = resp?.data;
           },
           error: (err) => {
@@ -498,6 +565,7 @@ set zoomed_wkt(value: string) {
         });
         this.formGroup = this.fb.group({
           vendor:[],
+          type: [],
           vendorId:[],
           
         });
@@ -533,7 +601,6 @@ set zoomed_wkt(value: string) {
       const data = { polygon_wkt: this.polygon_wkt };
       this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
         next: (res) => {
-          console.log(res,'resresresresresresresresres');
           this.analyticsData = res?.data?.analytics
           this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
             key,
@@ -545,11 +612,6 @@ set zoomed_wkt(value: string) {
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-     setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,this.filterParams)
-     },300)
       
     }
     
@@ -567,9 +629,7 @@ set zoomed_wkt(value: string) {
     }, 300); 
     }
     this.dataSource.sort = this.sort;
-    console.log(this.dataSource,'sortsortsortsortsort');
     this.sharedService.isOpenedEventCalendar$.subscribe((isOpened) => {
-      console.log(isOpened,'isOpenedisOpenedisOpened');
       
       this.isEventsOpened = isOpened
     })
@@ -579,16 +639,14 @@ set zoomed_wkt(value: string) {
   
     div.addEventListener('wheel', this.handleWheelEvent);
     this.sharedService.rowHover$.subscribe((rowHover) => {
-      console.log(rowHover,'rowHoverrowHoverrowHoverrowHover');
-      
       this.tableRowHovered = rowHover
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
-      if(overlayShapeData.length>1){
+      if(overlayShapeData?.length>1){
         console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+        
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 
-      console.log(this.idArray,'idArrayidArrayidArrayidArrayidArrayidArray');
         let minCloud
         if(this.min_cloud <= -1) {
           minCloud = -1
@@ -624,16 +682,31 @@ set zoomed_wkt(value: string) {
         break;
       }
   }
-  console.log(this.lastMatchId,'lastMatchIdlastMatchIdlastMatchId');
   // 3. Return the corresponding item from overlayShapeData
    this.lastMatchId 
     ? overlayShapeData.find(item => item.id === this.lastMatchId)
     : null;
+      } else {
+        this.idArray = []
       }
       
       
+      
     })
-   
+   this.sharedService.drawShape$.subscribe((shape) => {
+    if(shape){
+      const payload = {
+        wkt_polygon: this.polygon_wkt
+      }
+     setTimeout(() => {
+      this.loader = true
+      this.ngxLoader.start(); // Start the loader
+      this.getSatelliteCatalog(payload,this.filterParams);
+     
+     },300)
+    }
+    
+   })
     
     // Add mouse events
   }
@@ -646,8 +719,6 @@ set zoomed_wkt(value: string) {
     if (!activeColumn || direction === '') {
       return;
     }
-
-    console.log(activeColumn,'activeColumnactiveColumnactiveColumn',direction);
     
     let queryParams: any = this.filterParams;
     const payload = {
@@ -668,11 +739,9 @@ set zoomed_wkt(value: string) {
   }
 
   getSatelliteCatalog(payload:any,queryParams:any){
-    console.log('getSatelliteCatalog',queryParams);
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
-        console.log('getSatelliteCataloggetSatelliteCataloggetSatelliteCatalog',resp);
         
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
@@ -719,6 +788,12 @@ set zoomed_wkt(value: string) {
     const payload = {
       wkt_polygon: this.polygon_wkt
     }
+
+    const calendarPayload ={
+        polygon_wkt: this.polygon_wkt,
+        start_date: this.startDate,
+        end_date: this.endDate
+    }
     this.filterCount = 0;
     this.defaultMinCloud = -10;
     this.defaultMaxCloud = 60;
@@ -737,6 +812,10 @@ set zoomed_wkt(value: string) {
       this.ngxLoader.start(); // Start the loader
     this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
     this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
+    if(this.isEventsOpened){
+      this.getCalendarData(calendarPayload,queryParams)
+    }
+   
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -749,6 +828,7 @@ set zoomed_wkt(value: string) {
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
     this.sharedService.setIsOpenedEventCalendar(false);
+    this.closeOverlay()
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -783,7 +863,6 @@ set zoomed_wkt(value: string) {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log("Selected date range:", result);
       }
     });
   }
@@ -803,9 +882,9 @@ set zoomed_wkt(value: string) {
           }
           
           // Start the loader
-         
+         let queryParams = this.filterParams
         
-          this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
             next: (resp) => {
               this.ngxLoader.stop()
               this.calendarApiData = resp.data;
@@ -823,6 +902,23 @@ set zoomed_wkt(value: string) {
       }
     },300)
 
+  }
+
+  getCalendarData(payload:any,queryParams:any){
+    this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+      next: (resp) => {
+        this.ngxLoader.stop()
+        this.calendarApiData = resp.data;
+       
+      },
+      error: (err) => {
+        this.ngxLoader.stop()
+        console.error('Error fetching calendar data', err);
+        // Hide loader on error
+       
+      },
+      
+    });
   }
 
   //calculate newest and oldest in days week months or year
@@ -971,7 +1067,6 @@ set zoomed_wkt(value: string) {
 }
 
 addSite(type:any) {
-  console.log(type,'typetypetypetypetypetype');
   
   let payload
   if(type === 'site'){
@@ -993,7 +1088,6 @@ addSite(type:any) {
       site_type: this.vendorData?.coordinates_record?.coordinates[0].length > 5 ? 'Polygon' : 'Rectangle'
     }
   }
-  console.log(payload,'payloadpayloadpayloadpayload');
   
 
   this.satelliteService.addSite(payload).subscribe({
@@ -1001,7 +1095,6 @@ addSite(type:any) {
       this.snackBar.open('Site has been added.', 'Ok', {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
-      console.log(resp, 'successsuccesssuccesssuccess');
       this.siteData = resp
       this.addGroup = true;  // This will execute if the API call is successful
 
@@ -1064,7 +1157,6 @@ getGroups() {
     }
     this.satelliteService.getGroupsForAssignment(data).subscribe({
       next: (resp) => {
-        console.log(resp, 'respresprespresprespresprespresprespresp');
         this.groups = resp
 
       }
@@ -1079,7 +1171,6 @@ getGroups() {
 }
 
 selectedGroupEvent(event: any) {
-  console.log(event, 'selectedeventeventeventevent');
   this.activeGroup = event
 }
 
@@ -1091,7 +1182,6 @@ saveGroup() {
   }
   this.satelliteService.addGroupSite(payload).subscribe({
     next: (res) => {
-      console.log(res, 'updatedaaaaaaaaaaaaaaaaaa');
       this.snackBar.open(res.message, 'Ok', {
         duration: 2000  // Snackbar will disappear after 300 milliseconds
       });
@@ -1111,7 +1201,6 @@ closeMenu() {
 
 onKeyPress(event: KeyboardEvent): void {
   const inputValue = (event.target as HTMLInputElement).value;
-  console.log(inputValue, 'inputValueinputValueinputValue'); // Log the current input value to the console
   const data = {
     group_name: inputValue
   }
@@ -1122,7 +1211,6 @@ onKeyPress(event: KeyboardEvent): void {
   //     this.groups = resp?.data
 
   //   }})
-  console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
 
   this.searchInput.next(inputValue);
 }
@@ -1130,7 +1218,6 @@ onKeyPress(event: KeyboardEvent): void {
 // On table row expand click
 expandedData(data: any) {
   let expandedElement = data;
-  console.log(expandedElement, 'expandedElementexpandedElementexpandedElement');
 
   // Initialize the array if it doesn't exist
   if (!this.selectedObjects) {
@@ -1151,7 +1238,6 @@ expandedData(data: any) {
   // Emit the updated array
   this.notifyParent.emit(this.selectedObjects);
 
-  console.log(this.selectedObjects, 'Updated selectedObjects array');
 }
 markerData(data:any){
   this.addMarkerToMap.emit(data)
@@ -1247,13 +1333,11 @@ toDecimal(value:number){
 }
 // On checkbox change
 onCheckboxChange(row: any) {
-  console.log(row,'imageHoverViewimageHoverViewimageHoverViewimageHoverViewimageHoverView');
   
   if (this.selectedRow === row) {
     // Uncheck the currently selected checkbox
     this.selectedRow = null;
   } else {
-    console.log('lllllllllllll');
     
     // Select the new checkbox
     this.selectedRow = row;
@@ -1264,10 +1348,14 @@ onCheckboxChange(row: any) {
       panelClass: 'checkbox-dialog',
     });
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialog closed', result);
       this.selectedRow = null;
       this.vendorData = null;
     });
+  }
+}
+onRefreshCheckboxChange(e:any){
+  if(e.checked){
+    this.isRefresh = e.checked;
   }
 }
 
@@ -1275,6 +1363,7 @@ onCheckboxChange(row: any) {
 selectedTimeZone(zone: string){
   this.selectedZone = zone;
   this.cdr.detectChanges();
+  this.onSubmit();
 }
 
 //Get Day of Week
@@ -1305,7 +1394,6 @@ private handleWheelEvent = (event: WheelEvent): void => {
 
   // Detect if at the bottom
   const isAtBottom = div.scrollTop + div.clientHeight+150 >= div.scrollHeight;
-  console.log(isAtBottom,'isAtBottomisAtBottomisAtBottom');
   
   // Only trigger if at the bottom and trying to scroll down
   if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
@@ -1315,7 +1403,6 @@ private handleWheelEvent = (event: WheelEvent): void => {
       let num = parseInt(this.page_number, 10)
     let  new_pageNumber = num + 1 ;
     this.page_number = new_pageNumber.toString()
-    console.log(this.page_number,'new_pageSizenew_pageSizenew_pageSize',this.zoomed_captures_count);
     if(this.dataSource.data.length<this.total_count){
       let minCloud
       if(this.min_cloud <= -1) {
@@ -1324,20 +1411,13 @@ private handleWheelEvent = (event: WheelEvent): void => {
         minCloud = this.min_cloud
       } 
       let queryParams ={
+        ...this.filterParams,
         page_number: this.page_number,
         page_size: this.page_size,
         start_date:this.startDate,
         end_date: this.endDate,
         source: 'library',
         zoomed_wkt:this._zoomed_wkt,
-        max_cloud_cover: this.max_cloud,
-        min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-        min_gsd:this.min_gsd,
       }
       const payload = {
         wkt_polygon: this.polygon_wkt
@@ -1379,42 +1459,6 @@ private handleWheelEvent = (event: WheelEvent): void => {
     }
   }
 };
-
-//Getting time in Day sessions
-getTimePeriod(datetime: string, centroid?: [number, number]): string {
-  if(this.selectedZone == 'UTC'){
-    const utcDate = dayjs(datetime).utc();
-
-    // Get the hour in UTC
-    const hours = utcDate.hour();
-  
-    // Determine the time period based on the UTC hour
-    if (hours >= 5 && hours < 11) {
-      return "Morning";
-    } else if (hours >= 11 && hours < 16) {
-      return "Midday";
-    } else if (hours >= 16 && hours < 21) {
-      return "Evening";
-    } else {
-      return "Overnight";
-    }
-  } else {
-    const [latitude, longitude] = centroid;
-    const timeZone = tzLookup(latitude, longitude);
-    const hours =centroid.length ? momentZone(datetime).tz(timeZone).hour() : new Date(datetime).getHours();  // Parse the ISO string to a Date object        
-    if (hours >= 5 && hours < 11) {
-      return "Morning";
-    } else if (hours >= 11 && hours < 16) {
-      return "Midday";
-    } else if (hours >= 16 && hours < 21) {
-      return "Evening";
-    } else {
-      return "Overnight";
-    }
-  }
-  // Convert the datetime to UTC using dayjs
-  
-}
 
 //Formated Date into YYYY-MM-DD
 getDateTimeFormat(dateTime: string) {
@@ -1463,7 +1507,6 @@ getDateTimeFormat(dateTime: string) {
   }
 
   trackByIndex(index: number, item: any): number {
-    console.log("indexindexindexindexindex", index);
     
     return index;
   }
@@ -1471,7 +1514,7 @@ getDateTimeFormat(dateTime: string) {
   sliderShow:boolean = false;
   //Overlay container customization class add functionality
   setClass(){
-    const classesToRemove = ['column-menu', 'filter-overlay-container'];
+    const classesToRemove = ['column-menu', 'filter-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('library-overlay-container');
@@ -1480,7 +1523,7 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     // Remove existing class before adding a new one
-    const classesToRemove = ['column-menu', 'library-overlay-container'];
+    const classesToRemove = ['column-menu', 'library-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('filter-overlay-container');
     containerElement.addEventListener('click', (event:  Event)=> {
@@ -1501,42 +1544,73 @@ getDateTimeFormat(dateTime: string) {
     this.sliderShow = false;
   }
 
+  //Open Map Controller Popup
+  openDialog(vendorId:any){
+    //calling API by vendorID
+    let vendorData:any [] = [];
+    let queryParams ={
+      page_number: '1',
+      page_size: '100',
+      start_date:'',
+      end_date: '',
+      source: 'library',
+      vendor_id: vendorId
+    }
+    this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+      next: (resp) => {
+        if (resp?.data && resp.data.length > 0) {
+          vendorData = resp.data[0];
+          // Open the dialog after setting vendorData
+          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+            width: `280px`,
+            height: 'auto',
+            data: { type: 'vendor', vendorData: vendorData },
+            panelClass: 'custom-dialog-class',
+          });
+  
+          dialogRef.afterClosed().subscribe((result) => {
+            this.popUpData = null;
+          });
+        } else {
+          console.log('No data found for the given vendor ID');
+        }
+      },
+      error: (err) => {
+        console.error('API call failed', err);
+      }
+    });
+    
+  }
   //Filter Form submit functionality
-  onSubmit() {
-    this.updateFilterCount(); 
-    let minCloud
-    if(this.min_cloud <= -1) {
-      minCloud = -1
-    } else {
-      minCloud = this.min_cloud
-    } 
-      const datetime = this.formGroup.value.end_date;
-     
-     
+  onSubmit(filters?: any) {
+      let timeZone: string;
+      if(this.selectedZone === 'local'){
+        timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
+      }else if(this.selectedZone === 'UTC'){
+        timeZone = 'UTC';
+      }
+
       const payload = {
         wkt_polygon: this.polygon_wkt
       }
-      let queryParams = {
-        ...this.filterParams,
-        end_date:this.getDateValue(this.endDate),
-        start_date:this.getDateValue(this.startDate),
-        max_cloud_cover: this.max_cloud === 60 ? 1000 : this.max_cloud,
-        min_cloud_cover:minCloud,
-        max_off_nadir_angle: this.max_angle === 55 ? 1000: this.max_angle,
-        min_off_nadir_angle:this.min_angle,
-        vendor_id:this.formGroup.get('vendorId')?.value?this.formGroup.get('vendorId').value:'',
-        vendor_name:this.formGroup.get('vendor')?.value?this.formGroup.get('vendor').value?.join(','):'',
-        max_gsd:this.max_gsd === 4 ? 1000 : this.max_gsd,
-        min_gsd:this.min_gsd,
-        focused_records_ids: this.idArray,
-        zoomed_wkt: this._zoomed_wkt
-      }
+      let queryParams: any = {
+        ...filters,
+        end_date: this.getDateValue(this.endDate),
+        start_date: this.getDateValue(this.startDate),
+        user_timezone: timeZone,
+        focused_records_ids: this.idArray
+      };
+    
+      let filterCount = 0; // Counter for applied filters
+    
+    
+      // Log the number of applied filters
       if (this._zoomed_wkt !== '') {
-        queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+        queryParams._zoomed_wkt = this.zoomed_wkt
        
         
       } else {
-        queryParams = {...queryParams,  zoomed_wkt: ''}
+        queryParams._zoomed_wkt = ''
        
       }
       const params = {
@@ -1546,10 +1620,15 @@ getDateTimeFormat(dateTime: string) {
         source:'library',
        
       }
-      this.filterParams = {...this.filterParams, ...params}
 
-      console.log('Selected Date and Time:', params);
-      this.parentFilter.emit(queryParams)
+      const calendarPayload ={
+        polygon_wkt: this.polygon_wkt,
+        start_date: this.startDate,
+        end_date: this.endDate
+    }
+      this.filterParams = { ...queryParams}
+
+      this.parentFilter.emit(this.filterParams)
       this.onFilterset.emit({params:  this.filterParams, payload});
      setTimeout(() => {
       this.loader = true
@@ -1557,8 +1636,27 @@ getDateTimeFormat(dateTime: string) {
       this.getSatelliteCatalog(payload,params)
       this.closeFilterMenu()
      },300)
+     if(this.isEventsOpened){
+     this.getCalendarData(calendarPayload,params)
+     }
   }
 
+  openFilterDialog(){
+    
+    const data = {filterParams:this.filterParams,type:'filters'}
+    const dialogRef = this.dialog.open(CommonDailogsComponent, {
+            width: '550px',
+            height: 'auto',
+            data: data,
+            panelClass: 'filter-dialog-class',
+          });
+          dialogRef.afterClosed().subscribe((result) => {
+            if(result.queryParams){
+              this.onSubmit(result.queryParams)
+              this.filterCount = result.filterCount
+            }
+          })
+  }
   //Get Date Value function
   getDateValue(date:any){
     if (!date) {
@@ -1570,12 +1668,10 @@ getDateTimeFormat(dateTime: string) {
       throw new Error('Invalid date'); // Handle invalid date input
     }
 
-    console.log(parsedDate.toISOString(),'parsedDateparsedDateparsedDateparsedDateparsedDateparsedDate');
     const endDateControlValue = this.formGroup.get('end_date')?.value;
 
 if (endDateControlValue) {
   const formattedDate = moment(endDateControlValue).format('YYYY-MM-DD HH:mm');
-  console.log('Formatted Date:', formattedDate);
 }
   
     return parsedDate.toISOString(); 
@@ -1614,7 +1710,7 @@ if (endDateControlValue) {
   }
   //set column selection menu class
   setColumnMenuClass(){
-    const classesToRemove = ['library-overlay-container', 'filter-overlay-container'];
+    const classesToRemove = ['library-overlay-container', 'filter-overlay-container','site-menu','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container']
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('column-menu');
@@ -1681,7 +1777,6 @@ getOverlapData(){
 
 
   closeFilterMenu() {
-    console.log('closseeeee', this.menuFilterTrigger);
     
     if (this.menuFilterTrigger) {
       this.menuFilterTrigger.closeMenu();
@@ -1695,8 +1790,8 @@ getOverlapData(){
 
     // Count values inside the reactive form
     if(this.formGroup.get('vendor').value !== null) count ++;
+    if(this.formGroup.get('type').value !== null) count ++;
     if(this.formGroup.get('vendorId').value !== null) count ++;
-    console.log(count,'aaaaaaaaaaaaaaa',this.formGroup.get('vendor').value);
     
     // Count manually tracked filters **only if they have changed from defaults**
     if (this.max_cloud !== this.defaultMaxCloud || this.min_cloud !== this.defaultMinCloud) count++;
@@ -1706,4 +1801,27 @@ getOverlapData(){
     
   }
 
+  expandRow(vendorId: any) {
+    const foundRow = this.dataSource.data.find(v => v.vendor_id === vendorId);
+  
+    if (foundRow) {
+      this.expandedElement = this.expandedElement?.vendor_id === vendorId ? null : foundRow;
+  
+      setTimeout(() => {
+        const rowElement = document.getElementById(`vendor-row-${vendorId}`);
+        const tableContainer = document.querySelector('.mat-table-container') as HTMLElement; // Cast to HTMLElement
+  
+        if (rowElement && tableContainer) {
+          const rowPosition = rowElement.offsetTop - tableContainer.offsetTop;
+          tableContainer.scrollTo({ top: rowPosition, behavior: 'smooth' });
+        }
+      }, 100); // Delay for smooth effect
+    }
+  }
+  
+  
+  
+  closeOverlay(){
+    this.overlapListData = [];
+  }
 }

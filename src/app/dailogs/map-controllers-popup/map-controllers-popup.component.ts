@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +21,8 @@ import { OverlayContainer } from '@angular/cdk/overlay';
 import { ImagePreviewComponent } from '../image-preview/image-preview.component';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
+import { SharedService } from '../../components/shared/shared.service';
+import { CommonDailogsComponent } from '../common-dailogs/common-dailogs.component';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -49,7 +51,7 @@ export class Group {
   templateUrl: './map-controllers-popup.component.html',
   styleUrls: ['./map-controllers-popup.component.scss']
 })
-export class MapControllersPopupComponent implements OnInit {
+export class MapControllersPopupComponent implements OnInit, OnChanges,AfterViewInit {
   @ViewChild('myTemplate', { static: true }) myTemplate!: TemplateRef<any>;
   selectedTimeFrame: any = 1;
   renderGroup!: TemplateRef<any> | null;
@@ -68,10 +70,16 @@ export class MapControllersPopupComponent implements OnInit {
   @ViewChild(GroupsListComponent) childComponent!: GroupsListComponent;
   @ViewChild(MatMenuTrigger) menuTrigger!: MatMenuTrigger;
   siteData: any;
+  vendorData:any = null;
+  @Input()type:string = '';
   isHovered:boolean = false;
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any,
-    private dialog: MatDialog,
-    private satelliteService: SatelliteService,private overlayContainer: OverlayContainer) {
+  @Input()pointMarkerData:any = null
+  constructor(@Optional() @Inject(MAT_DIALOG_DATA) public data: any,
+  private dialog: MatDialog,
+  private satelliteService: SatelliteService,
+  private overlayContainer: OverlayContainer,
+  private cdr: ChangeDetectorRef,
+  private sharedService: SharedService) {
     // Apply debounceTime to the Subject and switch to the latest observable (API call)
     this.searchInput.pipe(
       debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -87,8 +95,8 @@ export class MapControllersPopupComponent implements OnInit {
       })
     ).subscribe({
       next: (resp) => {
-        console.log(resp, 'API Response');
-        this.groups = resp?.data;
+        this.groups = resp;
+        this.cdr.detectChanges()
       },
       error: (err) => {
         console.error('API call failed', err);
@@ -96,8 +104,33 @@ export class MapControllersPopupComponent implements OnInit {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes?.['previousValue']?.['vendorData'] != changes?.['currentValue']?.['vendorData']) {
+        this.vendorData = changes?.['currentValue']?.['vendorData'];
+        this.data = {type:this.type, vendorData:this.vendorData}
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.sharedService.vendorData$.subscribe((v) => {
+      
+      this.vendorData = v;
+      if(this.vendorData){
+        this.data = {type:this.type, vendorData:this.vendorData}
+      }
+    })
+    this.sharedService.groupData$.subscribe((group)=>{
+      this.activeGroup = group;
+    })
+  }
+
   ngOnInit(): void {
-    console.log(this.data, 'datataatatatatatattat');
+    if(!this.data) {
+      this.data = {}
+    }
+    if(this.vendorData){
+      this.data = {type:this.type, vendorData:this.vendorData}
+    }
     this.renderGroup = this.myTemplate;
     this.activeTimeDate = this.data?.markerData?.percentages[this.selectedTimeFrame]
     if (this.data.type === 'marker') {
@@ -119,29 +152,23 @@ export class MapControllersPopupComponent implements OnInit {
 
   getGroups() {
     this.selectedGroupEvent(null)
-    if (this.addGroup) {
+    
       const data = {
         group_name: ''
       }
       this.satelliteService.getGroupsForAssignment(data).subscribe({
         next: (resp) => {
-          console.log(resp, 'respresprespresprespresprespresprespresp');
           this.groups = resp
 
         }
       })
-    } else {
-      this.snackBar.open('Please first add site.', 'Close', {
-        duration: 3000,
-        verticalPosition: 'top',
-      });
-    }
+    
+      
 
   }
 
   onKeyPress(event: KeyboardEvent): void {
     const inputValue = (event.target as HTMLInputElement).value;
-    console.log(inputValue, 'inputValueinputValueinputValue'); // Log the current input value to the console
     const data = {
       group_name: inputValue
     }
@@ -152,7 +179,6 @@ export class MapControllersPopupComponent implements OnInit {
     //     this.groups = resp?.data
 
     //   }})
-    console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
 
     this.searchInput.next(inputValue);
   }
@@ -182,7 +208,6 @@ export class MapControllersPopupComponent implements OnInit {
 
   //Function to generate circle plygon when marker added to the map
   handleMarkerAdded(data: any) {
-    console.log(data, 'mark');
 
     const payload = {
       latitude: data.latitude,
@@ -193,7 +218,6 @@ export class MapControllersPopupComponent implements OnInit {
       next: (resp) => {
 
         this.pointData = resp.data;
-        console.log('pointDatapointDatapointData', resp);
       }
     })
   }
@@ -202,6 +226,7 @@ export class MapControllersPopupComponent implements OnInit {
 
   addSite() {
     let payload
+    if(this.selectedGroup !==null) {
     if (this.pointData) {
       payload = {
         name: this.name,
@@ -212,7 +237,6 @@ export class MapControllersPopupComponent implements OnInit {
         site_type: this.pointData?.type
       }
     } else {
-      console.log('kkkkkkkkkk');
       
       payload = {
         name: this.name,
@@ -229,10 +253,30 @@ export class MapControllersPopupComponent implements OnInit {
         this.snackBar.open('Site has been added.', 'Ok', {
           duration: 2000  // Snackbar will disappear after 300 milliseconds
         });
-        console.log(resp, 'successsuccesssuccesssuccess');
         this.siteData = resp
         this.addGroup = true;  // This will execute if the API call is successful
-
+        const data = {
+          group_id: this.selectedGroup.id,
+          site_id:resp.id
+        }
+        this.satelliteService.addGroupSite(data).subscribe({
+          next: (resp) => {
+            if(resp){
+              this.snackBar.open('Site has been added to assigned group.', 'Ok', {
+                duration: 2000  // Snackbar will disappear after 300 milliseconds
+              });
+            }
+            
+          },
+          error: (err) => {
+            console.error('Error occurred:', err);
+    
+            this.addGroup = false;
+    
+    
+    
+          }
+        })
       },
       error: (err) => {
         console.error('Error occurred:', err);
@@ -243,31 +287,21 @@ export class MapControllersPopupComponent implements OnInit {
 
       }
     });
-
+  }else {
+    this.snackBar.open('Please first assign group.', 'Close', {
+      duration: 3000,
+      verticalPosition: 'top',
+    });
+  }
   }
 
   selectedGroupEvent(event: any) {
-    console.log(event, 'selectedeventeventeventevent');
-    this.activeGroup = event
+    this.activeGroup = event;
   }
+  
 
   saveGroup() {
-    this.selectedGroup = this.activeGroup.group
-    const payload = {
-      group_id: this.selectedGroup.id,
-      site_id: this.siteData.id
-    }
-    this.satelliteService.addGroupSite(payload).subscribe({
-      next: (res) => {
-        console.log(res, 'updatedaaaaaaaaaaaaaaaaaa');
-        this.snackBar.open(res.message, 'Ok', {
-          duration: 2000  // Snackbar will disappear after 300 milliseconds
-        });
-      },
-      error: (err) => {
-
-      }
-    })
+    this.selectedGroup = this.activeGroup
     this.closeMenu()
   }
   closeMenu() {
@@ -278,7 +312,6 @@ export class MapControllersPopupComponent implements OnInit {
   }
 
   copyToClipboard(data: any): void {
-    console.log(data,'datadatadatadatadatadatadatadatadata');
     
    if (data.distance) {
       const text =  data
@@ -365,8 +398,6 @@ export class MapControllersPopupComponent implements OnInit {
       totalLat += lat;
       totalLon += lon;
     });
-    console.log(totalLat / validCoordinates.length,'totalLat / numPointstotalLat / numPointstotalLat / numPoints',totalLon / validCoordinates.length)
-  
     return {
       lat: totalLat / validCoordinates.length,
       lon: totalLon / validCoordinates.length,
@@ -488,18 +519,49 @@ setClass(){
 }
 
 imagePreview(data:any,type:any) {
-    const dialogRef = this.dialog.open(ImagePreviewComponent, {
-      width: "880px",
-      maxHeight:'700px',
-      data:  {images:data, type:type} ,
-      panelClass: "custom-preview",
-    });
-
+  const dialogRef = this.dialog.open(ImagePreviewComponent, {
+    width: "1680px",
+    maxHeight:'1200px',
+    data:  {images:data, type:type} ,
+    panelClass: "custom-preview",
+  });
+ 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log("Selected date range:", result);
       }
     });
   }
 
+  assignedGroup(data:any){
+    this.selectedGroup = data
+    this.closeMenu();
+  }
+
+  addNewGroup(type: string) {
+    let data 
+   
+      data = {type: type}
+    
+   
+   this.openDialog(data)
+  }
+openDialog(data:any){
+    const dialogRef = this.dialog.open(CommonDailogsComponent, {
+        width: '350px',
+        height: 'auto',
+        data: data,
+        panelClass: 'custom-dialog-class',
+      });
+      dialogRef.afterClosed().subscribe((result) => {
+        if(result){
+         
+            this.snackBar.open('Group Added successfully.', 'Ok', {
+              duration: 2000  // Snackbar will disappear after 300 milliseconds
+            });
+          }
+
+        
+      
+  })
+}
 }
