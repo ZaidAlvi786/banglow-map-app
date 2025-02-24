@@ -611,31 +611,34 @@ set zoomed_wkt(value: string) {
   ngOnInit() {
    
     this.renderGroup = this.myTemplate;
+
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
     if(this.polygon_wkt){
-      let geoJSON: any = wktToGeoJSON(this.polygon_wkt);
+      const data = { polygon_wkt: this.polygon_wkt };
 
-// 🔹 Step 1: Get the min/max longitude of the polygon
-const longitudes = geoJSON.coordinates[0].map(([lng]) => lng);
-const minLng = Math.min(...longitudes);
-const maxLng = Math.max(...longitudes);
+//       let geoJSON: any = wktToGeoJSON(this.polygon_wkt);
 
-// 🔹 Step 2: If the polygon crosses 180°, shift it westward
-if (maxLng > 180) {
-  geoJSON.coordinates = geoJSON.coordinates.map((ring: number[][]) =>
-    ring.map(([lng, lat]) => {
-      return [lng - 360, lat]; // Shift entire polygon left
-    })
-  );
-}
+// // 🔹 Step 1: Get the min/max longitude of the polygon
+// const longitudes = geoJSON.coordinates[0].map(([lng]) => lng);
+// const minLng = Math.min(...longitudes);
+// const maxLng = Math.max(...longitudes);
 
-// Convert back to WKT
-const normalizedWKT = geojsonToWKT(geoJSON);
+// // 🔹 Step 2: If the polygon crosses 180°, shift it westward
+// if (maxLng > 180) {
+//   geoJSON.coordinates = geoJSON.coordinates.map((ring: number[][]) =>
+//     ring.map(([lng, lat]) => {
+//       return [lng - 360, lat]; // Shift entire polygon left
+//     })
+//   );
+// }
 
-console.log("✅ Correctly Normalized WKT:", normalizedWKT);
-console.log(normalizedWKT,'normalizedWktnormalizedWktnormalizedWkt');
+// // Convert back to WKT
+// const normalizedWKT = geojsonToWKT(geoJSON);
 
-      const data = { polygon_wkt: normalizedWKT };
+// console.log("✅ Correctly Normalized WKT:", normalizedWKT);
+// console.log(normalizedWKT,'normalizedWktnormalizedWktnormalizedWkt');
+
+//       const data = { polygon_wkt: normalizedWKT };
       this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
         next: (res) => {
           this.analyticsData = res?.data?.analytics
