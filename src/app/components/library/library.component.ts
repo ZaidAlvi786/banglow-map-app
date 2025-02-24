@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   EventEmitter,
   inject,
@@ -60,7 +61,7 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
-
+import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -137,7 +138,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
   @Output() closeDrawer = new EventEmitter<boolean>();
-  @Input() polygon_wkt:any;
+  @Input() polygon_wkt:any=null;
   @Input() sidebarWidth:any;
   //#endregion
   @Output() rowHoveredData: EventEmitter<any> = new EventEmitter();
@@ -405,7 +406,7 @@ set zoomed_wkt(value: string) {
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
   defaultMinholdbackSecond = -1;
-  defaultMaxHoldbackSecond = 5100000;
+  defaultMaxHoldbackSecond = 840;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 365;
   defaultMinIlluminationElevationAngle = 0;
@@ -469,15 +470,15 @@ set zoomed_wkt(value: string) {
     },
   };
   holdbackOptions: Options = {
-    step: 150000,
+    step: 60,
     showTicks: true,
     floor: -1,
-    ceil: 5100000,
+    ceil: 840,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 5100000) {
-        return '5000000+';
+      } else if (value === 840) {
+        return '840+';
       }
       return `${value}°`; // Default for other values
     },
@@ -591,6 +592,20 @@ set zoomed_wkt(value: string) {
         ).subscribe(query => {
           this.filterColumns(query);
         });
+
+        effect(()=>{
+          if(this.sharedService.shapeType()!==null && this.polygon_wkt!==null){
+           const queryParams = {...this.filterParams,  zoomed_wkt: this._zoomed_wkt}
+            const payload = {
+              wkt_polygon: this.polygon_wkt
+            };
+            this.loader = true;
+            this.ngxLoader.start();
+            this.getSatelliteCatalog(payload, queryParams);
+            this.sharedService.shapeType.set(null)
+          }
+        },this.polygon_wkt)
+        
   }
 
   ngOnInit() {
@@ -598,7 +613,29 @@ set zoomed_wkt(value: string) {
     this.renderGroup = this.myTemplate;
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
     if(this.polygon_wkt){
-      const data = { polygon_wkt: this.polygon_wkt };
+      let geoJSON: any = wktToGeoJSON(this.polygon_wkt);
+
+// 🔹 Step 1: Get the min/max longitude of the polygon
+const longitudes = geoJSON.coordinates[0].map(([lng]) => lng);
+const minLng = Math.min(...longitudes);
+const maxLng = Math.max(...longitudes);
+
+// 🔹 Step 2: If the polygon crosses 180°, shift it westward
+if (maxLng > 180) {
+  geoJSON.coordinates = geoJSON.coordinates.map((ring: number[][]) =>
+    ring.map(([lng, lat]) => {
+      return [lng - 360, lat]; // Shift entire polygon left
+    })
+  );
+}
+
+// Convert back to WKT
+const normalizedWKT = geojsonToWKT(geoJSON);
+
+console.log("✅ Correctly Normalized WKT:", normalizedWKT);
+console.log(normalizedWKT,'normalizedWktnormalizedWktnormalizedWkt');
+
+      const data = { polygon_wkt: normalizedWKT };
       this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
         next: (res) => {
           this.analyticsData = res?.data?.analytics
@@ -643,8 +680,6 @@ set zoomed_wkt(value: string) {
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
       if(overlayShapeData?.length>1){
-        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
-        
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 
         let minCloud
@@ -693,20 +728,20 @@ set zoomed_wkt(value: string) {
       
       
     })
-   this.sharedService.drawShape$.subscribe((shape) => {
-    if(shape){
-      const payload = {
-        wkt_polygon: this.polygon_wkt
-      }
-     setTimeout(() => {
-      this.loader = true
-      this.ngxLoader.start(); // Start the loader
-      this.getSatelliteCatalog(payload,this.filterParams);
+  //  this.sharedService.drawShape$.subscribe((shape) => {
+  //   if(shape){
+  //     const payload = {
+  //       wkt_polygon: this.polygon_wkt
+  //     }
+  //    setTimeout(() => {
+  //     this.loader = true
+  //     this.ngxLoader.start(); // Start the loader
+  //     this.getSatelliteCatalog(payload,this.filterParams);
      
-     },300)
-    }
+  //    },300)
+  //   }
     
-   })
+  //  })
     
     // Add mouse events
   }
@@ -750,7 +785,7 @@ set zoomed_wkt(value: string) {
         }));
         this.originalData = [...this.dataSource.data];
         this.total_count = resp.total_records
-        this.zoomed_captures_count = resp.zoomed_captures_count;
+        this.zoomed_captures_count = resp.zoomed_captures_count>0 ? resp.zoomed_captures_count: resp.total_records;
         this.focused_captures_count = resp?.focused_captures_count
         this.loader = false
         this.ngxLoader.stop();
@@ -828,7 +863,6 @@ set zoomed_wkt(value: string) {
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
     this.sharedService.setIsOpenedEventCalendar(false);
-    this.closeOverlay()
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -1801,27 +1835,8 @@ getOverlapData(){
     
   }
 
-  expandRow(vendorId: any) {
-    const foundRow = this.dataSource.data.find(v => v.vendor_id === vendorId);
-  
-    if (foundRow) {
-      this.expandedElement = this.expandedElement?.vendor_id === vendorId ? null : foundRow;
-  
-      setTimeout(() => {
-        const rowElement = document.getElementById(`vendor-row-${vendorId}`);
-        const tableContainer = document.querySelector('.mat-table-container') as HTMLElement; // Cast to HTMLElement
-  
-        if (rowElement && tableContainer) {
-          const rowPosition = rowElement.offsetTop - tableContainer.offsetTop;
-          tableContainer.scrollTo({ top: rowPosition, behavior: 'smooth' });
-        }
-      }, 100); // Delay for smooth effect
-    }
+  holdbackDecimal(value:number){
+    return parseFloat(value.toFixed(2));
   }
-  
-  
-  
-  closeOverlay(){
-    this.overlapListData = [];
-  }
+
 }
