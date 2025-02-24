@@ -375,7 +375,9 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   toDecimal(value:number){
     return parseFloat(value.toFixed(4));
   }
-
+  holdbackDecimal(value:number){
+    return parseFloat(value.toFixed(2));
+  }
   getPolygonCenter(coordinates: number[][]): { lat: number; lon: number } | null {
     if (!Array.isArray(coordinates) || coordinates.length === 0) {
       console.error('Invalid or empty coordinates array');

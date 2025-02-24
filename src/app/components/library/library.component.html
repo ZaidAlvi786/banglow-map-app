@@ -394,7 +394,7 @@
                                     <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                                         @if(dataSource?.data?.length){
         
-                                        <div class="flex flex-col w-full gap-[10px] pb-[5px]"
+                                        <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-red-600"
                                             *ngIf="overlapListData.length>0">
                                             <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
                                             <div class="flex flex-start all_wrap flex-wrap">
@@ -471,7 +471,7 @@
                                                 class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
         
                                                 <div class="flex flex-col" [ngClass]="{
-                                    
+                                    'border-r-2 border-r-solid !border-r-red-600': item.id === lastMatchId
                                   }">
                                                     <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
                                                         (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
@@ -512,7 +512,7 @@
                                 </div>
                             </div>
                         }@else {
-                        <div class="overflow-auto content mat-table-container" #scrollableDiv>
+                        <div class="overflow-auto content " #scrollableDiv>
                             @if (dataSource) {
                             <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
@@ -697,6 +697,10 @@
                                                         <span class="text-secondary-heiglight font-semibold">Publication Date Time: </span> 
                                                         <span class="text-secondaryText">{{element?.publication_datetime? getFormattedDate(element?.publication_datetime):null}}</span>
                                                     </div>
+                                                    <div class="flex py-2">
+                                                        <span class="text-secondary-heiglight font-semibold">Holdback (h): </span> 
+                                                        <span class="text-secondaryText">{{element?.holdback_seconds? holdbackDecimal(element?.holdback_seconds/86400):null}}</span>
+                                                    </div>
                                                     <div class="flex py-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Day of Week:
                                                         </span><span
@@ -739,10 +743,10 @@
                                 <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
                                     class="bg-secondaryBg"></tr>
                                 <tr mat-row
-                                    [id]="'vendor-row-' + row.vendor_id"
                                     *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex"
                                     class="hover:bg-secondaryHighlight cursor-pointer" [ngClass]="{
                         '!border-b-2 border-b-solid !border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count + focused_captures_count,
+                        'border-b-2 border-b-solid !border-b-red-600': focused_captures_count > 0 && (i + 1) === focused_captures_count,
                         '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id,
                       }" (click)="expandedElement = expandedElement === row ? null : row;"
                                     (mouseover)="onRowHover(row)" (mouseout)="onRowHover(null)">
@@ -823,30 +827,6 @@
                         (calendarEventsOpen)="calendarEventsOpen()"
                         [calendarApiData]="calendarApiData"></app-map-calendar>
                 </div>
-                } @if(overlapListData.length>0){
-                    <div class="z-[1000000] text-secondaryText">
-                        <div class="w-[280px] h-[98vh] overflow-auto bg-primaryBg p-[15px]">
-                            <!-- Title -->
-                            <div class="flex justify-end items-center pb-[15px]">
-                              <!-- <p class="text-sm m-0">Working</p> -->
-                              <img (click)="closeOverlay()"  class="cursor-pointer" src="assets/svg-icons/drawer-toggle-icon.svg" />
-                            </div>
-                            <div class="flex flex-col font-Barlow rounded-sm">
-                                <div class="flex gap-[15px] p-[10px] bg-secondaryBg">
-                                    <span class="text-secondaryText text-sm w-[140px]">ID</span>
-                                    <span class="text-secondaryText text-sm">Vendor</span>
-                                </div>
-
-                                <div *ngFor="let data of overlapListData;let ind=index" class="flex gap-[15px] cursor-pointer p-[10px] border-b border-b-solid border-b-secondaryBg"
-                                 (click)="expandRow(data.vendor_id)" 
-                                (mouseenter)="tableRowHovered = data.vendor_id"
-                                (mouseleave)="tableRowHovered = null" >
-                                    <span class="text-secondaryText text-sm w-[140px] break-words">{{data?.vendor_id}}</span>
-                                    <span class="text-secondaryText text-sm">{{data?.vendor_name}}</span>
-                                </div>
-                            </div>
-                          </div>
-                    </div>
                 }
             </div>
         </div>

@@ -7,6 +7,10 @@
     <div class="!z-[1000000000000] top-0 absolute  !bg-[rgba(32,39,45,0.2)]
     h-screen w-full" ><ngx-ui-loader loaderId="buttonLoader"></ngx-ui-loader></div>
 }
+@if (shapeLoader) {
+  <div class="!z-[1000000000000] top-0 absolute  !bg-[rgba(32,39,45,0.2)]
+  h-screen w-full" ><ngx-ui-loader loaderId="shapesLoader"></ngx-ui-loader></div>
+}
     <div
       class="cursor-default"
       [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? 'bg-[#131f07]  z-30 h-full' : ' z-30 h-full'"

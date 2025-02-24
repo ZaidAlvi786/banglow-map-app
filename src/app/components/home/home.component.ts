@@ -158,7 +158,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   private highlightedPolygon: L.Polygon | null = null;
   calendarApiData:any;
   zoomed_wkt_polygon:any = '';
-  shapeType:string='';
+  shapeType:string = null;
   zoomed_status:boolean = false;
   popUpData:any;
   shapeHoverData:any;
@@ -173,6 +173,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   footPrintActive:boolean = true;
   footprintLoader:boolean = false;
   isCalenderOpen:boolean = false;
+  shapeLoader:boolean = false;
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -1047,11 +1048,11 @@ private fallbackCopyToClipboard(text: string): void {
         if (isLoadFirstTime) {
           this.zoomed_wkt_polygon = this.polygon_wkt;
         }
-        if(resp?.data?.area>=100000000){
-          this.openSnackbar("Select a smaller polygon");
+        // if(resp?.data?.area>=100000000){
+        //   this.openSnackbar("Select a smaller polygon");
           
           
-        }else {
+        // }else {
           if (this.startDate === '' && this.endDate === '') {
             // Start of the previous day
             this.startDate = dayjs().utc().subtract(1, 'day').startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
@@ -1068,7 +1069,9 @@ private fallbackCopyToClipboard(text: string): void {
             end_date: this.endDate
           }
           this.data = resp?.data;
-          this.getDataUsingPolygon(resp?.data,queryParams)};
+          this.shapeLoader = true;
+          this.ngxLoader.startLoader('shapesLoader');
+          this.getDataUsingPolygon(resp?.data,queryParams);
       },
       error: (err) => {
         console.log("err: ", err);
@@ -1078,24 +1081,100 @@ private fallbackCopyToClipboard(text: string): void {
 
   normalizePayloadCoordinates(payload: any): any {
     if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
-      payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
+      // First, normalize all coordinates using getlatlngNormalized
+      payload.geometry.coordinates = payload.geometry.coordinates.map((coordinateSet: any[]) =>
         coordinateSet.map(([longitude, latitude]: [number, number]) => {
-
-         const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
-          let direction =  1;
-        if (longitude >=0) {
-          direction = 1;       
-        } else {      
-          direction= -1;  
-        }
-        
-       this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
-      return [normalizedLongitude, normalizedLatitude];
+          const { normalizedLatitude, normalizedLongitude } = this.getlatlngNormalized(latitude, longitude);
+          this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
+          return [normalizedLongitude, normalizedLatitude];
         })
       );
     }
-    return payload; // Return the updated payload
+  
+    // Check if the polygon crosses the dateline.
+    // Here we assume we are checking the first linear ring (or coordinate set).
+    let crossesDateline = false;
+    if (payload.geometry.coordinates.length > 0) {
+      const coords = payload.geometry.coordinates[0];
+      for (let i = 1; i < coords.length; i++) {
+        // coords[i] and coords[i - 1] are arrays [lng, lat]
+        if (Math.abs(coords[i][0] - coords[i - 1][0]) > 180) {
+          crossesDateline = true;
+          break;
+        }
+      }
+    }
+  
+    console.log("crossesDateline", crossesDateline);
+  
+    // If it does not cross the dateline, return the normalized payload.
+    if (!crossesDateline) {
+      return payload;
+    }
+  
+    // If the polygon crosses the dateline, adjust the coordinates:
+    // For example, shift negative longitudes into the [0, 360) range.
+    payload.geometry.coordinates = payload.geometry.coordinates.map((coordinateSet: any[]) =>
+      coordinateSet.map(([longitude, latitude]: [number, number]) => {
+        let lng = longitude;
+        if (lng < 0) {
+          lng += 360;
+        }
+        // this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
+        return [lng, latitude];
+      })
+    );
+  
+    return payload;
   }
+  
+  // normalizePayloadCoordinates(payload: any): any {
+  //   if (payload.geometry && Array.isArray(payload.geometry.coordinates)) {
+  //     payload.geometry.coordinates = payload.geometry.coordinates.map(coordinateSet =>
+  //       coordinateSet.map(([longitude, latitude]: [number, number]) => {
+
+  //        const {normalizedLatitude, normalizedLongitude} =  this.getlatlngNormalized(latitude, longitude)
+  //         let direction =  1;
+  //       if (longitude >=0) {
+  //         direction = 1;       
+  //       } else {      
+  //         direction= -1;  
+  //       }
+        
+  //      this.mapFormula = (360*(Math.floor((Math.floor((longitude + 180)  / 360)+1) -1)))
+  //     return [normalizedLongitude, normalizedLatitude];
+  //       })
+  //     );
+  //   }
+  //   let crossesDateline = false;
+  //   for (let i = 1; i < payload.geometry.coordinates.length; i++) {
+  //     if (Math.abs(payload.geometry.coordinates[i].lng - payload.geometry.coordinates[i - 1].lng) > 180) {
+  //       crossesDateline = true;
+  //       break;
+  //     }
+  //   }
+
+  //   console.log("crossesDatelinecrossesDateline", crossesDateline);
+    
+  //   // If it does not cross the dateline, return normalized coordinates.
+  //   if (!crossesDateline) {
+  //     return payload;
+  //   }
+
+  //   payload.geometry.coordinates=  payload.geometry.coordinates.map(coordinateSet => 
+  //     coordinateSet.map(([longitude, latitude]: [number, number]) => {
+  //       let lng = longitude;
+  //       if (lng < 0) {
+  //         lng += 360;
+  //       }
+  //       return { lat: latitude, lng };
+
+  //     })
+
+  //   );
+  
+  //   return payload; // Return the updated payload
+  // }
 
   normalizePayloadZoomCoordinates(coordinates: any): any {
     if (coordinates && Array.isArray(coordinates)) {
@@ -1133,8 +1212,11 @@ private fallbackCopyToClipboard(text: string): void {
             this.updateSidebarWidth();
 
              this.type = 'library'
-            this.toggleDrawer()
-           
+            this.toggleDrawer();
+            setTimeout(()=>{
+              this.sharedService.shapeType.set(this.shapeType)
+            },300)
+            
             
 
   // Find the .leaflet-interactive element
@@ -1164,6 +1246,8 @@ private fallbackCopyToClipboard(text: string): void {
             }
           }, 600);
         }
+        this.shapeLoader = false;
+        this.ngxLoader.startLoader('shapesLoader');
       },
       error: (err) => {
         console.log('Error in getDataUsingPolygon:', err);
@@ -1172,6 +1256,8 @@ private fallbackCopyToClipboard(text: string): void {
   }
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
+    console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
+    
     const polygonCoordinates = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
   
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
@@ -1582,7 +1668,9 @@ handleAction(action: string): void {
 
   private getlatlngNormalized(lat: number, lng: number) {
     // Normalize longitude to [-180, 180]
+    console.log("Original lng:", lng);
     const normalizedLongitude = ((lng + 180) % 360 + 360) % 360 - 180;
+    console.log("Normalized lng:", normalizedLongitude);
   
     // Clamp latitude to [-90, 90]
     const normalizedLatitude = Math.max(-90, Math.min(90, lat));
