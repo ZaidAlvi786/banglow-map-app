@@ -23,6 +23,7 @@
     "@angular/router": "^18.2.13",
     "@asymmetrik/ngx-leaflet": "^18.0.1",
     "@meddv/ngx-pinch-zoom": "^18.0.1",
+    "@terraformer/wkt": "^2.2.1",
     "@turf/turf": "^7.2.0",
     "apexcharts": "^4.3.0",
     "dayjs": "^1.11.13",
