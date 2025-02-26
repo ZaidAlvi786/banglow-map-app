@@ -442,7 +442,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
       let vendorId
       // Get vendor-related values from the form
       if(this.formGroup.get('vendorId')?.value.length!==0 || this.data?.filterParams?.vendor_id){
-        const vendorId = this.formGroup.get('vendorId')?.value;
+        vendorId = this.formGroup.get('vendorId')?.value;
       }
       
       const vendorName = this.formGroup.get('vendor')?.value?.join(',');

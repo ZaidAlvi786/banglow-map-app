@@ -44,7 +44,8 @@
             [popUpData]="popUpData" 
             [shapeHoverData]="shapeHoverData" 
             [zoomed_wkt]="zoomed_wkt_polygon" 
-            [polygon_wkt]="polygon_wkt" 
+            [polygon_wkt]="polygon_wkt"
+            [original_wkt]="originalPolygon" 
             [type]="type" 
             [endDate]="endDate" 
             [startDate]="startDate"
@@ -62,7 +63,7 @@
       <div (click)="closeDropdown()"
         #mapContainer
         id="mapContainer"
-        class="map h-full absolute"
+        class="map h-full !w-fill-available"
         [ngClass]="{
           'z-0': isGoogleLayerActive !== 'OpenStreetMapDark' && isGoogleLayerActive !== 'GoogleStreetMapDark',
           'opacity-50': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
@@ -70,9 +71,9 @@
          [ngStyle]="{ 'margin-left.px': sidebarWidth -marginleft}"             
       ></div>
       <div
-        class="flex justify-start  end-0 gap-3 pr-[12px] absolute bottom-[12px]"
+        class="flex justify-start  end-0 gap-3 absolute bottom-[12px] "
       >
-        <div class="relative z-50 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
+        <div class="relative z-10 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
           <app-footer #childComponent
             (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"
