@@ -89,7 +89,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
       next: (resp: any) => {
         this.loader = false
         this.ngxLoader.stop();
-        console.log(resp, 'API Response');
         this.sitesData = resp?.data;
       },
       error: (err: any) => {
@@ -127,7 +126,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
 
         const chart = new ApexCharts(chartElement, chartOptions);
         chart.render()
-          .then(() => console.log(''))
           .catch((err: any) => console.error(`Error rendering chart ${i}:`, err));
       }
     }
@@ -147,13 +145,11 @@ export class SitesComponent implements OnInit, AfterViewInit {
   getSitesData(queryParams: any) {
     this.sateliteService.getSites(queryParams).subscribe({
       next: (resp) => {
-        console.log(resp, 'successsuccesssuccesssuccesssuccess');
         this.sitesData = resp.data;
         this.total_count = resp.total_count
         this.loader = false
         this.ngxLoader.stop();
         const colorRanges = this.generateUniqueColorRanges(this.sitesData);
-        console.log(colorRanges, 'colorRangescolorRangescolorRangescolorRanges');
 
         this.options = {
           chart: {
@@ -230,7 +226,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
   //Notifications ative status 
   notificatioStatus(type: boolean, site: any) {
     this.notification = type;
-    console.log(site, 'sitesitesitesitesitesitesite');
     const payload = {
       site_id: site.id,
       name: site.name,
@@ -255,7 +250,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
   //Site update functionality
   updateSite(type: any, site: any) {
     let payload: any
-    console.log(site, 'updateupdateupdateupdateupdate');
 
     if (type == 'rename') {
       payload = {
@@ -311,7 +305,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
   //On Keypress filter sites data
   onKeyPress(event: KeyboardEvent): void {
     const inputValue = (event.target as HTMLInputElement).value;
-    console.log(inputValue, 'inputValueinputValueinputValue'); // Log the current input value to the console
 
     // this.satelliteService.getGroupsForAssignment(data).subscribe({
     //   next: (resp) => {
@@ -320,7 +313,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
     //     this.groups = resp?.data
 
     //   }})
-    console.log(this.searchInput, 'searchiiiiiiiiiiiiiiiii');
 
     this.searchInput.next(inputValue);
   }
@@ -331,11 +323,9 @@ export class SitesComponent implements OnInit, AfterViewInit {
 
     // Detect if at the bottom
     const isAtBottom = div.scrollTop + div.clientHeight >= div.scrollHeight;
-    console.log(isAtBottom, 'qqqqqqqqqqqqqqqqqqqqqqqqqqq');
 
     // Only trigger if at the bottom and trying to scroll down
     if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
-      console.log('sssssssssssssssssssss');
 
       if (!this.isAtBottom) {
         this.isAtBottom = true; // Lock the event trigger
@@ -344,7 +334,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
 
         this.per_page = this.per_page + 12;
         this.per_page > this.total_count ? this.per_page = this.total_count : this.per_page
-        console.log(this.per_page, 'per_pageper_pageper_pageper_pageper_page');
 
         if (this.per_page <= this.total_count) {
 

@@ -203,7 +203,7 @@
                                                     
                                                   </div> -->
                                     <!-- </div> -->
-                                     <div class="flex  flex-wrap items-center gap-[20px] mb-[5px]">
+                                     <div class="flex  flex-wrap items-center justify-center w-[50%] gap-[20px] mb-[5px]">
                                         <div *ngFor="let range of colorRanges" class="flex items-center flex-col gap-[5px]"
                                         (mouseenter)="hoveredRange = range.name"
                                         (mouseleave)="hoveredRange = null" >
@@ -211,7 +211,7 @@
                                                 
                                            >
                                               <span [style.background]="range.color" class="w-[15px] h-[15px] rounded-[5px]"></span>
-                                              <span class="text-secondaryText text-[10px]">{{ range.name }}</span>
+                                              <span class="text-secondaryText text-[10px]">{{ range.start }}-{{range.end}}</span>
                                           </ng-container>
                                           
                                         </div>

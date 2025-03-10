@@ -13,7 +13,6 @@ import {
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import dayjs from "dayjs";
 import { DateFormatPipe, TimeFormatPipe } from "../../pipes/date-format.pipe";
-import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
 import { NgxPanZoomModule, PanZoomComponent, PanZoomModel } from "ngx-panzoom";
 
 @Component({

@@ -35,7 +35,6 @@ export const LoadingInterceptor = (
     ngxLoader.startLoader('customLoader');
     mainLoader.setValue(true)
     ngxLoader.startLoader('buttonLoader');
-    console.log("enableLoaderenableLoaderenableLoader");
     
 
   } else {
@@ -51,7 +50,6 @@ export const LoadingInterceptor = (
       } else  if (paramString?.includes('enableLoader')) {
         ngxLoader.startLoader('customLoader');
         ngxLoader.stopLoader('buttonLoader');
-        console.log("enableLoaderenableLoaderenableLoader");
 
         mainLoader.setValue(false)
     

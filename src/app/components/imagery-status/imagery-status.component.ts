@@ -32,8 +32,6 @@ import { MatMenuModule, MatMenuTrigger } from "@angular/material/menu";
 import { DaterangepickerDirective, NgxDaterangepickerMd } from "ngx-daterangepicker-material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { startWith } from "rxjs";
-import { error } from "console";
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
@@ -154,14 +152,12 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
 
   toggleRow(element: any) {
-    console.log("elementelement", element);
     
     element.records && element.records?.length ? (this.expandedElement = this.expandedElement === element ? null : element) : null;
     // this.cd.detectChanges();
   }
 
   ngOnInit(): void {
-    console.log(this.maxDate, "sssssssssssssssss");
     this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.filterParams = { ...this.defaultFilter() };
@@ -190,11 +186,9 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //Get Imagery Collection histroy data
   getImageryCollection(queryParams: any) {
-    console.log(queryParams, "queryParamsqueryParamsqueryParamsqueryParams");
 
     this.satelliteService.getCollectionHistory(queryParams).subscribe({
       next: (resp) => {
-        console.log(resp, "resprespresprespresprespresprespresprespresp");
         this.dataSource.data = resp.data.records
         // .map((item, idx) => ({
         //   ...item,
@@ -216,7 +210,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     // Detect if at the bottom
     const isAtBottom =
       div.scrollTop + div.clientHeight + 150 >= div.scrollHeight;
-    console.log(isAtBottom, "isAtBottomisAtBottomisAtBottom");
 
     // Only trigger if at the bottom and trying to scroll down
     if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
@@ -271,7 +264,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
     // Get the height of the viewport
     const viewportHeight = window.innerHeight;
-    console.log("viewportHeightviewportHeightviewportHeight", totalHeight);
 
     // Calculate the remaining height for the target div
     const remainingHeight = viewportHeight - totalHeight - 126;
@@ -310,11 +302,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    console.log(
-      activeColumn,
-      "activeColumnactiveColumnactiveColumn",
-      direction
-    );
 
     let queryParams: any = this.filterParams;
 
@@ -378,15 +365,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
     // const datetime = this.formGroup.value.end_date;
     // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    console.log(
-      this.start_date,
-      "start_datestart_datestart_datestart_datestart_datestart_date",
-      this.end_date
-    );
      
-
-      
-      console.log(this.vendor.value,'vendorvendorvendorvendorvendorvendorvendor');
 
       // Check vendor filter
       const newVendorValue = this.vendor?.value?.length > 0 ? this.vendor.value.join(',') : null;
@@ -400,7 +379,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       
       // Check start_date filter
       if (this.start_date.startDate !== null) {
-        console.log('Start Date Applied');
         
         const formattedStartDate = dayjs(this.start_date.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
       
@@ -415,7 +393,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       
       // Check end_date filter
       if (this.end_date.endDate !== null) {
-        console.log('End Date Applied');
         
         const formattedEndDate = dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
       
@@ -431,7 +408,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       // Add pagination params
       
       // Log the number of applied filters
-      console.log('Total Applied Filters:', this.filterCount);
       
 
     const params = {
@@ -453,7 +429,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //Filter menu close button
   closeFilterMenu() {
-    console.log("closseeeee", this.menuFilterTrigger);
 
     if (this.menuFilterTrigger) {
       this.menuFilterTrigger.closeMenu();
@@ -461,13 +436,11 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
   }
 
   onStartDateChange(event) {
-    console.log('Start Date Changed:', event);
     
     if (event.startDate) {
      let date = dayjs(event.startDate).utc().startOf('day'); // Force start of day
       
       let today = dayjs().utc().startOf('day');
-      console.log(date,'datedatedatedatedatedatedate');
       
       // If start date is today, end date = current time, else set to 23:59
     this.start_date=date.isSame(today, 'day') ? dayjs().utc(): date.startOf('day')
@@ -477,7 +450,6 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
 
   //On End Date Change function
   onEndDateChange(event) {
-    console.log('End Date Changed:', event);
     
     if (event.endDate) {
       let selectedEndDate = dayjs(event.endDate).utc();
@@ -486,14 +458,12 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         this.end_date = null
         return console.error('End Date must be after Start date')
       } else if (selectedEndDate.isSame(dayjs().utc(), 'day')) {
-        console.log('End Date is today, setting current time');
         this.end_date = dayjs().utc()
       //  return this.formGroup.get('end_date').setValue(dayjs().utc())
       } else {
         
         this.end_date = dayjs(selectedEndDate).utc().endOf('day')
         // this.formGroup.get('end_date').setValue(dayjs(selectedEndDate).utc().endOf('day'));
-        console.log('eeeeeeeeee',this.end_date);
       }
     }
   }

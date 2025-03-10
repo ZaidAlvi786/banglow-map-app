@@ -75,8 +75,7 @@ export class FooterComponent implements OnInit {
   // EventEmitter to send the close event to the parent
   constructor(private dialog: MatDialog) {
     const now = dayjs().utc();
-    console.log(now.format("YYYY-MM-DD"),'nownownownownow',now.format("HH:mm:ss"));
-    
+   
     // Start of yesterday
     this.startDate = now.subtract(1, "day").startOf("day").format("YYYY-MM-DD");
     this.startTime = now.subtract(1, "day").startOf("day").format("HH:mm:ss");
@@ -89,7 +88,7 @@ export class FooterComponent implements OnInit {
 
   ngOnInit(): void {
     const now = dayjs().utc();
-    console.log(now.format("YYYY-MM-DD"),'nownownownownow',now.format("HH:mm:ss"));
+   
     // Start of yesterday
     this.startDate = now.subtract(1, "day").startOf("day").format("YYYY-MM-DD");
     this.startTime = now.subtract(1, "day").startOf("day").format("HH:mm:ss");
@@ -98,7 +97,6 @@ export class FooterComponent implements OnInit {
     this.endDate = now.format("YYYY-MM-DD");
     this.endTime = now.format("HH:mm:ss");
     
-    console.log(this.startDate, "startTimestartTimestartTime");
   }
 
   toggleDropdown() {
@@ -117,11 +115,7 @@ export class FooterComponent implements OnInit {
   openDateDailog() {
     if (this.isDropdownOpen) this.isDropdownOpen = false;
     if (this.showLayers) this.showLayers = false;
-    console.log(
-      this.startDate,
-      "combinedDateTimeStringcombinedDateTimeStringcombinedDateTimeString",
-      this.startTime
-    );
+
     const now = dayjs().utc();
 
     const combinedDateTimeString =
@@ -131,10 +125,6 @@ export class FooterComponent implements OnInit {
     let startDate = combinedDateTimeString
       ? dayjs(combinedDateTimeString, "YYYY-MM-DD HH:mm:ss")
       : null;
-    console.log(
-      startDate.isValid(),
-      "combinedDateTimeStringcombinedDateTimeStringcombinedDateTimeString"
-    );
 
     if (startDate.isValid()) {
       startDate = startDate;
@@ -158,7 +148,6 @@ export class FooterComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log("Selected date range:", result);
         this.startDate = result.startDate;
         this.endDate = result.endDate;
         this.currentUtcTime = result.currentUtcTime;
@@ -221,7 +210,6 @@ export class FooterComponent implements OnInit {
   }
   selectedLayer(type: string) {
     this.showLayers = false;
-    console.log(type);
     this.toggleLayer.emit(type);
   }
 

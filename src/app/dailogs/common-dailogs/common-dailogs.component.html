@@ -101,7 +101,7 @@
             <div class="flex-col gap-2 custom-slider col-span-1"
                 (click)="$event.stopPropagation()">
                 
-                <mat-label class="!text-secondaryText text-xs">Holdback (h)</mat-label>
+                <mat-label class="!text-secondaryText text-xs">Holdback (d)</mat-label>
                 <ngx-slider *ngIf="sliderShow" #sliderElement
                     [(value)]="min_holdback_seconds" [(highValue)]="max_holdback_seconds"
                     [options]="holdbackOptions"
