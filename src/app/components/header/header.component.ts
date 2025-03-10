@@ -19,7 +19,7 @@ import { NotificationsComponent } from "../notifications/notifications.component
 import { OverlayContainer } from "@angular/cdk/overlay";
 import { MatMenuModule } from "@angular/material/menu";
 // import { LoadingBarComponent } from "../shared/loading-bar";
-// declare var google: any;
+declare var google: any;
 
 @Component({
   selector: "app-header",

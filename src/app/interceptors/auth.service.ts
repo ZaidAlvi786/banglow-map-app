@@ -75,7 +75,6 @@ export class AuthService {
             })
             .pipe(
                 switchMap((response: any) => {
-                    console.log('response: ', response);
                     this.accessToken = response?.token?.result;
                     this._authenticated = true;
                     localStorage.setItem(

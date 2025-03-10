@@ -190,9 +190,12 @@
         <td
           mat-cell
           *matCellDef="let row"
-          class="min-w-[70px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+          class="min-w-[70px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
           {{ row?.total_success }}
+          <div class="group-hover:flex bg-secondaryBg absolute w-[280px] p-[10px] z-50 text-sm shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+            <span class="text-secondaryText ">{{ row?.total_success }} of footprints successfully processed</span>
+          </div>
         </td>
       </ng-container>
 
@@ -207,9 +210,12 @@
         <td
           mat-cell
           *matCellDef="let row"
-          class="min-w-[90px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+          class="min-w-[90px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
           {{ row?.total_failed }}
+          <div class="group-hover:flex bg-secondaryBg absolute w-[550px] -left-[210px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+            <span class="text-secondaryText">{{row?.total_failed}} of footprints failed to be processed due to duplicates, improper geometry, etc</span>
+          </div>
         </td>
       </ng-container>
 
@@ -224,9 +230,12 @@
         <td
           mat-cell
           *matCellDef="let row"
-          class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+          class="min-w-[80px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
           {{ row?.total }}
+          <div class="group-hover:flex bg-secondaryBg absolute w-[231px] p-[10px] text-sm z-50 shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+            <span class="text-secondaryText ">{{ row?.total }} of total footprints processed</span>
+          </div>
         </td>
         
       </ng-container>
@@ -304,9 +313,12 @@
                   <td
                     mat-cell
                     *matCellDef="let row"
-                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                    class="min-w-[80px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
                   >
                     {{ row?.message?.valid_records }}
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[280px] p-[10px] z-50 text-sm shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+                      <span class="text-secondaryText ">{{ row?.message?.valid_records }} of footprints successfully processed</span>
+                    </div>
                   </td>
                 </ng-container>
 
@@ -321,9 +333,12 @@
                   <td
                     mat-cell
                     *matCellDef="let row"
-                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                    class="min-w-[80px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
                   >
                     {{ row?.message?.invalid_records }}
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[550px] -left-[330px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+                      <span class="text-secondaryText">{{ row?.message?.invalid_records }} of footprints failed to be processed due to duplicates, improper geometry, etc</span>
+                    </div>
                   </td>
                 </ng-container>
 
@@ -338,9 +353,12 @@
                   <td
                     mat-cell
                     *matCellDef="let row"
-                    class="min-w-[80px] !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                    class="min-w-[80px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
                   >
                     {{ row?.message?.total_records }}
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[231px] -left-[125px] p-[10px] text-sm z-50 shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+                      <span class="text-secondaryText ">{{ row?.message?.total_records }} of total footprints processed</span>
+                    </div>
                   </td>
                 </ng-container>
 

@@ -37,7 +37,6 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
 
             if (err instanceof HttpErrorResponse) {
                 if (err.status === 401) {
-                    console.log("Got 401 token has expired", err);
                     authService.signOut();
                     snackBar.open('Session expired. Please log in again.', 'Close', {
                         duration: 3000, // Snackbar duration in milliseconds

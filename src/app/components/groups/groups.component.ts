@@ -68,12 +68,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   public chartOptions: Partial<ChartOptions>;
   hoveredRange: string | null = null;
   colorRanges = [
-    { name: "Very Low", color: "#70ed8b" }, // Light Green
-    { name: "Low", color: "#5bc06c" }, // Medium Green
-    { name: "Medium", color: "#319a43" }, // Darker Green
-    { name: "High", color: "#12561d" }, // Yellow
-    { name: "Very High", color: "#bf4e4e" }, // Orange
-    { name: "Extreme", color: "#ff0000" } // Red
+    
 ]
   tooltipPosition: any = {};
   weekDays: string[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
@@ -628,65 +623,121 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       return '';
     }
 
-     generateCalendarData(apiData: Record<string, number>): void {
-         // Clear existing calendar data
-         this.calendarData = [];
-     
-         const dates = Object.keys(apiData).map((date) => dayjs(date));
-         if (dates.length === 0) return;
-     
-         const start = dayjs.min(dates)!;
-         const end = dayjs.max(dates)!;
-         const dataMap = new Map(Object.entries(apiData));
-         let current = start;
-     
-         // Get the maximum value from apiData (minimum threshold is 200)
-         const actualMax = Math.max(...Object.values(apiData));
-         const maxValue = Math.max(actualMax, 20);
-     
-         // Define function to determine range and color
-         const getRangeData = (value: number): { color: string; range: string } => {
-          if (value === 0) return { color: "", range: "No Data" }; // White for zero values
-          if (value <= maxValue * 0.1) return { color: "#70ed8b", range: "Very Low" }; // Light Green
-          if (value <= maxValue * 0.3) return { color: "#5bc06c", range: "Low" }; // Medium Green
-          if (value <= maxValue * 0.5) return { color: "#319a43", range: "Medium" }; // Darker Green
-          if (value <= maxValue * 0.7) return { color: "#12561d", range: "High" }; // Yellow
-          if (value <= maxValue * 0.9) return { color: "#bf4e4e", range: "Very High" }; // Orange
-          return { color: "#ff0000", range: "Extreme" }; // Red
-         };
-     
-         while (current.isBefore(end) || current.isSame(end, "month")) {
-             const monthDays: CalendarDay[] = [];
-             const monthStart = current.startOf("month");
-             const monthEnd = current.endOf("month");
-             let day = monthStart;
-     
-             while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
-                 const dateString = day.format("YYYY-MM-DD");
-                 const value = dataMap.get(dateString) || 0; // Default to 0 if no value
-     
-                 // Get background color and range category
-                 const { color, range } = getRangeData(value);
-     
-                 monthDays.push({
-                     date: dateString,
-                     value,
-                     colorValue: '#ffffff',
-                     backgroundValue: color,
-                     rangeName: range, // Store the category name
-                 });
-     
-                 day = day.add(1, "day");
-             }
-     
-             this.calendarData.push({
-                 name: current.format("MMMM YYYY"), // Includes the year
-                 weeks: this.generateWeeksForMonth(monthDays),
-             });
-     
-             current = current.add(1, "month");
-         }
-     }
+    generateCalendarData(apiData: Record<string, number>): void {
+      this.calendarData = [];
+      const dates = Object.keys(apiData).map((date) => dayjs(date));
+      if (dates.length === 0) return;
+  
+      const start = dayjs.min(dates)!;
+      const end = dayjs.max(dates)!;
+      const dataMap = new Map(Object.entries(apiData));
+      let current = start;
+  
+      // Extract non-zero values for range calculation
+      const values = Object.values(apiData).filter((v) => v > 0);
+      const minValue = values.length ? Math.min(...values) : 1;
+      const maxValue = values.length ? Math.max(...values) : 1;
+  
+      // Ensure values maintain two decimal places
+      const formatNumber = (num: number) => parseFloat(num.toFixed(1));
+  
+      // If all values are 0, show "No Data"
+      if (values.length === 0) {
+          while (current.isBefore(end) || current.isSame(end, "month")) {
+              const monthDays: CalendarDay[] = [];
+              const monthStart = current.startOf("month");
+              const monthEnd = current.endOf("month");
+              let day = monthStart;
+  
+              while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+                  const dateString = day.format("YYYY-MM-DD");
+                  monthDays.push({
+                      date: dateString,
+                      value: 0,
+                      colorValue: "#ffffff",
+                      backgroundValue: "",
+                      rangeName: "No Data",
+                  });
+                  day = day.add(1, "day");
+              }
+  
+              this.calendarData.push({
+                  name: current.format("MMMM YYYY"),
+                  weeks: this.generateWeeksForMonth(monthDays),
+              });
+  
+              current = current.add(1, "month");
+          }
+          return;
+      }
+  
+      // Define color ranges, excluding 0
+      if (minValue === maxValue) {
+          this.colorRanges = [{ 
+              name: `Range ${formatNumber(minValue)}-${formatNumber(maxValue)}`, 
+              color: "#319a43", 
+              start: 1, 
+              end: formatNumber(maxValue) 
+          }];
+      } else {
+          const stepSize = formatNumber((maxValue - minValue) / 3);
+  
+          this.colorRanges = [
+              { name: "Minimum", color: "#70ed8b", start: Math.round(formatNumber(minValue)), end: Math.round(formatNumber(minValue + stepSize)) },
+              { name: "Medium", color: "#319a43", start: Math.round(formatNumber(minValue + stepSize)), end: Math.round(formatNumber(minValue + 2 * stepSize)) },
+              { name: "Maximum", color: "#ff0000", start: Math.round(formatNumber(minValue + 2 * stepSize)), end: formatNumber(maxValue) },
+          ];
+      }
+  
+      // Function to get range data
+      const getRangeData = (value: number): { color: string; range: string } => {
+          if (value === 0) return { color: "", range: "No Data" };
+  
+          for (const range of this.colorRanges) {
+              if (value >= range.start && value <= range.end) {
+                  return { color: range.color, range: range.name };
+              }
+          }
+          return { color: "#ff0000", range: "Maximum" };
+      };
+  
+      // Iterate through months
+      while (current.isBefore(end) || current.isSame(end, "month")) {
+          const monthDays: CalendarDay[] = [];
+          const monthStart = current.startOf("month");
+          const monthEnd = current.endOf("month");
+          let day = monthStart;
+  
+          while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+              const dateString = day.format("YYYY-MM-DD");
+              const value = dataMap.get(dateString) || 0;
+              const formattedValue = formatNumber(value); // Ensure 2 decimal places
+  
+              const { color, range } = getRangeData(formattedValue);
+  
+              monthDays.push({
+                  date: dateString,
+                  value: formattedValue,
+                  colorValue: "#ffffff",
+                  backgroundValue: color,
+                  rangeName: range,
+              });
+  
+              day = day.add(1, "day");
+          }
+  
+          this.calendarData.push({
+              name: current.format("MMMM YYYY"),
+              weeks: this.generateWeeksForMonth(monthDays),
+          });
+  
+          current = current.add(1, "month");
+      }
+  }
+  
+  
+  
+  
       
     
       generateWeeksForMonth(monthDays: CalendarDay[]): CalendarWeek[] {

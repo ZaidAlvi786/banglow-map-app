@@ -386,10 +386,10 @@
     </div>
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
-      <span class="text-secondary-heiglight text-sm font-semibold">Holdback (h):
+      <span class="text-secondary-heiglight text-sm font-semibold">Holdback (d):
       </span>
       <div class="flex gap-2">
-        <span class="text-secondaryText">{{data?.vendorData.holdback_seconds ? holdbackDecimal(data?.vendorData.holdback_seconds/86400):null}}</span>
+        <span class="text-secondaryText">{{data?.vendorData.holdback_seconds ? holdbackRoundOf(data?.vendorData.holdback_seconds/86400):null}}</span>
       </div>
       <!-- </div> -->
     </div>

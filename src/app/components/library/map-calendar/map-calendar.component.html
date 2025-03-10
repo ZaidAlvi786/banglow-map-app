@@ -24,17 +24,17 @@
       </div>
   } -->
       <div class="flex justify-center flex-wrap items-center gap-[10px] mb-[5px]">
-  <div *ngFor="let range of colorRanges" class="flex items-center flex-col gap-[5px]"
-  (mouseenter)="hoveredRange = range.name"
-  (mouseleave)="hoveredRange = null" >
-    <ng-container 
+        <div *ngFor="let range of colorRanges" class="flex items-center flex-col gap-[5px]"
+        (mouseenter)="hoveredRange = range.name"
+        (mouseleave)="hoveredRange = null" >
+          <ng-container 
+                
+           >
+              <span [style.background]="range.color" class="w-[15px] h-[15px] rounded-[5px]"></span>
+              <span class="text-secondaryText text-[10px]">{{ range.start }}-{{ range.end }}</span>
+          </ng-container>
           
-     >
-        <span [style.background]="range.color" class="w-[15px] h-[15px] rounded-[5px]"></span>
-        <span class="text-secondaryText text-[10px]">{{ range.name }}</span>
-    </ng-container>
-    
-  </div>
+        </div>
 </div>
   <div *ngFor="let month of calendarData" class="month border border-solid border-custom-border">
     <!-- <div class="flex flex-wrap gap-[10px] pb-[10px] justify-center">

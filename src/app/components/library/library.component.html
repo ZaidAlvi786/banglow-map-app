@@ -579,6 +579,14 @@
                                         class="min-w-[90px] !pl-[10px] text-secondaryText">{{toDecimal(row?.gsd)}}m
                                     </td>
                                 </ng-container>
+                                <ng-container matColumnDef="holdback_seconds">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[110px] !pl-[10px] text-secondaryText font-semibold">
+                                        Holdback (d)</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[90px] !pl-[10px] text-secondaryText">{{row?.holdback_seconds? holdbackRoundOf(row?.holdback_seconds/86400):null}}
+                                    </td>
+                                </ng-container>
 
                                 <ng-container matColumnDef="type">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header
@@ -698,8 +706,8 @@
                                                         <span class="text-secondaryText">{{element?.publication_datetime? getFormattedDate(element?.publication_datetime):null}}</span>
                                                     </div>
                                                     <div class="flex py-2">
-                                                        <span class="text-secondary-heiglight font-semibold">Holdback (h): </span> 
-                                                        <span class="text-secondaryText">{{element?.holdback_seconds? holdbackDecimal(element?.holdback_seconds/86400):null}}</span>
+                                                        <span class="text-secondary-heiglight font-semibold">Holdback (d): </span> 
+                                                        <span class="text-secondaryText">{{element?.holdback_seconds? holdbackRoundOf(element?.holdback_seconds/86400):null}}</span>
                                                     </div>
                                                     <div class="flex py-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Day of Week:
