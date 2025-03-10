@@ -991,10 +991,8 @@ private fallbackCopyToClipboard(text: string): void {
               this.drawer.toggle();
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
-               this.removeAllImageOverlays();
-               const orginalCords = this.latLngBoundsToPolygon(bounds)
-               
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
+               this.removeAllImageOverlays()
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
              
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
@@ -1201,10 +1199,6 @@ getMapNumber(lon) {
         this.shapeLayersData = resp.data
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)&& this.footPrintActive) {
-          this.bbox = this.getBoundingBox(this.map);
-          this.minMap = this.getMapNumber(this.bbox.minLon);
-          this.maxMap = this.getMapNumber(this.bbox.maxLon);
-          
           
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
@@ -1258,18 +1252,10 @@ getMapNumber(lon) {
   }
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
+    console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
     
+    const polygonCoordinates = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
   
-    // For each coordinate in the polygon, adjust the longitude based on viewport
-    // Here we generate a dynamic set of polygons if necessary so that they appear in the viewport.
-    // In this example, we assume the polygon should be shifted if its corrected coordinates fall within the bounding box.
-    const dynamicPolygons: L.LatLngExpression[][] = [];
-
-    const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
-  // if (this.minMap == 0) {
-  //   this.minMap = 1;
-  //   this.maxMap = 2;
-  // }
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
    for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
     // Adjust each coordinate in the polygon.
