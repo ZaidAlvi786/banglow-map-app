@@ -1,12 +1,11 @@
 import { AfterViewInit, Component, ElementRef, Inject, Input, OnInit, ViewChild } from '@angular/core';
-import { MatDatepickerModule, MatDateRangePicker } from '@angular/material/datepicker';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DateAdapter, MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
-import { CustomDateAdapter } from '../../customFIles/cutom-adaptor';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import dayjs from 'dayjs';
@@ -49,7 +48,6 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   dateRangeForm: FormGroup;
   @ViewChild('startDateInput') startDateInput!: ElementRef<HTMLInputElement>;
   ngOnInit(): void {
-    console.log(this.maxDate,'sssssssssssssssss');
     this.maxDate = this.maxDate.format(('YYYY-MM-DD HH:mm [UTC]'))
     if (this.data.startDate && this.data.endDate) {
       this.startDate = this.data.startDate;
@@ -59,7 +57,6 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   }
 
   onSubmit() {
-    console.log('Selected Date Range:', this.dateRangeForm.value.dateRange);
   }
 
   constructor(public dialogRef: MatDialogRef<DatepickerDailogComponent>,private fb: FormBuilder,
@@ -81,7 +78,6 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   }
   // This method will be triggered when a date range is selected
   choosedDate(event: any) {
-    console.log('Selected Date and Time Range:', event);
 
     if (event && event.startDate && event.endDate) {
       // Convert the selected startDate and endDate to UTC Dayjs objects
@@ -90,9 +86,6 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   
       // Get the current UTC time in HH:mm UTC format
       //  this.currentUtcTime = dayjs().utc().format('HH:mm [UTC]');
-      console.log('Start Date in UTC:', this.startDate.format('YYYY-MM-DD HH:mm [UTC]'));
-      console.log('End Date in UTC:', this.endDate.format('YYYY-MM-DD HH:mm [UTC]'));
-      console.log('Current UTC Time:', this.currentUtcTime);
   
       // Optional: Automatically apply the date range
       this.autoApplyDateRange();
@@ -100,7 +93,6 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
   }
 
   autoApplyDateRange() {
-    console.log('Auto Applying Date Range with Time:', this.startDate.format('YYYY-MM-DD'), this.endDate.format('YYYY-MM-DD'));
    
   }
   // Helper method to format the date as MM.DD.YYYY
@@ -125,9 +117,7 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
         // Start of the previous day
         this.startDate = now.startOf('day'); 
         // End of the previous day
-        this.endDate = now.endOf('day'); 
-
-        console.log("nownownow",now);
+        this.endDate = now.endOf('day');
         
         break;
       case '3days':
@@ -170,8 +160,6 @@ export class DatepickerDailogComponent implements OnInit,AfterViewInit  {
     this.endDate = dayjs(this.endDate).utc();
   
     // Log to check the result
-    console.log('Start Date in UTC:', this.startDate.format('YYYY-MM-DD HH:mm [UTC]'));
-    console.log('End Date in UTC:', this.endDate.format('YYYY-MM-DD HH:mm [UTC]'));
   
     // Optionally, trigger auto-apply of the date range
     setTimeout(() => {

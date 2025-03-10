@@ -32,8 +32,8 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   defaultMaxGsd = 4;
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
-  defaultMinholdbackSecond = -1;
-  defaultMaxHoldbackSecond = 840;
+  defaultMinholdbackSecond = 0;
+  defaultMaxHoldbackSecond = 36;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 370;
   defaultMinIlluminationElevationAngle = 0;
@@ -97,15 +97,13 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     },
   };
   holdbackOptions: Options = {
-    step: 65,
+    step: 1,
     showTicks: true,
-    floor: -1,
-    ceil: 840,
+    floor: 0,
+    ceil: 36,
     translate: (value: number, label: LabelType): string => {
-      if (value === -1) {
-        return '-1';
-      } else if (value === 840) {
-        return '840+';
+    if (value === 36) {
+        return '35+';
       }
       return `${value}`; // Default for other values
     },
@@ -175,7 +173,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     if(this.data.type === 'rename'){
       this.name = this.data?.group?.name || this.data?.site?.name
     }
-    console.log(this.data,'datadatadatadatadatadatadatadata');
     if(this.data.type ==='filters'){
       this.min_cloud = this.data?.filterParams?.min_cloud_cover !== undefined
   ? this.data.filterParams.min_cloud_cover === -1 
@@ -221,7 +218,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     
   }
   addGroup(){
-    console.log(this.data,'aaaaaaaaaaaaaaaaaaaa');
     if(this.name !==''){
     let payload
     if(this.data.type === 'addSubgroup'){
@@ -239,7 +235,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
      
     this.satelliteService.addGroup(payload).subscribe({
       next: (resp) => {
-        console.log(resp, 'respresprespresprespresprespresprespresp');
         this.dialogRef.close(resp)
 
       }
@@ -274,7 +269,6 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
         }
         this.satelliteService.removeGroup(payload).subscribe({
           next: (resp)=>{
-            console.log(resp,'wwwwwwwwwwwwwwwwwwww');
             this.dialogRef.close(resp);
             
           },

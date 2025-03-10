@@ -61,7 +61,6 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
-import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt';
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -167,6 +166,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'vendor_name', displayName: 'Vendor', visible: true },
     { id: 'cloud_cover', displayName: 'Clouds', visible: true },
     { id: 'gsd', displayName: 'Resolution', visible: true },
+    { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
@@ -218,8 +218,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     }
   }
   @Input()
-  set startDate(value: any) {
-    if (value !== this._startDate) {
+  set startDate(value: any) {    
+    if (!(value !== this._startDate && this.endDate !== this._endDate)) {
       this._startDate = value;
       let queryParams = this.filterParams;
       const payload = {
@@ -229,14 +229,15 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
       
       if (this.polygon_wkt) {
         setTimeout(() => {
-        if(this.isEventsOpened){
-          
           const payload = {
             polygon_wkt: this.polygon_wkt,
             start_date: this.startDate,
             end_date: this.endDate,
             original_polygon:this.original_wkt
           }
+        if(this.isEventsOpened){
+          
+    
           
           // Start the loader
          
@@ -258,7 +259,10 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
             
           });
      
-          }   
+          } else {
+            this.getSatelliteCatalog(payload,queryParams)
+
+          }  
         },300)
       }
 
@@ -410,8 +414,8 @@ set zoomed_wkt(value: string) {
   defaultMaxGsd = 4;
   defaultMinAzimuthAngle = 0;
   defaultMaxAzimuthAngle = 365;
-  defaultMinholdbackSecond = -1;
-  defaultMaxHoldbackSecond = 840;
+  defaultMinholdbackSecond = -73;
+  defaultMaxHoldbackSecond = 438;
   defaultMinIlluminationAzimuthAngle = 0;
   defaultMaxIlluminationAzimuthAngle = 365;
   defaultMinIlluminationElevationAngle = 0;
@@ -478,12 +482,12 @@ set zoomed_wkt(value: string) {
     step: 60,
     showTicks: true,
     floor: -1,
-    ceil: 840,
+    ceil: 365,
     translate: (value: number, label: LabelType): string => {
       if (value === 0) {
         return '0';
-      } else if (value === 840) {
-        return '840+';
+      } else if (value === 438) {
+        return '365+';
       }
       return `${value}°`; // Default for other values
     },
@@ -1852,8 +1856,8 @@ getOverlapData(){
     
   }
 
-  holdbackDecimal(value:number){
-    return parseFloat(value.toFixed(2));
+  holdbackRoundOf(value:number){
+    return Math.floor(value);
   }
 
 }
