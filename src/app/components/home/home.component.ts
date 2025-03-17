@@ -11,6 +11,7 @@ import {
   Renderer2,
   ChangeDetectorRef,
   HostListener,
+  effect,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -188,12 +189,37 @@ hybridLayer:L.TileLayer = L.tileLayer(
   )
   {
     this.data = null;
+    effect(() => {
+      const refreshInfo =  this.sharedService.refreshList()
+   console.log(refreshInfo,'refreshInforefreshInforefreshInforefreshInfo');
+   
+   if(refreshInfo){
+       let queryParams ={
+        ...this.filterParams,
+        page_number: '1',
+        page_size: '50',
+        start_date:this.startDate,
+        end_date: this.endDate
+      }
+       this.shapeLoader = true;
+       this.ngxLoader.startLoader('shapesLoader');
+      const payload = {
+       wkt_polygon:this.polygon_wkt,
+       original_polygon:this.originalPolygon
+      }
+       this.getDataUsingPolygon(payload,queryParams);
+   }
+    });
+   
   }
 
 
   ngOnInit(): void {
     this.setDynamicHeight();
     window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    this.sharedService.vendorData$.subscribe((data) => {
+      this.vendorData = data;
+    });
   }
 
   ngAfterViewInit(): void {
@@ -933,7 +959,6 @@ private fallbackCopyToClipboard(text: string): void {
         this.isProgrammaticMove = true;  // Set the flag before programmatic move
         drawHandler.enable();
         this.drawHandler = drawHandler; // Store the handler for later use
-
         // Add an event listener for when the shape is created
         this.map.on(L.Draw.Event.CREATED, (event: any) => {
             const layer = event.layer; // The drawn layer
@@ -946,6 +971,7 @@ private fallbackCopyToClipboard(text: string): void {
               //  this.zoomed_wkt_polygon = ''
               //  this.closeDrawer()
               this.sharedService.setDrawShape(true);
+              this.sharedService.shapeDrawStatus.set(true)
                this.removeAllImageOverlays();
                const orginalCords = this.latLngBoundsToPolygon(bounds)
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
@@ -972,9 +998,11 @@ private fallbackCopyToClipboard(text: string): void {
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
                this.removeAllImageOverlays()
-               const orginalCords = this.latLngBoundsToPolygon(bounds)
+               const orginalCords = this.latLngBoundsToPolygon(bounds);
+               
               this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
               setTimeout(() => {
+                this.sharedService.shapeDrawStatus.set(true)
                 this.sharedService.setDrawShape(false)
                 this.map.fitBounds(bounds, {
                     padding: [10, 10], // Adds padding around the bounds
@@ -991,11 +1019,15 @@ private fallbackCopyToClipboard(text: string): void {
               this.drawer.toggle();
               this.handleDropdownToggle(this.isDrawerOpen)
               this.drawer._animationState = 'open';
-               this.removeAllImageOverlays()
-              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, bounds);
+               this.removeAllImageOverlays();
+               this.sharedService.shapeDrawStatus.set(true)
+               const orginalCords = this.latLngBoundsToPolygon(bounds)
+               
+              this.getPolygonFromCoordinates({ geometry: geoJSON?.geometry }, orginalCords);
              
               setTimeout(() => {
                 this.sharedService.setDrawShape(false)
+                
                 this.map.fitBounds(bounds, {
                     padding: [50, 50], // Adds padding around the bounds
                     maxZoom: 16        // Caps the zoom level
@@ -1048,6 +1080,9 @@ private fallbackCopyToClipboard(text: string): void {
 
   //Getting the polygon from cordinates functionality
   getPolygonFromCoordinates(payload:{geometry:{type:string,coordinates:any[]}},bound:any,  isLoadFirstTime = false) {
+    if(this.map) {
+      this.map.setZoom(4)
+    }
     const  updatedPayload = this.normalizePayloadCoordinates(payload);
     const customPayload = {
       geometry:bound,
@@ -1064,6 +1099,8 @@ private fallbackCopyToClipboard(text: string): void {
       next: (resp) => {
         this.polygon_wkt = resp?.data?.wkt_polygon;
         if (isLoadFirstTime) {
+          console.log('wwwwwwwwwwwwwww');
+          
           this.zoomed_wkt_polygon = this.polygon_wkt;
         }
         // if(resp?.data?.area>=100000000){
@@ -1199,6 +1236,10 @@ getMapNumber(lon) {
         this.shapeLayersData = resp.data
         this.extraShapesLayer?.clearLayers();
         if (Array.isArray(resp?.data)&& this.footPrintActive) {
+          this.bbox = this.getBoundingBox(this.map);
+          this.minMap = this.getMapNumber(this.bbox.minLon);
+          this.maxMap = this.getMapNumber(this.bbox.maxLon);
+          
           
           resp.data.forEach((item: any) => {
             this.addPolygonWithMetadata(item);
@@ -1252,10 +1293,18 @@ getMapNumber(lon) {
   }
   // Function to add the polygon and its metadata
   private addPolygonWithMetadata(data: any): void {
-    console.log("this.mapFormulathis.mapFormulathis.mapFormula", this.mapFormula);
     
-    const polygonCoordinates = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
   
+    // For each coordinate in the polygon, adjust the longitude based on viewport
+    // Here we generate a dynamic set of polygons if necessary so that they appear in the viewport.
+    // In this example, we assume the polygon should be shifted if its corrected coordinates fall within the bounding box.
+    const dynamicPolygons: L.LatLngExpression[][] = [];
+
+    const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
+  // if (this.minMap == 0) {
+  //   this.minMap = 1;
+  //   this.maxMap = 2;
+  // }
     // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
    for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
     // Adjust each coordinate in the polygon.
@@ -2694,6 +2743,23 @@ wktToBounds(wkt: string): L.LatLngBounds {
         } else {
           this.extraShapesLayer?.clearLayers()
         }
+  }
+
+  calendarData(payload,queryParams,state){
+    this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+      next: (resp) => {
+        this.ngxLoader.stop()
+        this.calendarApiData = resp.data;
+        this.OpenEventCalendar = state
+      },
+      error: (err) => {
+        this.ngxLoader.stop()
+        console.error('Error fetching calendar data', err);
+        // Hide loader on error
+         
+      },
+      
+    });
   }
 
 }

@@ -103,7 +103,7 @@
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Image acquisition</span>
         
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
-            <div class="flex items-center gap-[5px] self-stretch">
+            <!-- <div class="flex items-center gap-[5px] self-stretch">
                 <div class="flex h-[60px] min-w-[70.25px] group p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">Oldest</span>
                     <span class="text-secondary-heiglight text-[10px] font-bold font-Barlow leading-[18px]">{{data?.markerData?.oldest_date | dateFormat}}</span>
@@ -181,7 +181,120 @@
                 [ngClass]="selectedTimeFrame === 90 ? 'bg-primaryBg rounded-[50px] text-secondaryText':'text-secondary-heiglight'" (click)="activeTimeFrame(90)">
                     90 days
                 </span>
-            </div>
+            </div> -->
+            <div class="bg-secondaryBg rounded-[5px] font-Barlow">
+              <div class="mx-[5px] gap-[5px] flex font-Barlow">
+                  <div
+                      class="w-[71px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Oldest
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-secondaryText">
+                          {{data?.markerData?.oldest_date  | dateFormat}}
+                      </span>
+
+                      <div
+                          class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Date time:</span>
+                              <span>{{data?.markerData?.oldest_info?.acquisition_datetime | utcDateTimePipe}}
+                                  UTC</span>
+                          </div>
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Vendor:</span>
+                              <span>{{data?.markerData?.oldest_info?.vendor_name }}</span>
+                          </div>
+
+                      </div>
+                  </div>
+                  <div
+                      class="w-[63px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Total
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-secondaryText">
+                          {{formatNumber(data?.markerData?.total_count)}}
+                      </span>
+
+                      <div
+                          class="hidden absolute shadow-custom rounded-[10px] z-10 top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Total count in last 90 days</span>
+                          </div>
+
+                      </div>
+                  </div>
+                  <div
+                      class="w-[63px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Avg
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-secondaryText">
+                          {{data?.markerData?.average_per_day.toFixed(2)}}
+                      </span>
+
+                      <div
+                          class="hidden absolute shadow-custom rounded-[10px] z-10 top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>{{formatNumber(data?.markerData?.total_count)}} ÷ 90</span>
+                          </div>
+                      </div>
+                  </div>
+                  <div
+                      class="w-[73px] group flex flex-col p-[5px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
+                      <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
+                          Most recent
+                      </span>
+                      <span class="text-xs font-semibold leading-[18px] text-yellow">
+                          {{data?.markerData?.newest_info?.acquisition_datetime | dateFormat}}
+                      </span>
+                      <div
+                          class="hidden absolute shadow-custom rounded-[10px] z-10 top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Date time:</span>
+                              <span>{{data?.markerData?.newest_info?.acquisition_datetime | utcDateTimePipe}}
+                                  UTC</span>
+                          </div>
+                          <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
+                              <span>Vendor:</span>
+                              <span>{{data?.markerData?.newest_info?.vendor_name }}</span>
+                          </div>
+
+                      </div>
+                  </div>
+              </div>
+
+              <div class="mx-[5px] flex font-Barlow">
+                  <div *ngFor="let level of getPercentageArray(data?.markerData?.percentages);let isLast = last" (click)="activeTimeFrame(level.key)"
+                      class="w-[57px] group cursor-pointer flex p-[5px] flex-col gap-1 my-3 text-center items-center justify-center font-Barlow"
+                      [ngClass]="{ 'border-r-[2px] border-[#2D343D]': !isLast }" >
+
+                      <div class="custom-progress-container" >
+                          <div class="custom-progress-bar"
+                              [ngStyle]="{ height: getValue(level?.current_count,data?.markerData?.total_count) + '%', background: '#ABB7C0' }">
+                          </div>
+                      </div>
+                      <span class="text-xs leading-[18px] font-semibold text-secondaryText">{{ level?.key }}
+                          Days</span>
+                      <span class="flex text-xs font-semibold leading-[18px]"
+                          [ngStyle]="{ color: level?.current_count >=level?.previous_count ?'#22F57A':'#F52222' }">
+                          {{roundOff(level?.percentage_change)}}%
+                          <img [src]="level?.current_count >=level?.previous_count?'assets/svg-icons/up-icon.svg' :'assets/svg-icons/down-icon.svg'"
+                              alt="up_icon" class="ml-1" />
+                      </span>
+                      <div
+                          class="absolute z-10 top-[380px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
+                          <div class="flex flex-col gap-[5px]">
+                              <span
+                                  class="text-xs font-semibold leading-[18px] flex-wrap">{{roundOff(level?.current_count)}}
+                                  ({{level.key}} days) ÷ {{roundOff(level?.previous_count)}}
+                                  ({{getDouble(level.key)}} days)</span>
+                          </div>
+                      </div>
+                  </div>
+
+              </div>
+          </div>
             <div class="flex items-center gap-[5px] self-stretch">
                 <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-yellow w-full">{{activeTimeDate?.current_count}} Images</span>
                 <span class="flex-0 font-Barlow text-sm font-medium leading-[18px]" [ngClass]="activeTimeDate?.current_count < activeTimeDate?.previous_count? 'text-custom-red':'text-custom-green'">{{roundOff(activeTimeDate?.percentage_change)}}%</span>
@@ -212,9 +325,13 @@
         <div class="flex p-[15px] flex-col items-start gap-[15px] self-stretch rounded-[10px] border border-solid border-custom-border">
             <div class="flex flex-wrap justify-center items-center gap-[5px] self-stretch">
               @for (vendor of getVendors(data?.markerData?.vendor_count || {}); track vendor;let index = $index) {
-                <div class="flex h-[60px] min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
+                <div class="flex group h-[60px] relative overflow-visible min-w-[70.25px] p-[8px] bg-secondaryBg rounded-[5px] flex-col items-center gap-[5px] flex-0">
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px] capitalize">{{vendor}}</span>
                     <span class="text-secondary-heiglight text-xs font-bold font-Barlow leading-[18px]">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+                    <div class="group-hover:flex absolute z-[999999] top-[50px] w-max gap-[5px] hidden bg-primaryBg shadow-custom-light p-[5px] rounded-sm">
+                      <span class="text-secondaryText font-Barlow text-xs ">All time count:</span>
+                      <span class="text-secondaryText font-Barlow text-xs ">{{data?.markerData?.vendor_count?.[vendor]}}</span>
+                    </div>
                 </div>
               }
             </div>
@@ -226,11 +343,11 @@
       
    </div>
   } @else if (data.type === 'vendor') {
-    <div class="flex p-[15px] max-w-[270px] relative overflow-y-scroll scrollbar scrollbar-thumb-secondaryText scrollbar-track-gray-200 h-[86vh] flex-col items-start gap-[15px] rounded-b-l-[10px] bg-secondaryBg z-40">
+    <div class="flex p-[15px] max-w-[350px] w-[350px] relative overflow-y-scroll scrollbar scrollbar-thumb-secondaryText scrollbar-track-gray-200 h-[86vh] flex-col items-start gap-[15px] rounded-b-l-[10px] bg-secondaryBg z-40">
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
+            <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/calender-icon.svg" alt="" />
             </span>          
@@ -239,16 +356,16 @@
       <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Day of Week</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
+            <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{getDayOfWeek(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/poi-icon.svg" alt="" />
             </span>          
         </div>
       </div>
       
-      <span class="w-[240px] relative group cursor-pointer max-h-[300px] flex justify-center items-center" (click)="imagePreview(data?.vendorData,'vendor')"
+      <span class="w-full relative group cursor-pointer max-h-[300px] flex justify-center items-center" (click)="imagePreview(data?.vendorData,'vendor')"
       >
-        <img class="max-h-[300px] w-full object-cover" [src]="data?.vendorData?.presigned_url"  />
+        <img class="max-h-[300px] w-full object-contain" [src]="data?.vendorData?.presigned_url"  />
         <div
             class="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <img src="assets/svg-icons/magnifying-icon.svg" alt="" srcset="">
@@ -257,24 +374,24 @@
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Latitude and Longitude</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}},  {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
+            <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lat?.toFixed(4)}},  {{getPolygonCenter(data?.vendorData?.coordinates_record?.coordinates[0])?.lon?.toFixed(4)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address" (click)="copyToClipboard(data?.vendorData?.coordinates_record?.coordinates[0])">
                 <img src="/assets/svg-icons/copy-icon.svg" alt="" />
             </span>          
         </div>
      </div>
     <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
-      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD</span>
+      <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">GSD (m)</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}</span>         
+            <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{roundOff(data?.vendorData?.gsd)}}m</span>         
         </div> 
       </div>    
-      <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
+      <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg  justify-center">
         <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
           <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Vendor</span>
           <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.vendor_name}}</span>
+            <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.vendor_name}}</span>
           </div>
         <!-- </div> -->
       </div>         
@@ -283,26 +400,28 @@
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Constellation</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.constellation}}</span>         
+          <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.constellation}}</span>         
       </div> 
     </div>
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Azimuth Angle</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle}}</span>         
+          <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle}}</span>         
       </div> 
     </div>      
 </div><div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Centroid Local</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_local}}</span>         
+        <span class="flex-0 group font-Barlow text-xs font-medium leading-[18px] line-clamp-1 text-secondaryText w-full break-words">{{data?.vendorData?.centroid_local}}
+          <span class="hidden group-hover:flex shadow-custom-light absolute p-[5px] bg-primaryBg rounded-sm">{{data?.vendorData?.centroid_local}}</span>
+        </span>         
     </div> 
   </div>
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Centroid Region</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_region}}</span>         
+        <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.centroid_region}}</span>         
     </div> 
   </div>      
 </div>
@@ -310,14 +429,14 @@
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Illumination Angle</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_azimuth_angle}}</span>         
+        <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_azimuth_angle}}</span>         
     </div> 
   </div>    
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Satellite Angle</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.illumination_azimuth_angle}}</span>
+        <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.illumination_azimuth_angle}}</span>
       </div>
     <!-- </div> -->
   </div>         
@@ -327,7 +446,7 @@
     <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Platform</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{data?.vendorData?.platform}}</span>
+        <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.platform}}</span>
       </div>
     <!-- </div> -->
   </div>       
@@ -335,16 +454,39 @@
     <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Publication</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="text-secondaryText text-sm font-medium leading-[18px]">{{getDateTimeFormat(data?.vendorData?.publication_datetime, data?.vendorData?.centroid)}}</span>
+        <span class="text-secondaryText text-xs font-medium leading-[18px]">{{getDateTimeFormat(data?.vendorData?.publication_datetime, data?.vendorData?.centroid)}}</span>
       </div>
     <!-- </div> -->
   </div> 
   </div>    
+ 
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">   
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="text-secondary-heiglight text-xs font-semibold">Centroid Lat:
+      </span>
+      <div class="flex gap-2">
+        <div class="flex gap-2" *ngFor="let center of data?.vendorData?.centroid">
+          <span class="text-secondaryText text-xs">{{center.toFixed(4)}}</span>
+        </div>
+      </div>
+      <!-- </div> -->
+    </div>
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+      <span class="text-secondary-heiglight text-xs font-semibold">Holdback (d):
+      </span>
+      <div class="flex gap-2">
+        <span class="text-secondaryText text-xs">{{data?.vendorData.holdback_seconds ? holdbackRoundOf(data?.vendorData.holdback_seconds/86400):null}}</span>
+      </div>
+      <!-- </div> -->
+    </div>
+  </div>
   <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
     <div
       class="flex w-2/4 p-[8px] gap-[10px] group relative flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
       <span
-        class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
+        class="text-secondaryText text-center text-xs font-medium leading-[18px]">{{getTimePeriod(data?.vendorData?.acquisition_datetime)}}</span>
       <span class="h-[15px] w-[15px] cursor-pointer">
         @if (data?.vendorData?.type ==='Night') {
         <img src="/assets/svg-icons/sunny-icon.svg" alt="" />
@@ -355,18 +497,18 @@
       <div
         class="bg-primaryBg absolute top-[30px] font-Barlow text-xs font-medium p-[10px] gap-[10px] hidden group-hover:flex rounded-[5px] flex-col">
         <div class="flex flex-col gap-[5px]">
-          <span class="text-secondary-heiglight">UTC time:</span>
-          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'utc')}}</span>
+          <span class="text-secondary-heiglight text-xs">UTC time:</span>
+          <span class="text-secondaryText text-xs">{{getTime(data?.vendorData?.acquisition_datetime,'utc')}}</span>
         </div>
         <div class="flex flex-col gap-[5px]">
-          <span class="text-secondary-heiglight">Local time:</span>
-          <span class="text-secondaryText">{{getTime(data?.vendorData?.acquisition_datetime,'local',
+          <span class="text-secondary-heiglight text-xs">Local time:</span>
+          <span class="text-secondaryText text-xs">{{getTime(data?.vendorData?.acquisition_datetime,'local',
             data?.vendorData?.centroid)}}</span>
         </div>
       </div>
     </div>
     <div class="flex w-2/4 p-[8px] gap-[10px] flex-0 rounded-[3px] bg-primaryBg items-center justify-center">
-      <span class="text-secondaryText text-center text-sm font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !==
+      <span class="text-secondaryText text-center text-xs font-medium leading-[18px]">{{ data?.vendorData?.vendor_name !==
         'capella' && data?.vendorData?.vendor_name !== 'skyfi-umbra' ? roundOff(data?.vendorData?.cloud_cover) + '%' :
         'SAR' }}</span>
       <span class="h-[15px] flex w-[15px] cursor-pointer">
@@ -374,30 +516,10 @@
       </span>
     </div>
   </div>
-  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">   
-    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
-      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
-      <span class="text-secondary-heiglight text-sm font-semibold">Centroid Lat:
-      </span>
-      <div class="flex gap-2" *ngFor="let center of data?.vendorData?.centroid">
-        <span class="text-secondaryText">{{center.toFixed(4)}}</span>
-      </div>
-      <!-- </div> -->
-    </div>
-    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
-      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
-      <span class="text-secondary-heiglight text-sm font-semibold">Holdback (d):
-      </span>
-      <div class="flex gap-2">
-        <span class="text-secondaryText">{{data?.vendorData.holdback_seconds ? holdbackRoundOf(data?.vendorData.holdback_seconds/86400):null}}</span>
-      </div>
-      <!-- </div> -->
-    </div>
-  </div>
   <div *ngIf="data.vendorData.nearest_site" class="flex flex-col items-start gap-[5px] self-stretch">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Nearest POI</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow text-sm font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
+        <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.nearest_site?.name}}</span>
         <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
             <img src="/assets/svg-icons/poi-icon.svg" alt="" />
         </span>          

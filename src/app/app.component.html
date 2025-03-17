@@ -2,6 +2,54 @@
     <div class="z-[1000000] absolute  bg-[rgba(32,39,45,0.3)]
     h-screen w-full" > <ngx-ui-loader loaderId="customLoader"></ngx-ui-loader></div>
 }
+<div class="z-[9999999999] w-max absolute flex flex-col top-[47px] right-[10px] gap-[15px]">
+@if (siteNotification) {
+    <div class=" min-w-[160px] w-max flex font-Barlow py-[15px] flex-col items-center gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+       
+        <span  class="flex w-full px-[15px] justify-between">
+            <span class="text-yellow text-sm font-bold leading-[18px] ">Site update</span>
+            <img class="w-[20px] cursor-pointer h-[20px]" src="assets/svg-icons/close-icon.svg" (click)="closeSiteInfo()" alt=""  />
+        </span>
+        <div class="flex gap-2 px-[15px] items-center font-Barlow w-full text-secondaryText">
+            <span class="text-secondaryText text-xs font-bold leading-[18px] w-[76px]">Site name</span>:
+            <span class="text-secondaryText text-xs font-bold leading-[18px]">{{siteUpdateInfo?.site_name}}</span>
+        </div>
+        <div class="flex gap-2 px-[15px] items-center font-Barlow w-full text-secondaryText">
+            <span class="text-secondaryText text-xs font-bold leading-[18px] w-[76px]">ID</span>:
+            <span class="text-secondaryText text-xs font-bold leading-[18px]">{{siteUpdateInfo?.site_id}}</span>
+        </div>
+        <div class="flex gap-2 px-[15px] items-center font-Barlow w-full text-secondaryText">
+            <span class="text-secondaryText text-xs font-bold leading-[18px] w-[76px]">Date</span>:
+            <span class="text-secondaryText text-xs font-bold leading-[18px]">{{siteUpdateInfo?.time | utcDateTimePipe}}</span>
+        </div>
+        <div class="flex gap-2 px-[15px] items-center font-Barlow w-full text-secondaryText">
+            <span class="text-secondaryText text-xs font-bold leading-[18px] w-[76px]">Update count</span>:
+            <span class="text-secondaryText text-xs font-bold leading-[18px]">{{siteUpdateInfo?.new_updates}}</span>
+        </div>
+    
+        <div class="text-yellow px-[15px] cursor-pointer flex w-full justify-center items-center pt-[15px] border-t border-t-solid border-t-yellow text-base font-bold leading-[18px]" (click)="closeSiteInfo()">Close</div>
+    </div>
+}
+@if (showRefreshInfo) {
+    <div class=" min-w-[160px] w-max flex font-Barlow py-[15px] flex-col items-center gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+        <span  class="flex w-full px-[15px] justify-between">
+            <span class="text-yellow text-sm font-bold leading-[18px] ">Library update</span>
+            <img class="w-[20px] cursor-pointer h-[20px]" src="assets/svg-icons/close-icon.svg" (click)="closeRefreshInfo()" alt=""  />
+        </span>
+        <div class="flex px-[15px] gap-2 items-center font-Barlow w-full">
+            <span class="text-secondaryText text-xs font-bold leading-[18px] w-[76px]">Vendor name:</span>
+            <span class="text-secondaryText text-xs font-bold leading-[18px]">{{message?.vendor_name}}</span>
+        </div>
+        <div class="flex px-[15px] gap-2 items-center font-Barlow w-full">
+            <span class="text-secondaryText text-xs font-bold leading-[18px] w-[76px]">Update count:</span>
+            <span class="text-secondaryText text-xs font-bold leading-[18px]">{{message?.new_updates}}</span>
+        </div>
+    
+        <div class="text-yellow px-[15px] cursor-pointer flex w-full justify-center items-center pt-[15px] border-t border-t-solid border-t-yellow text-base font-bold leading-[18px]" (click)="refreshList()">Refresh List</div>
+    </div>
+}
+</div>
+
 <app-home></app-home>
 
 

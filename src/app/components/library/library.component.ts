@@ -168,6 +168,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'gsd', displayName: 'Resolution', visible: true },
     { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
+    { id: 'is_purchased', displayName: 'Purchase', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
   
@@ -204,6 +205,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   overlapListData:any=[];
   idArray:string[]=[""]
   filterParams:any;
+  isDialogOpen: boolean = false;
 
   defaultFilter() {
     return {
@@ -219,30 +221,36 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   }
   @Input()
   set startDate(value: any) {    
-    if (!(value !== this._startDate && this.endDate !== this._endDate)) {
+    if (!(value !== this._startDate && this.endDate !== this._endDate) || (value !== this._startDate)) {
+            
       this._startDate = value;
-      let queryParams = this.filterParams;
+      let queryParams = {...this.filterParams, 
+        start_date: this._startDate,
+        end_date: this._endDate};
       const payload = {
         wkt_polygon: this.polygon_wkt,
-        original_polygon:this.original_wkt
+        // original_polygon:this.original_wkt
       }
       
       if (this.polygon_wkt) {
         setTimeout(() => {
           const payload = {
-            polygon_wkt: this.polygon_wkt,
-            start_date: this.startDate,
-            end_date: this.endDate,
+            wkt_polygon: this.polygon_wkt,
             original_polygon:this.original_wkt
           }
         if(this.isEventsOpened){
           
-    
+          const calendarPayload ={
+            polygon_wkt: this.polygon_wkt,
+            start_date: this.startDate,
+            end_date: this.endDate,
+            original_polygon:this.original_wkt
+        }
           
           // Start the loader
          
         
-          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+          this.satelliteService.getPolygonCalenderDays(calendarPayload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -260,6 +268,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           });
      
           } else {
+            this.loader = true;
+            this.ngxLoader.start();
             this.getSatelliteCatalog(payload,queryParams)
 
           }  
@@ -318,6 +328,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   focused_captures_count:any;
   @Input()
 set zoomed_wkt(value: string) {
+  console.log("vvvvv", this._zoomed_wkt, value);
+  
   if (value !== this._zoomed_wkt) {
     this._zoomed_wkt = value;
 
@@ -345,10 +357,27 @@ set zoomed_wkt(value: string) {
         wkt_polygon: this.polygon_wkt,
         original_polygon:this.original_wkt
       };
-      if (this._zoomed_wkt !== '') {
+      if (this._zoomed_wkt !== ''&& this.isRefresh) {
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
       } else {
         queryParams = {...queryParams,  zoomed_wkt: ''}
+      }
+      if(this.polygon_wkt && this.sharedService.shapeDrawStatus()){
+        const data = { polygon_wkt: this.polygon_wkt };
+        this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+          next: (res) => {
+            this.analyticsData = res?.data?.analytics
+            this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+              key,
+              ...(value as object),
+            }));
+          }
+        })
+         this.filterParams = this.defaultFilter();
+        const payload = {
+          wkt_polygon: this.polygon_wkt
+        }
+        this.sharedService.shapeDrawStatus.set(false)
       }
       if(this.isRefresh){
       this.loader = true;
@@ -356,6 +385,8 @@ set zoomed_wkt(value: string) {
       this.page_number = '1';
       this.filterParams = {...queryParams}
         this.getSatelliteCatalog(payload, queryParams);
+      } else {
+       
       }
       if (this.isRefresh && this.scrollableDiv) {
         this.scrollableDiv.nativeElement.scrollTop = 0;
@@ -542,7 +573,7 @@ set zoomed_wkt(value: string) {
   searchSubject$ = new Subject<string>();
   filteredColumns = this.columns;
   lastMatchId:any = null
-  isRefresh: boolean = true;
+  isRefresh: boolean = false;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -615,6 +646,93 @@ set zoomed_wkt(value: string) {
             this.sharedService.shapeType.set(null)
           }
         },this.polygon_wkt)
+
+        effect(() => {
+          const refreshInfo =  this.sharedService.refreshList()
+       console.log(refreshInfo,'refreshInforefreshInforefreshInforefreshInfo');
+       
+       if(refreshInfo){
+        this.sharedService.isOpenedEventCalendar$.subscribe((state) => {
+    
+         
+            if(this.polygon_wkt ){
+              let queryParams: any = {
+                ...this.filterParams,
+                page_number: '1',
+                page_size: this.page_size,
+                start_date: this.startDate,
+                end_date: this.endDate,
+                source: 'library',
+                focused_records_ids: this.idArray
+              };
+              this.filterParams = queryParams
+              this.formGroup.reset();
+              const payload = {
+                wkt_polygon: this.polygon_wkt,
+                original_polygon:this.original_wkt
+              }
+          
+              const calendarPayload ={
+                  polygon_wkt: this.polygon_wkt,
+                  start_date: this.startDate,
+                  end_date: this.endDate,
+                  original_polygon:this.original_wkt
+              }
+             if(this.isEventsOpened){
+              this.getCalendarData(calendarPayload,this.filterParams)
+            }
+            // if(state){
+            //    const payload = {
+            //   polygon_wkt: this.polygon_wkt
+            // }
+            //   this.satelliteService.getPolygonCalenderDays(payload).subscribe({
+            //     next: (resp) => {
+            //       console.log(resp,'getPolygonCalenderDaysgetPolygonCalenderDaysgetPolygonCalenderDays');
+                  
+            //     }})
+            // }
+          }
+          
+        });
+        let queryParams: any = {
+          ...this.filterParams,
+          page_number: '1',
+          page_size: this.page_size,
+          start_date: this.startDate,
+          end_date: this.endDate,
+          source: 'library',
+          focused_records_ids: this.idArray
+        };
+        const payload = {
+          wkt_polygon: this.polygon_wkt,
+          original_polygon:this.original_wkt
+        };
+        if (this._zoomed_wkt !== '') {
+          queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
+        } else {
+          queryParams = {...queryParams,  zoomed_wkt: ''}
+        }
+      
+        this.loader = true;
+        this.ngxLoader.start(); // Start the loader
+        this.page_number = '1';
+        this.filterParams = {...queryParams}
+         
+          const data = { polygon_wkt: this.polygon_wkt };
+          this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
+            next: (res) => {
+              this.analyticsData = res?.data?.analytics
+              this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+                key,
+                ...(value as object),
+              }));
+            }
+          })
+          this.getSatelliteCatalog(payload, queryParams);
+       }
+       
+      
+        });
         
   }
 
@@ -665,6 +783,26 @@ set zoomed_wkt(value: string) {
       
     }
     
+    if(!this.isRefresh){
+      const payload = {
+        wkt_polygon: this.polygon_wkt,
+        original_polygon:this.original_wkt
+      };
+      let queryParams: any = {
+        ...this.filterParams,
+        page_number: '1',
+        page_size: this.page_size,
+        start_date: this.startDate,
+        end_date: this.endDate,
+        source: 'library',
+        focused_records_ids: this.idArray
+      };
+      this.loader = true;
+    this.ngxLoader.start(); // Start the loader
+    this.page_number = '1';
+    this.filterParams = {...queryParams}
+      this.getSatelliteCatalog(payload, queryParams);
+    }
   }
 
   onSortChange(event: { active: string; direction: string }) {
@@ -693,6 +831,8 @@ set zoomed_wkt(value: string) {
     })
     this.sharedService.overlayShapeData$.subscribe((overlayShapeData) => {
       if(overlayShapeData?.length>1){
+        console.log(overlayShapeData,'overlayShapeDataoverlayShapeDataoverlayShapeDataoverlayShapeData');
+        
        this.idArray = overlayShapeData.map((record) => record.id)?.join(',');
 
         let minCloud
@@ -792,7 +932,7 @@ set zoomed_wkt(value: string) {
     
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
-        
+        this.sharedService.refreshList.set(false)
         // console.log(resp,'queryParamsqueryParamsqueryParamsqueryParams');
         this.dataSource.data = resp.data.map((item, idx) => ({
           ...item,
@@ -810,6 +950,7 @@ set zoomed_wkt(value: string) {
           const div = this.scrollableDiv?.nativeElement;
           div.addEventListener('wheel', this.handleWheelEvent);
       }, 800); 
+      
       },
       error: (err) => {
         this.loader = false
@@ -880,6 +1021,7 @@ set zoomed_wkt(value: string) {
   closeLibraryDrawer() {
     this.closeDrawer.emit(true);
     this.sharedService.setIsOpenedEventCalendar(false);
+    this.closeOverlay()
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
@@ -1325,7 +1467,7 @@ setDynamicHeight(): void {
     ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
   
     // Get the height of the viewport
-    const viewportHeight = window.innerHeight;
+    const viewportHeight = window.innerHeight-50;
     // Calculate the remaining height for the target div
     const remainingHeight = viewportHeight - totalHeight-146;
   
@@ -1355,7 +1497,7 @@ setDynamicHeight(): void {
   ].reduce((acc, el) => acc + (el ? el.offsetHeight : 0), 0);
 
   // Get the height of the viewport
-  const viewportHeight = window.innerHeight;
+  const viewportHeight = window.innerHeight + 50;
 
   // Calculate the remaining height for the target div
   const remainingHeight = viewportHeight - totalHeight -126 ;
@@ -1408,7 +1550,9 @@ onCheckboxChange(row: any) {
 onRefreshCheckboxChange(e:any){
   if(e.checked){
     this.isRefresh = e.checked;
+    
   }
+  this.snackBar.open(`Refresh library is  ${e.checked ? 'active':'disabled'}`, 'Ok', { duration: 2000 });
 }
 
 //Time Zone Change
@@ -1599,6 +1743,8 @@ getDateTimeFormat(dateTime: string) {
 
   //Open Map Controller Popup
   openDialog(vendorId:any){
+    if (this.isDialogOpen) return;
+    this.isDialogOpen = true;
     //calling API by vendorID
     let vendorData:any [] = [];
     let queryParams ={
@@ -1613,23 +1759,29 @@ getDateTimeFormat(dateTime: string) {
       next: (resp) => {
         if (resp?.data && resp.data.length > 0) {
           vendorData = resp.data[0];
+          this.sharedService.setVendorData(vendorData);
+          this.isDialogOpen = false;
           // Open the dialog after setting vendorData
-          const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-            width: `280px`,
-            height: 'auto',
-            data: { type: 'vendor', vendorData: vendorData },
-            panelClass: 'custom-dialog-class',
-          });
+          // const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+          //   width: `300px`,
+          //   height: 'auto',
+          //   data: { type: 'vendor', vendorData: vendorData },
+          //   panelClass: 'custom-dialog-class',
+          //   position: { top: '50px', right: '0px' }
+          // });
   
-          dialogRef.afterClosed().subscribe((result) => {
-            this.popUpData = null;
-          });
+          // dialogRef.afterClosed().subscribe((result) => {
+          //   this.popUpData = null;
+          //   this.isDialogOpen = false;
+          // });
         } else {
           console.log('No data found for the given vendor ID');
+          this.isDialogOpen = false;
         }
       },
       error: (err) => {
         console.error('API call failed', err);
+        this.isDialogOpen = false;
       }
     });
     
@@ -1856,8 +2008,45 @@ getOverlapData(){
     
   }
 
+  expandRow(vendorId: any) {
+    const foundRow = this.dataSource.data.find(v => v.vendor_id === vendorId);
+  
+    if (foundRow) {
+      this.expandedElement = this.expandedElement?.vendor_id === vendorId ? null : foundRow;
+  
+      setTimeout(() => {
+        const rowElement = document.getElementById(`vendor-row-${vendorId}`);
+        const tableContainer = document.querySelector('.mat-table-container') as HTMLElement; // Cast to HTMLElement
+  
+        if (rowElement && tableContainer) {
+          const rowPosition = rowElement.offsetTop - tableContainer.offsetTop;
+          tableContainer.scrollTo({ top: rowPosition, behavior: 'smooth' });
+        }
+      }, 100); // Delay for smooth effect
+    }
+  }
+  
+  
+  
+  closeOverlay(){
+    this.overlapListData = [];
+    setTimeout(() => {
+      this.setDynamicHeight();
+    window.addEventListener('resize', this.setDynamicHeight.bind(this))
+    const div = this.scrollableDiv?.nativeElement;
+    this.canTriggerAction = true
+    if (div) {
+      div.addEventListener('wheel', this.handleWheelEvent);
+    }
+    }, 0);
+    
+  }
   holdbackRoundOf(value:number){
-    return Math.floor(value);
+    const holdback = Math.floor(value/86400);
+    if (holdback > 40 || !value) {
+      return 'N/A'
+    } 
+    return holdback || 0
   }
 
 }

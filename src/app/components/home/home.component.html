@@ -29,7 +29,7 @@
         <button class="drag-btn" id="dragBtn"><||></button>
         <mat-drawer 
           #drawer 
-          class="library"
+          class="library !h-[91.1vh]"
           [ngClass]="{ '!bg-primaryBg': true, 'open': drawer._animationState === 'open' }" 
           mode="side"
           >
@@ -71,9 +71,9 @@
          [ngStyle]="{ 'margin-left.px': sidebarWidth -marginleft}"             
       ></div>
       <div
-        class="flex justify-start  end-0 gap-3 absolute bottom-[12px] "
+        class="flex justify-start w-full  end-0 gap-3 absolute bottom-[0px] bg-primaryBg border-t border-t-solid border-t-custom-border"
       >
-        <div class="relative z-10 " [ngClass]="drawer._animationState === 'open'? 'ml-[820px] !w-fill-available':'w-full'">
+        <div class="relative z-[99999999] w-full">
           <app-footer #childComponent
             (toggleLayer)="toggleMapLayer($event)"
             (drawTypeSelected)="setDrawType($event)"
@@ -182,8 +182,8 @@
   </div> -->
     </div>
     <div *ngIf="vendorData" @slideInOut
-              class="absolute !top-[40px] !right-[10px] h-auto flex-col !z-50 w-64 flex items-center justify-center text-lg rounded-lg shadow-lg">
-              <div class="flex items-center justify-start w-[270px] h-[48px] bg-secondaryBg p-3">
+              class="absolute !top-[40px] !right-[55px] h-auto flex-col !z-50 w-64 flex items-center justify-center text-lg rounded-lg shadow-lg">
+              <div class="flex items-center justify-start w-[350px] h-[48px] bg-secondaryBg p-3">
                 <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeMarkerPopup()">
                     <img class="rotate-180" src="assets/svg-icons/drawer-toggle-icon.svg" />
                 </span>

@@ -10,7 +10,7 @@
             <div class="flex flex-row gap-3">
                 <div class="flex flex-col  flex-0 custom-h overflow-x-hidden overflow-y-hidden">
                     @if (analyticsData) {
-                    <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
+                    <!-- <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
 
                         <div
                             class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px] font-Barlow">
@@ -80,7 +80,7 @@
 
                                 <mat-menu class="bg-primaryBg absolute" #assign="matMenu" id="assign">
                                     <div class="p-[15px] flex flex-col gap-[10px]" (click)="$event.stopPropagation()">
-                                        <!-- Groups Section -->
+                                       
                                         <div class="container">
                                             @for (group of groups; track group;let index = $index) {
                                             <ng-container>
@@ -91,7 +91,7 @@
                                             }
                                         </div>
 
-                                        <!-- Search and Assign Section -->
+                                       
                                         <div class="flex flex-col gap-3">
                                             <span
                                                 class="text-secondary-heiglight font-semibold text-xs leading-[18px]">Assign
@@ -105,14 +105,14 @@
                                             </mat-form-field>
                                         </div>
 
-                                        <!-- Checkbox Section -->
+                                       
                                         <span>
                                             <mat-checkbox class="example-margin" [(ngModel)]="checked"
                                                 (click)="$event.stopPropagation()">Notify me of new
                                                 updates</mat-checkbox>
                                         </span>
 
-                                        <!-- Buttons -->
+                                        
                                         <button (click)="saveGroup()"
                                             class="flex justify-center text-[#453303] items-center text-center w-full h-[38px] py-[10px] bg-yellow rounded-[5px]">
                                             Save
@@ -145,7 +145,7 @@
                             </div>
                         </div>
 
-                    </div>
+                    </div> -->
 
                     <div id="not_found" class="mx-[15px] bg-secondaryBg rounded-[5px] font-Barlow">
                         <div class="mx-[15px] gap-[5px] flex font-Barlow">
@@ -305,19 +305,18 @@
                             <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                                 <button (click)="selectPreviewMethod('table')"
                                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
-                                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Image
-                                    Library
+                                    [ngClass]="viewType ==='table'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Archive
                                     {{viewType ==='table'? zoomed_captures_count + ' / ':''}}{{viewType ==='table'?
                                     formatNumber(total_count):''}}</button>
                                 <button (click)="selectPreviewMethod('browse')"
                                     class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
-                                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Browse
+                                    [ngClass]="viewType ==='browse'?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Images
                                     {{viewType ==='browse'? zoomed_captures_count + ' / ':''}}{{viewType ==='browse'?
                                     formatNumber(total_count):''}}</button>
                             </div>
                             <div>
                                 <div [matMenuTriggerFor]="columnsMenu" (click)="setColumnMenuClass()"
-                                    class="p-[10px] cursor-pointer flex justify-center items-center rounded-[5px] border border-solid border-yellow">
+                                    class="p-[10px] cursor-pointer flex justify-center w-[42px] h-[42px] items-center rounded-[5px] border border-solid border-yellow">
                                     <img src="assets/svg-icons/toggle-column-icon.svg" alt="" width="20" height="20" />
                                 </div>
                                 <mat-menu class="bg-primaryBg p-[15px]" #columnsMenu="matMenu">
@@ -345,7 +344,7 @@
                                 </mat-menu>
                             </div>
                             <div class="Menu">
-                                <div class="flex">
+                                <div class="flex items-center">
                                     <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                                         <button (click)="selectedTimeZone('UTC')"
                                             class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[10px] ml-[8px]  rounded-[19px] px-[20px] "
@@ -353,12 +352,12 @@
                                         <button (click)="selectedTimeZone('local')"
                                             class="text-xs leading-[18px] py-[9px] font-semibold my-[6px] mr-[7px]  rounded-[19px] px-[20px]"
                                             [ngClass]="selectedZone ==='local'?' bg-yellow text-[#453303]':'text-secondary-heiglight'">Local
-                                            time</button>
+                                            </button>
                                     </div>
                                     <div class="relative flex justify-center items-center">
                                         <button
-                                            class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center w-[60px] h-[40px] my-0 ml-[8px] rounded-[15px]"
-                                            [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg'"
+                                            class=" flex gap-[5px] font-Barlow text-sm font-medium justify-center items-center min-w-[42px] h-[42px] my-0 ml-[8px] rounded-[5px]"
+                                            [ngClass]="filterCount >0 ? 'bg-yellow ':'bg-primaryBg border border-solid border-yellow rounded-[5px]'"
                                             (click)="openFilterDialog()" 
                                             >
                                             <img [src]="filterCount>0 ? 'assets/svg-icons/filter-icon-active.svg':'assets/svg-icons/filter-icon.svg'"
@@ -368,8 +367,8 @@
                                         
                                     </div>
                                     <button (click)="calendarEventsOpen()"
-                                        class="py-[9px] px-[20px] my-0 mx-[8px] rounded-[19px]"
-                                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg'">
+                                        class="my-0 mx-[8px] w-[42px] h-[42px] flex justify-center items-center rounded-[5px]"
+                                        [ngClass]="isEventsOpened ?'text-[#453303] bg-yellow':'bg-primaryBg border border-solid border-yellow rounded-[5px]'">
                                         @if (isEventsOpened) {
                                         <img src="assets/svg-icons/calendar-icon-black.svg" alt="">
                                         } @else {
@@ -386,7 +385,7 @@
                         <div class="mx-[20px]">
                             <mat-checkbox [(ngModel)]="isRefresh" (change)="onRefreshCheckboxChange($event)">Refresh List</mat-checkbox>
                         </div>
-                        <div *ngIf="loader" class="z-[1000000] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
+                        <div *ngIf="loader" class="z-[100000000] bottom-[80px] absolute" id="loader"> <ngx-ui-loader></ngx-ui-loader>
                         </div>
                         @if (viewType=='browse') {
                             <div class="flex flex-col  overflow-scroll" [ngStyle]="{'width': 'calc(100vh - {{{sidebarWidth}}}px)'}">
@@ -394,7 +393,7 @@
                                     <div class="flex flex-start all_wrap flex-wrap ml-[20px]">
                                         @if(dataSource?.data?.length){
         
-                                        <div class="flex flex-col w-full gap-[10px] pb-[5px] border-b-2 border-b-solid border-b-red-600"
+                                        <div class="flex flex-col w-full gap-[10px] pb-[5px]"
                                             *ngIf="overlapListData.length>0">
                                             <span class="text-sm text-secondaryText leading-[18px]">Overlap</span>
                                             <div class="flex flex-start all_wrap flex-wrap">
@@ -471,7 +470,7 @@
                                                 class="bg-secondaryBg rounded-[5px] relative font-Barlow single_browse w-[182px]">
         
                                                 <div class="flex flex-col" [ngClass]="{
-                                    'border-r-2 border-r-solid !border-r-red-600': item.id === lastMatchId
+                                    
                                   }">
                                                     <div class="relative h-[220px] bg-[#232B32] w-[181.262px] group cursor-pointer"
                                                         (mouseover)="onRowHover(item)" (mouseout)="onRowHover(null)"
@@ -512,7 +511,7 @@
                                 </div>
                             </div>
                         }@else {
-                        <div class="overflow-auto content " #scrollableDiv>
+                        <div class="overflow-auto content mat-table-container" #scrollableDiv>
                             @if (dataSource) {
                             <div class="w-full flex justify-center items-center" *ngIf="!dataSource.data.length">
                                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Data not
@@ -584,7 +583,7 @@
                                         class="min-w-[110px] !pl-[10px] text-secondaryText font-semibold">
                                         Holdback (d)</th>
                                     <td mat-cell *matCellDef="let row"
-                                        class="min-w-[90px] !pl-[10px] text-secondaryText">{{row?.holdback_seconds? holdbackRoundOf(row?.holdback_seconds/86400):null}}
+                                        class="min-w-[90px] !pl-[10px] text-secondaryText">{{ holdbackRoundOf(row?.holdback_seconds)}}
                                     </td>
                                 </ng-container>
 
@@ -594,6 +593,14 @@
                                         Type</th>
                                     <td mat-cell *matCellDef="let row"
                                         class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.type| titlecase }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="is_purchased">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold">
+                                        Purchase</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[80px] !pl-[10px] text-secondaryText">{{ row?.is_purchased ? 'Yes'  : 'No'}}
                                     </td>
                                 </ng-container>
 
@@ -707,7 +714,7 @@
                                                     </div>
                                                     <div class="flex py-2">
                                                         <span class="text-secondary-heiglight font-semibold">Holdback (d): </span> 
-                                                        <span class="text-secondaryText">{{element?.holdback_seconds? holdbackRoundOf(element?.holdback_seconds/86400):null}}</span>
+                                                        <span class="text-secondaryText">{{ holdbackRoundOf(element?.holdback_seconds)}}</span>
                                                     </div>
                                                     <div class="flex py-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Day of Week:
@@ -751,10 +758,10 @@
                                 <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
                                     class="bg-secondaryBg"></tr>
                                 <tr mat-row
+                                    [id]="'vendor-row-' + row.vendor_id"
                                     *matRowDef="let row; let i = dataIndex; columns: displayedColumns; trackBy: trackByIndex"
                                     class="hover:bg-secondaryHighlight cursor-pointer" [ngClass]="{
                         '!border-b-2 border-b-solid !border-b-white': zoomed_captures_count > 0 && (i + 1) === zoomed_captures_count + focused_captures_count,
-                        'border-b-2 border-b-solid !border-b-red-600': focused_captures_count > 0 && (i + 1) === focused_captures_count,
                         '!bg-[#3c3e3f]': tableRowHovered === row.vendor_id,
                       }" (click)="expandedElement = expandedElement === row ? null : row;"
                                     (mouseover)="onRowHover(row)" (mouseout)="onRowHover(null)">
@@ -835,6 +842,30 @@
                         (calendarEventsOpen)="calendarEventsOpen()"
                         [calendarApiData]="calendarApiData"></app-map-calendar>
                 </div>
+                } @if(overlapListData.length>0){
+                    <div class="z-[1000000] text-secondaryText">
+                        <div class="w-[280px] h-[98vh] overflow-auto bg-primaryBg p-[15px]">
+                            <!-- Title -->
+                            <div class="flex justify-between items-center pb-[15px]">
+                              <p class="text-sm text-yellow">Shape Overlap Data</p>
+                              <img (click)="closeOverlay()"  class="cursor-pointer" src="assets/svg-icons/drawer-toggle-icon.svg" />
+                            </div>
+                            <div class="flex flex-col font-Barlow rounded-sm border border-solid border-secondaryBg">
+                                <div class="flex gap-[15px] p-[10px] bg-secondaryBg">
+                                    <span class="text-secondaryText text-sm w-[140px]">ID</span>
+                                    <span class="text-secondaryText text-sm">Vendor</span>
+                                </div>
+
+                                <div *ngFor="let data of overlapListData;let ind=index" class="flex gap-[15px] cursor-pointer p-[10px] border-b border-b-solid border-b-secondaryBg"
+                                 (click)="expandRow(data.vendor_id)" 
+                                (mouseenter)="tableRowHovered = data.vendor_id"
+                                (mouseleave)="tableRowHovered = null" >
+                                    <span class="text-secondaryText text-sm w-[140px] break-words">{{data?.vendor_id}}</span>
+                                    <span class="text-secondaryText text-sm">{{data?.vendor_name}}</span>
+                                </div>
+                            </div>
+                          </div>
+                    </div>
                 }
             </div>
         </div>
