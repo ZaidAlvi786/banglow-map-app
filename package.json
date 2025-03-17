@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration=production",
+    "build:staging": "ng build --configuration=staging",
     "test": "ng test"
   },
   "private": true,
@@ -31,7 +32,6 @@
     "ng-apexcharts": "^1.15.0",
     "ngx-daterangepicker-material": "^6.0.4",
     "ngx-panzoom": "^19.0.0",
-    "ngx-socket-io": "4.7.0",
     "ngx-ui-loader": "^13.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

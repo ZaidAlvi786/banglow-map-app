@@ -93,4 +93,7 @@ export class SatelliteService extends BaseService {
       params:queryParams
     });
   }
+  updateSitesCount(data:any): Observable<any> {
+    return this.put(createUrl("/reset-site-updates-count"),data)
+  }
 }

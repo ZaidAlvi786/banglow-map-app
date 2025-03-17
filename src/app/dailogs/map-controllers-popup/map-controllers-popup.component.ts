@@ -142,6 +142,8 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   }
 
   activeTimeFrame(time: any) {
+    console.log(time,'timetimetimetimetimetimetimetime');
+    
     this.selectedTimeFrame = time;
     this.activeTimeDate = this.data?.markerData?.percentages[time]
   }
@@ -197,10 +199,10 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
 
     // Check if the acquisition date is within the last 24 hours
-    if (timeDifference <= twentyFourHoursInMs) {
+    // if (timeDifference <= twentyFourHoursInMs) {
       // If it's within 24 hours, return the time portion of the date (formatted as needed)
       return acquisitionDate.toLocaleTimeString(); // You can adjust the format if needed
-    }
+    // }
 
     // Return null if the acquisition date is not within the last 24 hours
     return dayjs(acquisition_datetime).format('DD.MM.YY');;
@@ -566,4 +568,34 @@ openDialog(data:any){
       
   })
 }
+
+getValue(value:any,total:any){
+  return value *100 / total
+}
+//Double Day value function
+  getDouble(data){
+    return parseFloat(data) + parseFloat(data);
+    
+  }
+
+  //Total Number formatting in human-readable format with suffixes like k (thousands), m (millions), b (billions), etc.
+  formatNumber(totalCount: number): string {
+    if (totalCount >= 1_000_000_000) {
+      return `${parseFloat((totalCount / 1_000_000_000)?.toFixed(1))}b`; // Billions
+    } else if (totalCount >= 1_000_000) {
+      return `${parseFloat((totalCount / 1_000_000)?.toFixed(1))}m`; // Millions
+    } else if (totalCount >= 1_000) {
+      return `${parseFloat((totalCount / 1_000)?.toFixed(1))}k`; // Thousands
+    } else {
+      return totalCount?.toString(); // Less than 1,000
+    }
+  }
+
+  getPercentageArray(values): { key: string; current_count?: number; previous_count?: number; percentage_change?: number }[] {
+  return Object.entries(values).map(([key, value]) => ({
+    key,
+    ...(value as any), // Ensure additional properties exist
+  }));
+}
+
 }

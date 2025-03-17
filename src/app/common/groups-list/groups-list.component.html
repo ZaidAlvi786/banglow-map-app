@@ -27,11 +27,11 @@
                     <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                         <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
-                            <button (click)="setNotifications(true,group)"
+                            <button (click)="$event.stopPropagation();setNotifications(true,group)"
                                 class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[10px] ml-[7px] rounded-[19px] px-[20px]"
                                 [ngClass]="group?.notification ?'text-[#453303] bg-yellow':'text-secondary-heiglight'">On
                                </button>
-                            <button (click)="setNotifications(false,group)"
+                            <button (click)="$event.stopPropagation();setNotifications(false,group)"
                                 class="text-xs leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[19px] px-[20px] "
                                 [ngClass]="!group?.notification?'text-[#453303] bg-yellow':'text-secondary-heiglight'">Off</button>
                         </div>

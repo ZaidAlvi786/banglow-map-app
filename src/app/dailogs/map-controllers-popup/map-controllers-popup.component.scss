@@ -110,3 +110,21 @@
   width: 880px;  /* Initial width */
   height: 694px;  /* Initial height */
 }
+
+.custom-progress-container {
+  position: relative;
+  height: 28px;
+  width: 16px;
+  background-color: #2d343d; /* Background of the container */
+  border-radius: 5px; /* Rounded corners */
+  overflow: hidden; /* Ensure no overflow for the bar */
+}
+
+.custom-progress-bar {
+  position: absolute;
+  bottom: 0; /* Start from the bottom */
+  width: 100%; /* Full width of the container */
+  background-color: #22f57a; /* Default bar color */
+  border-radius: 5px 5px 0 0; /* Rounded corners at the top */
+  transition: height 0.3s ease-in-out; /* Smooth animation for height changes */
+}
