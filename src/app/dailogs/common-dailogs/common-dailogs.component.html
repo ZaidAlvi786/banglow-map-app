@@ -136,6 +136,14 @@
                     [(value)]="min_gsd" [(highValue)]="max_gsd"
                     [options]="gsd_options"></ngx-slider>
             </div>
+            <div class="flex gap-3 justify-start col-span-2">
+                <mat-checkbox
+                    class="text-secondaryText text-base font-Barlow font-medium"
+                    [checked]="isPurchased" (change)="isPurchased = $event.checked"
+                    >
+                    Is purchased
+                </mat-checkbox>
+            </div>
            
             <div class="flex gap-3 justify-center col-span-2">
                 <button (click)="closeDialog()"

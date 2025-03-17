@@ -148,7 +148,11 @@ export class GroupsListComponent {
     }
     this.satelliteService.updateGroup(payload).subscribe({
       next: (resp) =>{
+        this.group.notification = status
         this.SharedService.setNestedGroup(true);
+        this._snackBar.open(`Notification status apdated to ${status ? 'on':'off'}`, 'Ok', {
+          duration: 2000  // Snackbar will disappear after 300 milliseconds
+        });
       }
     })
   }
@@ -245,6 +249,7 @@ export class GroupsListComponent {
           
           site_id: site.id,
         }
+        this.updateSitesCount(site.id)
         this.getSitesData(queryParams)
         this.activeSite = site.id;
         
@@ -838,4 +843,16 @@ export class GroupsListComponent {
       clearTooltipPosition(day: any): void {
         delete this.tooltipPosition[day.date];
       }
+
+      //Update sites count api call
+      updateSitesCount(siteId:any){
+        const payload ={
+         site_id:siteId
+        }
+        this.satelliteService.updateSitesCount(payload).subscribe({
+         next:(resp)=>{
+   
+         }
+        })
+       }
 }
