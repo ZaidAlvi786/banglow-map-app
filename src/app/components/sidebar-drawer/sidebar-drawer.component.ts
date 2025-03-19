@@ -3,11 +3,12 @@ import { LibraryComponent } from "../library/library.component";
 import { SitesComponent } from "../sites/sites.component";
 import { GroupsComponent } from "../groups/groups.component";
 import { ImageryStatusComponent } from "../imagery-status/imagery-status.component";
+import { AnalysisComponent } from "../analysis/analysis.component";
 
 @Component({
   selector: "app-sidebar-drawer",
   standalone: true,
-  imports: [LibraryComponent,SitesComponent,GroupsComponent,ImageryStatusComponent],
+  imports: [LibraryComponent, SitesComponent, GroupsComponent, ImageryStatusComponent, AnalysisComponent],
   templateUrl: "./sidebar-drawer.component.html",
   styleUrl: "./sidebar-drawer.component.scss",
 })

@@ -24,6 +24,11 @@
     <img src="assets/svg-icons/sites-active-icon.svg" alt="" *ngIf="toggleType === 'Sites'" /> -->
     <span class="text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'Imagery' ? 'text-yellow':'text-secondaryText'">Imagery Logs</span>
 </div>
+<div (click)="onToggleDrawer('analysis')" class="flex items-center justify-center min-w-[119px] w-auto h-[40px] py-1.5 px-[30px] gap-[15px] border-r border-l-0 border-y-0 border-secondary cursor-pointer">
+    <!-- <img src="assets/svg-icons/sites-icon.svg" alt="" *ngIf="toggleType !== 'Sites'" />
+    <img src="assets/svg-icons/sites-active-icon.svg" alt="" *ngIf="toggleType === 'Sites'" /> -->
+    <span class="text-xs leading-[18px] font-Barlow uppercase font-bold" [ngClass]="toggleType === 'analysis' ? 'text-yellow':'text-secondaryText'">Analysis</span>
+</div>
 <span class="flex justify-between  w-[1252px] h-[40px] py-1.5 px-5 bg-inputBg">
     <input #searchInput type="text" placeholder="Search ..." class="bg-inherit placeholder:!text-secondary-heiglight border-0 outline-0 w-full !text-secondaryText text-xs font-bold font-Barlow" />
     <img height="14px" width="14px" src="assets/svg-icons/search-icon.svg" alt="" />

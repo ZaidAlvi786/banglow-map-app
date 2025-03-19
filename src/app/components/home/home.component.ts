@@ -1416,7 +1416,8 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
             this.sharedService.setVendorData(this.vendorData)
             this.onPolygonOut(null)
             // this.openDialogAtPosition(polygon, vendorData);
-            this.popUpData = vendorData
+            //Library table checbox check data
+            // this.popUpData = vendorData
 
         },
         error: (err) => {

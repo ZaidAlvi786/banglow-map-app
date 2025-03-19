@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  effect,
   ElementRef,
   EventEmitter,
   Input,
@@ -138,6 +139,24 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     private cd: ChangeDetectorRef
    
   ) {
+    effect(() => {
+      const imageryData = this.sharedService.imageryData();
+      const imagertFilter = this.sharedService.imageryFilter();
+      if (imageryData.length !== null) {
+        this.dataSource.data = imageryData;
+        this.originalData = [...this.dataSource.data];
+        console.log(imageryData, 'Shared Service Data Updated');
+        console.log(this.sharedService.imageryFilter(),'imageryFilterimageryFilterimageryFilterimageryFilter');
+        
+      }
+      if(imagertFilter!==null&& imagertFilter.filterParams!== null){
+        this.filterParams = imagertFilter.filterParams;
+        this.filterCount  = imagertFilter.filterCount;
+        this.start_date = imagertFilter.filterParams.start_date;
+        this.end_date = imagertFilter.filterParams.end_date;
+        this.vendor.patchValue(imagertFilter.filterParams.vendor_name.split(',')) 
+      }
+    });
   }
 
   initializeDates() {
@@ -161,12 +180,25 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
     this.filterParams = { ...this.defaultFilter() };
-    let queryParams = {
-      ...this.filterParams,
-      page_number: 1,
-      page_size: this.page_size,
-    };
-    this.getImageryCollection(queryParams);
+    if(this.sharedService.imageryData() == null) {
+    //   this.dataSource.data = this.sharedService.imageryData();
+    //   this.originalData = [...this.dataSource.data]
+    // console.log(this.sharedService.imageryData(),'sharedServicesharedServicesharedService');
+
+    
+      let queryParams = {
+        ...this.filterParams,
+        page_number: 1,
+        page_size: this.page_size,
+      };
+      this.getImageryCollection(queryParams);
+    }
+    console.log(this.maxDate, "sssssssssssssssss");
+    this.maxDate = this.maxDate.format("YYYY-MM-DD HH:mm [UTC]");
+    this.minDate = this.minDate.format("YYYY-MM-DD HH:mm [UTC]");
+    
+    
+    
   }
 
   ngAfterViewInit(): void {
@@ -195,6 +227,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         //   index: idx,
         // }));
         this.originalData = [...this.dataSource.data];
+        this.sharedService.imageryData.set(resp.data.records)
         this.total_count = resp.data.total_records;
       },
     });
@@ -217,7 +250,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
         this.isAtBottom = true; // Lock the event trigger
         let num = this.page_number;
         this.page_number = num + 1;
-        if (this.dataSource.data.length < this.total_count) {
+        
           let queryParams = {
             ...this.filterParams,
             page_number: this.page_number,
@@ -235,7 +268,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
           });
           this.loader = true;
           // this.ngxLoader.start(); // Start the loader
-        }
+        
         setTimeout(() => {
           this.setDynamicHeight();
           window.addEventListener("resize", this.setDynamicHeight.bind(this));
@@ -370,38 +403,48 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       // Check vendor filter
       const newVendorValue = this.vendor?.value?.length > 0 ? this.vendor.value.join(',') : null;
       if (newVendorValue !== this.filterParams.vendor_name) {
+        console.log(newVendorValue,'newVendorValuenewVendorValuenewVendorValuenewVendorValue');
+        
         this.filterParams = {
           ...this.filterParams,
-          vendor_name: newVendorValue,
+          vendor_name: newVendorValue == null? '' : newVendorValue,
         };
-        this.filterCount++;
+       newVendorValue !==null? this.filterCount++:this.filterCount--;
       }
       
       // Check start_date filter
       if (this.start_date.startDate !== null) {
         
-        const formattedStartDate = dayjs(this.start_date.startDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+        const formattedStartDate = dayjs(this.start_date ?this.start_date:this.start_date.startDate)
+        .startOf('day') // Sets time to 00:00:00.000
+        .utc()
+        .format('YYYY-MM-DDTHH:mm:ss.SSSSSS');
       
         if (this.filterParams.start_date !== formattedStartDate) {
+          !this.filterParams.start_date ? this.filterCount++: '';
           this.filterParams = {
             ...this.filterParams,
             start_date: formattedStartDate,
           };
-          this.filterCount++;
+          
         }
       }
       
       // Check end_date filter
       if (this.end_date.endDate !== null) {
         
-        const formattedEndDate = dayjs(this.end_date.endDate).utc().format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+        const formattedEndDate = dayjs(this.end_date?this.end_date:this.end_date.endDate)
+        .endOf('day') // Sets time to 23:59:59.999
+        .utc()
+        .format('YYYY-MM-DDTHH:mm:ss.SSSSSS');
       
         if (this.filterParams.end_date !== formattedEndDate) {
+          !this.filterParams.end_date ? this.filterCount++: '';
           this.filterParams = {
             ...this.filterParams,
             end_date: formattedEndDate,
           };
-          this.filterCount++;
+         
         }
       }
       
@@ -417,7 +460,8 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     };
 
     this.filterParams = { ...params };
-    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name){
+    this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
+    if(this.filterParams.start_date || this.filterParams.end_date || this.filterParams.vendor_name || newVendorValue==null) {
     setTimeout(() => {
       this.loader = true;
       // this.ngxLoader.start(); // Start the loader
@@ -479,6 +523,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       page_size : 50
     }
     this.filterParams = queryParams
+    this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
     this.getImageryCollection(queryParams)
   }
 

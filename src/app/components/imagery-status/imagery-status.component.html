@@ -140,7 +140,7 @@
     id="imagery_table"
     #scrollableDiv
   >
-    @if (dataSource) {
+    @if (dataSource.data.length) {
     <div
       class="w-full flex justify-center items-center"
       *ngIf="!dataSource.data.length"

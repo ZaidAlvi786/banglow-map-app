@@ -344,7 +344,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
         maxIlluminationAzimuthAngle:this.data?.filterParams?.maxIlluminationAzimuthAngle? this.data?.filterParams?.maxIlluminationAzimuthAngle: this.defaultMaxIlluminationAzimuthAngle,
         minIlluminationElevationAngle:this.data?.filterParams?.minIlluminationElevationAngle? this.data?.filterParams?.minIlluminationElevationAngle: this.defaultMinIlluminationElevationAngle,
         maxIlluminationElevationAngle:this.data?.filterParams?.maxIlluminationElevationAngle? this.data?.filterParams?.maxIlluminationElevationAngle: this.defaultMaxIlluminationElevationAngle,
-        is_purchased: this.data?.filterParams?.is_purchased ? this.data?.filterParams?.is_purchased: this.defaultIsPurchased
+        is_purchased: this.isPurchased ? this.isPurchased: this.data?.filterParams?.is_purchased
       };
     
       // Function to add a filter and increment counter
@@ -457,11 +457,19 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     if(this.isPurchased !== this.data?.filterParams?.is_purchased && this.isPurchased !== this.defaultIsPurchased){
       queryParams.is_purchased = this.isPurchased
       filterCount++;
+    } else if (this.isPurchased && this.isPurchased === this.data?.filterParams?.is_purchased){
+      queryParams.is_purchased = this.isPurchased
+      filterCount ++;
+    } else {
+      queryParams.is_purchased = this.isPurchased
     }
     
     if (vendorName && vendorName !== this.data?.filterParams?.vendor_name) {
         queryParams.vendor_name = vendorName;
         filterCount++;
+    } else if(vendorName && vendorName === this.data?.filterParams?.vendor_name){
+      queryParams.vendor_name = vendorName;
+      filterCount++;
     }
     
     if (userDurationType && userDurationType !== this.data?.filterParams?.user_duration_type) {
