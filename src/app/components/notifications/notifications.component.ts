@@ -1,41 +1,58 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { merge, Subscription } from 'rxjs';
+import { SocketService } from '../../services/socket.service';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 import { UtcMonthDatePipe } from '../../pipes/date-format.pipe';
-import { OverlayContainer } from '@angular/cdk/overlay';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
   imports: [CommonModule,UtcMonthDatePipe],
   templateUrl: './notifications.component.html',
-  styleUrl: './notifications.component.scss'
+  styleUrl: './notifications.component.scss',
 })
-export class NotificationsComponent {
-  notificationsList:any[]=[{
-    title:'New site added to Manual JW PLA Navy Marine group',read:false,id:1,createdAt:'2025-02-12T08:59:34.735807Z',name:'New site'
-  },
-  {
-    title:'New group added ',read:false,id:2,createdAt:'2025-02-12T08:59:34.735807Z',name:'My group'
-  },
-  {
-    title:'Site Untitled site deleted of Manual JW PLA Navy Marine group',read:false,id:3,createdAt:'2025-02-12T08:59:34.735807Z',name:'Untitled site'
-  },
-  {
-    title:'New site Shuidao Base added to Manual JW PLA Navy Marine group',read:false,id:4,createdAt:'2025-02-12T08:59:34.735807Z',name:'Shuidao Base'
-  },
-  {
-    title:'New site Sanya Comprehensive Support Base added to Manual JW PLA Navy Marine group',read:true,id:5,createdAt:'2025-02-12T08:59:34.735807Z',name:'Sanya Comprehensive Support Base'
-  },
-  {
-    title:'New site Subi Reef Base added to Manual JW PLA Navy Marine group',read:true,id:6,createdAt:'2025-02-12T08:59:34.735807Z',name:'Subi Reef Base'
-  },]
-  filteredData:any[]=this.notificationsList
+export class NotificationsComponent implements OnInit, OnDestroy {
+  notificationsList: any[] = [];
+  unreadCount: number = 0;
+   filteredData:any[]=this.notificationsList
   activeTab:string = 'all'
+  private socketSubscription!: Subscription;
+
+  constructor(private socketService: SocketService) {}
+
+  ngOnInit() {
+    // ✅ Listen to both real & fake notifications using `merge()`
+    this.socketSubscription = merge(
+      // this.socketService.listenForNotifications(), // Real WebSocket data
+      // this.socketService.fakeNotifications$ // Fake notifications every 5 sec
+    ).subscribe((newNotification) => {
+      console.log("📩 Received Notification:", newNotification);
+      this.notificationsList.unshift(newNotification);
+      this.updateUnreadCount();
+    });
+
+    this.updateUnreadCount();
+  }
+
+  ngOnDestroy() {
+    if (this.socketSubscription) {
+      this.socketSubscription.unsubscribe();
+    }
+  }
+
+  private updateUnreadCount() {
+    this.unreadCount = this.notificationsList.filter((notification) => !notification.read).length;
+  }
+
+  sendTestNotification() {
+    // this.socketService.sendTestNotification();
+  }
 
   markAllRead() {
     this.notificationsList.forEach(notification => {
       notification.read = true;
     });
+    this.updateUnreadCount()
   }
   setActiveTab(type:string) {
     if(type ==='unread'){
@@ -45,13 +62,15 @@ export class NotificationsComponent {
     } else {
       this.activeTab = type
       this.filteredData = this.notificationsList
+      
     }
+    this.updateUnreadCount()
   }
 
   readNotification(data: any) {
     this.filteredData = this.notificationsList.map(notification =>
       notification.id === data.id ? { ...notification, read: true } : notification
     );
+    this.updateUnreadCount()
   }
-  
 }

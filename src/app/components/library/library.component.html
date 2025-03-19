@@ -332,9 +332,10 @@
                                         <button class="text-secondaryBg bg-yellow p-[10px] rounded-[5px]"
                                             (click)="resetColumns()"> Reset Columns</button>
                                         <div *ngFor="let col of filteredColumns" class="menu-item"
-                                            (click)="$event.stopPropagation()">
+                                            (click)="$event.stopPropagation()"
+                                            >
                                             <mat-checkbox [(ngModel)]="col.visible" color="primary"
-                                                (click)="$event.stopPropagation()"
+                                                (click)="$event.stopPropagation();checkColumn()"
                                                 [disabled]="col.id === 'acquisition_datetime'"
                                                 [checked]="col.id === 'acquisition_datetime' ? true : col.visible">
                                                 <span class="text-secondaryText">{{col.displayName}}</span>
