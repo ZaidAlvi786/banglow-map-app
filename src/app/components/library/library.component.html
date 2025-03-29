@@ -19,7 +19,7 @@
                             <span
                                 class="text-sm font-medium leading-[18px] text-secondaryText font-Barlow">{{analyticsData?.area}} km2</span>
                             <div
-                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                     <span> Total area enclosed within the selected bounding box.</span>
                                 </div>
@@ -29,7 +29,7 @@
                         <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
                             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Name</span>
                             <div
-                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                     <span>Save this selection and receive alerts whenever new footprints appear.</span>
                                 </div>
@@ -64,7 +64,7 @@
                         <div class="w-[190px] group flex flex-col gap-3 my-3 p-3 bg-secondaryBg rounded-[5px]">
                             <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Groups</span>
                             <div
-                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                     <span> Related points of interest.</span>
                                 </div>
@@ -137,7 +137,7 @@
                                 class="text-sm font-medium leading-[18px] text-secondaryText">{{analyticsData?.total_count}}</span>
 
                             <div
-                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[145px] right-[13px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] right-[13px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                     <span>Total area enclosed within the selected bounding box.</span>
                                 </div>
@@ -159,7 +159,7 @@
                                 </span>
 
                                 <div
-                                    class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                         <span>Date time:</span>
                                         <span>{{analyticsData?.oldest_info?.acquisition_datetime | utcDateTimePipe}}
@@ -191,7 +191,7 @@
                                 </span>
 
                                 <div
-                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                         <span>Total count in last 90 days</span>
                                     </div>
@@ -208,7 +208,7 @@
                                 </span>
 
                                 <div
-                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                         <span>{{formatNumber(analyticsData?.total_count)}} ÷ 90</span>
                                     </div>
@@ -223,7 +223,7 @@
                                     {{analyticsData?.newest_info?.acquisition_datetime | dateFormat}}
                                 </span>
                                 <div
-                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                         <span>Date time:</span>
                                         <span>{{analyticsData?.newest_info?.acquisition_datetime | utcDateTimePipe}}
@@ -245,7 +245,7 @@
                                     {{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime | dateFormat}}
                                 </span>
                                 <div
-                                    class="hidden absolute shadow-custom right-[20px] z-10 rounded-[10px] top-[245px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    class="hidden absolute shadow-custom right-[20px] z-10 rounded-[10px] top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                         <span>Date time:</span>
                                         <span>{{analyticsData?.newest_clear_cloud_cover_info?.acquisition_datetime |
@@ -279,7 +279,7 @@
                                         alt="up_icon" class="ml-1" />
                                 </span>
                                 <div
-                                    class="absolute z-10 top-[348px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
+                                    class="absolute z-10 top-[248px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
                                     <div class="flex flex-col gap-[5px]">
                                         <span
                                             class="text-sm font-semibold leading-[18px] flex-wrap">{{roundOff(level.current_count)}}
