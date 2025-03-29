@@ -374,6 +374,10 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     return Math.round(value);
   }
 
+  gsdRoundOff(value: number): number {
+    return Math.ceil(value * 100) / 100;
+  }
+
   toDecimal(value:number){
     return parseFloat(value.toFixed(4));
   }

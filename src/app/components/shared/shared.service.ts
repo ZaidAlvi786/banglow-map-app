@@ -43,6 +43,7 @@ export class SharedService {
   libraryFocusCount = signal<any>(0);
   libraryFilterCount = signal<any>(0);
   selectedTimeZone = signal<string>('UTC')
+  timeZoneActive = signal<boolean>(false)
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {

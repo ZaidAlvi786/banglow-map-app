@@ -96,4 +96,11 @@ export class SatelliteService extends BaseService {
   updateSitesCount(data:any): Observable<any> {
     return this.put(createUrl("/reset-site-updates-count"),data)
   }
+
+setWMTSToken() {
+  return this.get(createUrl("/get-airbus-access-token"));
+}
+
+
+
 }

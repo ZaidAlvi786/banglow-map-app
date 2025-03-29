@@ -61,6 +61,7 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
+import {WmtsService} from "../../services/wmts.service"
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -133,6 +134,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   @ViewChild('menuFilterTrigger') menuFilterTrigger!: MatMenuTrigger;
 
+  private satelliteService = inject(SatelliteService);
 
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
@@ -216,6 +218,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   idArray:string[]=[""]
   filterParams:any;
   isDialogOpen: boolean = false;
+
 
   defaultFilter() {
     return {
@@ -609,12 +612,12 @@ set zoomed_wkt(value: string) {
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
-    private satelliteService:SatelliteService,
     private el: ElementRef, private renderer: Renderer2,
     private cdr:ChangeDetectorRef,
     private ngxLoader: NgxUiLoaderService,
     private overlayContainer: OverlayContainer,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private WmtsService:WmtsService
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -1480,15 +1483,27 @@ expandedData(data: any) {
   const index = this.selectedObjects.findIndex(obj => obj?.id === expandedElement?.id);
 
   if (index === -1) {
+    if(data.vendor_name === 'airbus' && data.is_purchased){
+      this.satelliteService.setWMTSToken().subscribe(res => {
+        this.WmtsService.setWMTSToken(res.data);
+        this.selectedObjects.push(expandedElement);
+        this.notifyParent.emit(this.selectedObjects);
+
+      }
+      )
+    } else {
+      this.selectedObjects.push(expandedElement);
+      this.notifyParent.emit(this.selectedObjects);
+    }
+   
     // If the object does not exist, push it to the array
-    this.selectedObjects.push(expandedElement);
   } else {
     // If the object exists, remove it from the array
     this.selectedObjects.splice(index, 1);
+    this.notifyParent.emit(this.selectedObjects);
   }
 
   // Emit the updated array
-  this.notifyParent.emit(this.selectedObjects);
 
 }
 markerData(data:any){
@@ -1616,9 +1631,10 @@ onRefreshCheckboxChange(e:any){
 //Time Zone Change
 selectedTimeZone(zone: string){
   this.selectedZone = zone;
-  this.sharedService.selectedTimeZone.set(zone)
+  this.sharedService.selectedTimeZone.set(zone);
+  this.sharedService.timeZoneActive.set(true)
   this.cdr.detectChanges();
-  this.onSubmit();
+  this.onSubmit(this.filterParams);
 }
 
 //Get Day of Week
