@@ -8,3 +8,9 @@
 .verticalLine {
     border-right: thick solid white;
   }
+
+  @font-face {
+    font-family: 'Corbel';
+    src: url('/src/assets/fonts/Corbel.ttf') format('truetype');
+    font-style: normal;
+  }

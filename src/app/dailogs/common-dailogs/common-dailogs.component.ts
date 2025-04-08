@@ -9,12 +9,15 @@ import { LabelType, NgxSliderModule, Options } from '@angular-slider/ngx-slider'
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTableModule } from '@angular/material/table';
+import { UtcDateTimePipe } from '../../pipes/date-format.pipe';
 
 @Component({
   selector: 'app-common-dailogs',
   standalone: true,
   imports: [CommonModule,FormsModule,MatFormFieldModule,ReactiveFormsModule,MatInputModule,MatSelectModule,
       MatSliderModule,MatCheckboxModule,
+      MatTableModule,UtcDateTimePipe,
       NgxSliderModule,],
   templateUrl: './common-dailogs.component.html',
   styleUrl: './common-dailogs.component.scss'
@@ -22,7 +25,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 export class CommonDailogsComponent implements OnInit  {
   name: string = '';
 vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
-  typesList:any[]=['morning','midday','evening','overnight'];
+  typesList:any[]=['morning','midday','evening','overnight', 'unknown'];
   formGroup: FormGroup;
   // Default values for manual filters
   defaultMinCloud = -10;
@@ -158,6 +161,8 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   };
   @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
   sliderShow:boolean = false;
+  viewLogsData:any[]=[];
+  innerDisplayedColumns = ['db_id','vendor_id','failure_reason', 'process_time'];
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
    private satelliteService:SatelliteService,
    private fb: FormBuilder,
@@ -218,6 +223,22 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
       });
       
       },300)
+    }
+
+    if(this.data.type === 'logs'){
+      console.log(this.data,'datadatadatadatadatadatadatadatadata');
+      const queryParams = {
+        pipeline_history_id:this.data.data.id
+      }
+      this.satelliteService.getPipelineCollection(queryParams).subscribe({
+        next: (resp)=> {
+          console.log(resp,'resprespresprespresprespresprespresp');
+          this.viewLogsData = resp?.data?.records
+        },
+        error:(err)=>{
+          console.error(err)
+        }
+      })
     }
     
   }

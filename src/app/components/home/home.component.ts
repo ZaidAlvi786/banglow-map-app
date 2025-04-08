@@ -170,7 +170,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   contextMenu:any
   mapDirection = 1;
   mapFormula = 0;
-  vendorData:any;
+  vendorData:any = null;
   pointData:any;
   loader: boolean = false;
   filterParams:any;
@@ -513,9 +513,39 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Add a marker to the map without auto-opening the popup
     const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
-  
+    const markerId = `marker-${Date.now()}`;
     // Bind the popup to the marker but do not open it automatically
-    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup()
+    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}
+      <span id="${markerId}" style="height:20px;width:20px;display:block;cursor: pointer;
+      position: absolute;
+      top: 20px;
+      right: 2px;>
+      <?xml version="1.0" encoding="utf-8"?>
+      <!-- License: CC Attribution. Made by salesforce: https://lightningdesignsystem.com/ -->
+      <svg fill="#191E22" xmlns="http://www.w3.org/2000/svg" 
+        width="20px" height="20px" viewBox="0 0 52 52" enable-background="new 0 0 52 52" xml:space="preserve">
+      <g>
+        <path d="M45.5,10H33V6c0-2.2-1.8-4-4-4h-6c-2.2,0-4,1.8-4,4v4H6.5C5.7,10,5,10.7,5,11.5v3C5,15.3,5.7,16,6.5,16h39
+          c0.8,0,1.5-0.7,1.5-1.5v-3C47,10.7,46.3,10,45.5,10z M23,7c0-0.6,0.4-1,1-1h4c0.6,0,1,0.4,1,1v3h-6V7z"/>
+        <path d="M41.5,20h-31C9.7,20,9,20.7,9,21.5V45c0,2.8,2.2,5,5,5h24c2.8,0,5-2.2,5-5V21.5C43,20.7,42.3,20,41.5,20z
+          M23,42c0,0.6-0.4,1-1,1h-2c-0.6,0-1-0.4-1-1V28c0-0.6,0.4-1,1-1h2c0.6,0,1,0.4,1,1V42z M33,42c0,0.6-0.4,1-1,1h-2
+          c-0.6,0-1-0.4-1-1V28c0-0.6,0.4-1,1-1h2c0.6,0,1,0.4,1,1V42z"/>
+      </g>
+      </svg></span>`)
+
+      marker.on('popupopen', () => {
+        const btn = document.getElementById(markerId);
+        console.log(btn,'btnbtnbtnbtnbtn');
+        
+        if (btn) {
+          btn.addEventListener('click', () => {
+            this.map.removeLayer(marker); // Remove marker from map
+          });
+        }
+      });
+      setTimeout(() => {
+        marker.openPopup();
+      }, 0);
   }
   
 
@@ -1425,6 +1455,7 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
         next: (resp) => {
             const vendorData = resp.data[0];
             this.vendorData = resp.data[0];
+            this.sharedService.setRowHover(data?.vendor_id)
             this.sharedService.setVendorData(this.vendorData)
             this.onPolygonOut(null)
             // this.openDialogAtPosition(polygon, vendorData);
@@ -1667,6 +1698,20 @@ handleAction(action: string): void {
 
   // Locate user and center the map on their location
   private locateUser(): void {
+    this.map.eachLayer((layer: any) => {
+      if (layer instanceof WMTSLayer) {
+          const url = (layer as any)._url; // Type assertion to bypass TypeScript check
+          if (typeof url === 'string') {
+              this.map.removeLayer(layer);
+          }
+      }
+      
+      this.map.eachLayer((layer: any) => {
+        if (layer.isWMTS && layer._url) {
+          this.map.removeLayer(layer);
+        }
+      });
+  })
     this.map.on('click', (event) => {
       const clickLat = event.latlng.lat;
       const clickLng = event.latlng.lng;
@@ -1801,7 +1846,20 @@ handleAction(action: string): void {
   private enableDrawing(shape: string): void {
     // Clear previous layers
     this.drawLayer.clearLayers();
-    
+    this.map.eachLayer((layer: any) => {
+      if (layer instanceof WMTSLayer) {
+          const url = (layer as any)._url; // Type assertion to bypass TypeScript check
+          if (typeof url === 'string') {
+              this.map.removeLayer(layer);
+          }
+      }
+      
+      this.map.eachLayer((layer: any) => {
+        if (layer.isWMTS && layer._url) {
+          this.map.removeLayer(layer);
+        }
+      });
+  })
     // If there's an active drawing tool, disable it before starting a new one
     if (this.activeDrawTool) {
       this.activeDrawTool.disable();
@@ -2810,11 +2868,14 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
 
   onPolygonOut(data) {
-   this.sharedService.setRowHover(data)
+    if(this.vendorData ==null){
+      this.sharedService.setRowHover(data)
+    }  
   }
 
   closeMarkerPopup(){
     this.vendorData = null
+    this.sharedService.setRowHover(null)
   }
   handleFootprintToggle(){
     this.footPrintActive = !this.footPrintActive

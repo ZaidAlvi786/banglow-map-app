@@ -1,6 +1,6 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
   <div 
-    class="h-screen min-h-[700px] cursor-default relative overflow-hidden"
+    class="h-screen min-h-[700px] cursor-default relative overflow-hidden !bg-primaryBg"
     [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? '' : ' z-30'"
   >
   @if (footprintLoader) {
@@ -29,7 +29,7 @@
         <button class="drag-btn" id="dragBtn"><||></button>
         <mat-drawer 
           #drawer 
-          class="library !h-[91.1vh]"
+          class="library !h-[91.1vh] pb-[30px]"
           [ngClass]="{ '!bg-primaryBg': true, 'open': drawer._animationState === 'open' }" 
           mode="side"
           >

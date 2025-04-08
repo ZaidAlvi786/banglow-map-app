@@ -13,6 +13,7 @@ import {
   QueryList,
   Renderer2,
   ViewChildren,
+  ViewEncapsulation,
 } from "@angular/core";
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -61,6 +62,7 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import {WmtsService} from "../../services/wmts.service"
 export class Group {
   name?: string;
@@ -112,11 +114,13 @@ export interface PeriodicElement {
     MatSelectModule,
     MatSliderModule,
     NgxSliderModule,
-    UtcDateTimePipe
+    UtcDateTimePipe,
+    MatSlideToggleModule
 ],
 providers: [provideNativeDateAdapter()],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
+  // encapsulation: ViewEncapsulation.None,
   animations: [
     trigger("detailExpand", [
       state("collapsed", style({ height: "0px", minHeight: "0" })),
@@ -164,13 +168,13 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   dataSource = new MatTableDataSource<any>(/* your data source */);
   columns:any = [
     { id: 'acquisition_datetime', displayName: 'Date', visible: true },
-    { id: 'sensor', displayName: 'Sensor', visible: true },
     { id: 'vendor_name', displayName: 'Vendor', visible: true },
+    { id: 'constellation', displayName: 'Constellation', visible: true },
+    { id: 'is_purchased', displayName: 'Purchase', visible: true },
     { id: 'cloud_cover', displayName: 'Clouds', visible: true },
     { id: 'gsd', displayName: 'Resolution', visible: true },
     { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
-    { id: 'is_purchased', displayName: 'Purchase', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
   
@@ -608,7 +612,7 @@ set zoomed_wkt(value: string) {
   searchSubject$ = new Subject<string>();
   filteredColumns = this.columns;
   lastMatchId:any = null
-  isRefresh: boolean = false;
+  isRefresh: boolean = true;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
@@ -1237,6 +1241,23 @@ set zoomed_wkt(value: string) {
       return moment(date).local().format('YYYY-MM-DD');
     }
   }
+  getFormattedDateTime(date: Date, centroid?: [number, number]): string {
+    
+    if (this.selectedZone === 'UTC') {
+      // Format date in UTC
+      return momentZone(date).utc().format('YYYY-MM-DD HH:mm [UTC]');
+    } else if (centroid && centroid.length === 2) {
+      // Get the time zone based on latitude and longitude
+      const [latitude, longitude] = centroid;
+      const timeZone = tzLookup(latitude, longitude);
+  
+      // Format the date based on the calculated time zone
+      return momentZone(date).tz(timeZone).format('YYYY-MM-DD HH:mm');
+    } else {
+      // Fallback to local time
+      return moment(date).local().format('YYYY-MM-DD HH:mm');
+    }
+  }
   formatUtcTime(payload) {
     // Check if payload contains valid acquisition_datetime
     if (!payload?.acquisition_datetime) {
@@ -1513,8 +1534,15 @@ markerData(data:any){
 
 //Table Row hover event Emit
 onRowHover(data:any){
-
+  if(this.expandedElement==null){
     this.rowHoveredData.emit(data)
+  }
+}
+
+onRowExpand(row){
+  setTimeout(()=>{
+    this.rowHoveredData.emit(row)
+  },100)
   
 }
 
@@ -1542,7 +1570,7 @@ setDynamicHeight(): void {
     // Get the height of the viewport
     const viewportHeight = window.innerHeight-50;
     // Calculate the remaining height for the target div
-    const remainingHeight = viewportHeight - totalHeight-146;
+    const remainingHeight = viewportHeight - totalHeight-106;
   
     // Get the content div and apply the calculated height
     const contentDiv = this.el.nativeElement.querySelector('.content');
@@ -1573,7 +1601,7 @@ setDynamicHeight(): void {
   const viewportHeight = window.innerHeight + 50;
 
   // Calculate the remaining height for the target div
-  const remainingHeight = viewportHeight - totalHeight -126 ;
+  const remainingHeight = viewportHeight - totalHeight -150 ;
 
   // Get the content div and apply the calculated height
   const contentDiv = this.el.nativeElement.querySelector('.browser-content');
@@ -1661,16 +1689,13 @@ private isAtBottom = false;
 //Scroll to bottom event 
 private handleWheelEvent = (event: WheelEvent): void => {
   const div = this.scrollableDiv?.nativeElement;
-console.log('ffffffffffffffff',event.deltaY);
 
 
   // Detect if at the bottom
   const isAtBottom = div.scrollTop + div.clientHeight+150 >= div.scrollHeight;
-  console.log(isAtBottom,'isAtBottomisAtBottomisAtBottom',this.canTriggerAction);
   
   // Only trigger if at the bottom and trying to scroll down
   if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
-    console.log('iiiiiiiiiiiiiiii');
     
     if (!this.isAtBottom) {
       console.log('aaaaaaaaaaaa');
@@ -1794,7 +1819,7 @@ getDateTimeFormat(dateTime: string) {
   sliderShow:boolean = false;
   //Overlay container customization class add functionality
   setClass(){
-    const classesToRemove = ['column-menu', 'filter-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
+    const classesToRemove = ['column-menu', 'filter-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container','log-view-menu'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('library-overlay-container');
@@ -1803,7 +1828,7 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     // Remove existing class before adding a new one
-    const classesToRemove = ['column-menu', 'library-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
+    const classesToRemove = ['column-menu', 'library-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container','log-view-menu'];
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('filter-overlay-container');
     containerElement.addEventListener('click', (event:  Event)=> {
@@ -2002,7 +2027,7 @@ if (endDateControlValue) {
   }
   //set column selection menu class
   setColumnMenuClass(){
-    const classesToRemove = ['library-overlay-container', 'filter-overlay-container','site-menu','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container']
+    const classesToRemove = ['library-overlay-container', 'filter-overlay-container','site-menu','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container','log-view-menu']
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('column-menu');
@@ -2161,4 +2186,22 @@ getOverlapData(){
     
     this.sharedService.libraryColumns.set(this.columns)
   }
+
+  gsdRoundOff(value: number): number {
+    return Math.ceil(value * 100) / 100;
+  }
+
+  imagePreview(data:any,type:any) {
+    const dialogRef = this.dialog.open(ImagePreviewComponent, {
+      width: "1680px",
+      maxHeight:'1200px',
+      data:  {images:data, type:type} ,
+      panelClass: "custom-preview",
+    });
+   
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+        }
+      });
+    }
 }

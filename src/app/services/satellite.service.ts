@@ -101,6 +101,12 @@ setWMTSToken() {
   return this.get(createUrl("/get-airbus-access-token"));
 }
 
+getPipelineCollection(queryParams): Observable<any> {
+  return this.get(createUrl("/get-pipeline-records-collection-history"),{
+    params:queryParams
+  });
+}
+
 
 
 }

@@ -37,6 +37,8 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import { UtcDateTimePipe } from "../../pipes/date-format.pipe";
+import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
+import { MatDialog } from "@angular/material/dialog";
 
 dayjs.extend(utc);
 @Component({
@@ -136,7 +138,8 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     private renderer: Renderer2,
     private sharedService: SharedService,
     private overlayContainer: OverlayContainer,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private dialog: MatDialog,
    
   ) {
     effect(() => {
@@ -385,6 +388,7 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
       "custom-menu-container",
       "group-overlay-container",
       "filter-overlay-container",
+      "log-view-menu"
     ];
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add("imagery-filter-container");
@@ -550,5 +554,32 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     if (this.endDatePicker && this.endDatePicker.opens) {
       this.endDatePicker.hide();
     }
+  }
+
+  setClass(){
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu,custom-menu-container'];
+    const containerElement = this.overlayContainer.getContainerElement();
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add('log-view-menu');  
+  }
+
+  openDialog(data:any){
+    const logData = {type:'logs', data:data}
+      const dialogRef = this.dialog.open(CommonDailogsComponent, {
+          width: 'auto',
+          height: 'auto',
+          minWidth:'300px',
+          data: logData,
+          panelClass: 'custom-dialog-class',
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+          if(result){
+           
+              
+            }
+  
+          
+        
+    })
   }
 }
