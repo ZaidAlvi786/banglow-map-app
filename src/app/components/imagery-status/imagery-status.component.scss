@@ -133,3 +133,20 @@
   #imagery_table ::ng-deep tbody {
     background-color: #191e22 !important;
   }
+
+  ::ng-deep .log-view-menu{
+    .cdk-overlay-connected-position-bounding-box {
+        top: auto !important;
+        right: auto !important;
+        width: 165px !important;
+        left: 600px !important;
+        bottom: -3px !important;
+    }
+    .mat-mdc-menu-panel {
+        background-color: #20272d !important;
+        box-shadow: 5px 5px 5px 0px #0000001a !important;
+    }
+    .mat-mdc-menu-content{
+        overflow: hidden !important;;
+    }
+}

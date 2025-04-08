@@ -330,8 +330,8 @@
     box-shadow: 5px 5px 5px 0px #0000001a !important;
   }
   .cdk-overlay-connected-position-bounding-box {
-    top: 120px !important;
-    left: 155px !important;
+    top: 200px !important;
+    left: 545px !important;
     width: 240px !important;
     height: 600px !important;
   }
@@ -426,3 +426,28 @@
     border-radius: 5px !important;
   }
   }
+
+
+  ::ng-deep  .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__shadow {
+    background-color: black;
+  }
+  
+  ::ng-deep   .mat-mdc-slide-toggle.mat-mdc-slide-toggle-checked:not(.mat-disabled) .mdc-switch__track::after {
+    background-color: rgb(252 202 64 / var(--tw-bg-opacity, 1)) !important;
+  }
+
+::ng-deep .mat-mdc-slide-toggle .mdc-switch__track {
+  height: 26px !important;
+}
+
+::ng-deep .mat-mdc-slide-toggle .mdc-switch {
+  width: 45px !important;
+}
+
+::ng-deep .mdc-switch--selected .mdc-switch__handle-track {
+  transform: translateX(92%) !important;
+}
+
+::ng-deep .mdc-switch--unselected .mdc-switch__handle-track {
+  transform: translateX(10%) !important;
+}

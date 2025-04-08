@@ -15,11 +15,11 @@
                 <img [src]="activeIndex?.id == group?.id ? 'assets/svg-icons/folder-icon-expanded.svg':'assets/svg-icons/folder-icon.svg'" alt="" />
                 <span >{{group.name}}</span>
             </div>
-            <!-- <span class="min-w-[102.324px]"></span> -->
+            <span class="min-w-[102.324px]"></span>
             <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
-            <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span>
+            <!-- <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span> -->
             <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                <span class="text-secondary-heiglight">{{group.total_objects}}</span>
+                <span class="text-secondaryText">{{group.total_objects}}</span>
                 <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">
                     <img src="assets/svg-icons/nav-menu-icon.svg" />
                 </span>
@@ -54,12 +54,12 @@
                                 <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
                                 <span >{{site.name}}</span>
                             </div>
-                            <!-- <span class="min-w-[102.324px]"></span> -->
+                            <span class="min-w-[102.324px]"></span>
                             <span class="min-w-[120px]">{{site.date | dateFormat}}</span>
-                            <span class="min-w-[127.933px]">{{roundOff(site?.area)}}km²</span>
+                            <!-- <span class="min-w-[127.933px]">{{roundOff(site?.area)}}km²</span> -->
                             <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
                                 <!-- <span class="text-secondary-heiglight">{{site.total_objects}}</span> -->
-                                <span class="text-secondary-heiglight">{{site?.count}}</span>
+                                <span class="text-secondaryText">{{site?.count}}</span>
                                 <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setMainClass()" [matMenuTriggerFor]="siteMenu">
                                     <img src="assets/svg-icons/nav-menu-icon.svg" />
                                 </span>
@@ -85,7 +85,7 @@
                         <div 
                         *ngIf="activeSite === site?.id" 
                         class="overflow-hidden transition-all duration-300 ease-in-out" 
-                        [ngClass]="activeSite === site?.id ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'"
+                        [ngClass]="activeSite === site?.id ? ' opacity-100' : 'max-h-0 opacity-0'"
                     >
                     <div class="flex w-full px-[10px] py-[15px] flex-col gap-[15px] bg-primaryBg border-b border-b-solid border-custom-border">
                         <div
@@ -242,7 +242,7 @@
                                               *ngFor="let day of week"
                                               [style.background-color]="day?.backgroundValue"
                                               [style.color]="day?.colorValue"
-                                              class="day group relative"
+                                              class="day group relative h-[33px] w-[33px]"
                                               [ngClass]="hoveredRange == day.rangeName? '!bg-[#93b3ce]':''"
                                               (mouseenter)="calculateTooltipPosition($event, day)"
                                               (mouseleave)="clearTooltipPosition(day)"

@@ -174,7 +174,7 @@ private convertDMSToDecimal(degrees: string, minutes: string, seconds: string, d
   }
 
   setClass(){
-    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu','custom-menu-container'];
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu','custom-menu-container','log-view-menu'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('notification-container');  
