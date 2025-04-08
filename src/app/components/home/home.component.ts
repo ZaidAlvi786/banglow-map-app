@@ -36,6 +36,8 @@ import { NgxUiLoaderModule, NgxUiLoaderService } from 'ngx-ui-loader';
 import * as martinez from 'martinez-polygon-clipping';
 import interact from 'interactjs';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { WmtsService } from '../../services/wmts.service';
+import { WMTSLayer } from '../../services/wmts-layer';
 (window as any).type = undefined;
 
 declare module 'leaflet' {
@@ -98,6 +100,8 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   vectorLayer!: L.LayerGroup;
   shapeLayersData:any[]
   type: string = '';
+
+  private wmtsService =  inject(WmtsService);
   private zoomControlEnabled = false;
   private isDarkMode = true;
   private _snackBar = inject(MatSnackBar);
@@ -166,7 +170,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   contextMenu:any
   mapDirection = 1;
   mapFormula = 0;
-  vendorData:any;
+  vendorData:any = null;
   pointData:any;
   loader: boolean = false;
   filterParams:any;
@@ -509,9 +513,39 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Add a marker to the map without auto-opening the popup
     const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(this.map);
-  
+    const markerId = `marker-${Date.now()}`;
     // Bind the popup to the marker but do not open it automatically
-    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}`).openPopup()
+    marker.bindPopup(`<b>Location:</b> ${result.formatted_address}
+      <span id="${markerId}" style="height:20px;width:20px;display:block;cursor: pointer;
+      position: absolute;
+      top: 20px;
+      right: 2px;>
+      <?xml version="1.0" encoding="utf-8"?>
+      <!-- License: CC Attribution. Made by salesforce: https://lightningdesignsystem.com/ -->
+      <svg fill="#191E22" xmlns="http://www.w3.org/2000/svg" 
+        width="20px" height="20px" viewBox="0 0 52 52" enable-background="new 0 0 52 52" xml:space="preserve">
+      <g>
+        <path d="M45.5,10H33V6c0-2.2-1.8-4-4-4h-6c-2.2,0-4,1.8-4,4v4H6.5C5.7,10,5,10.7,5,11.5v3C5,15.3,5.7,16,6.5,16h39
+          c0.8,0,1.5-0.7,1.5-1.5v-3C47,10.7,46.3,10,45.5,10z M23,7c0-0.6,0.4-1,1-1h4c0.6,0,1,0.4,1,1v3h-6V7z"/>
+        <path d="M41.5,20h-31C9.7,20,9,20.7,9,21.5V45c0,2.8,2.2,5,5,5h24c2.8,0,5-2.2,5-5V21.5C43,20.7,42.3,20,41.5,20z
+          M23,42c0,0.6-0.4,1-1,1h-2c-0.6,0-1-0.4-1-1V28c0-0.6,0.4-1,1-1h2c0.6,0,1,0.4,1,1V42z M33,42c0,0.6-0.4,1-1,1h-2
+          c-0.6,0-1-0.4-1-1V28c0-0.6,0.4-1,1-1h2c0.6,0,1,0.4,1,1V42z"/>
+      </g>
+      </svg></span>`)
+
+      marker.on('popupopen', () => {
+        const btn = document.getElementById(markerId);
+        console.log(btn,'btnbtnbtnbtnbtn');
+        
+        if (btn) {
+          btn.addEventListener('click', () => {
+            this.map.removeLayer(marker); // Remove marker from map
+          });
+        }
+      });
+      setTimeout(() => {
+        marker.openPopup();
+      }, 0);
   }
   
 
@@ -1327,18 +1361,25 @@ getMapNumber(lon) {
   }
   
     let color = 'rgba(239, 242, 77, 0.8)'; // Default color with 50% opacity
+    let fillColor = 'rgba(239, 242, 77, 0.1)';
 if (data.vendor_name === 'planet') {
     color = 'rgba(85, 255, 0, 0.8)'; // Green with 50% opacity
+    fillColor = 'rgba(85, 255, 0, 0.1)';
 } else if (data.vendor_name === 'blacksky') {
     color = 'rgba(255, 255, 0, 0.8)'; // Yellow with 50% opacity
+    fillColor = 'rgba(85, 255, 0, 0.1)';
 } else if (data.vendor_name === 'maxar') {
     color = 'rgba(255, 170, 0, 0.8)'; // Orange with 50% opacity
+    fillColor = 'rgba(255, 170, 0, 0.1)';
 } else if (data.vendor_name === 'airbus') {
     color = 'rgba(0, 112, 255, 0.8)'; // Blue with 50% opacity
+    fillColor = 'rgba(0, 112, 255, 0.1)';
 } else if (data.vendor_name === 'skyfi') {
     color = 'rgba(169, 0, 230, 0.8)'; // Purple with 50% opacity
+    fillColor = 'rgba(169, 0, 230, 0.1)'; 
 } else {
     color = 'rgba(255, 0, 197, 0.8)'; // Pink with 50% opacity
+    fillColor = 'rgba(255, 0, 197, 0.1)';
 }
 
     
@@ -1348,9 +1389,10 @@ if (data.vendor_name === 'planet') {
    dynamicPolygons.forEach(latLngs => {
 const polygon = L.polygon(latLngs, {
   color: color,
-  fillColor: color,
-  fillOpacity: 0.1,
-  weight: 1
+  fillColor: fillColor,
+  fillOpacity: 0,
+  opacity:0.5,
+  weight: 0.5
 }) as L.Polygon & { vendorData: any };
 
 polygon.vendorData = data; // Now TypeScript knows about this property
@@ -1413,10 +1455,12 @@ polygon.on('click', (event: L.LeafletMouseEvent) => {
         next: (resp) => {
             const vendorData = resp.data[0];
             this.vendorData = resp.data[0];
+            this.sharedService.setRowHover(data?.vendor_id)
             this.sharedService.setVendorData(this.vendorData)
             this.onPolygonOut(null)
             // this.openDialogAtPosition(polygon, vendorData);
-            this.popUpData = vendorData
+            //Library table checbox check data
+            // this.popUpData = vendorData
 
         },
         error: (err) => {
@@ -1536,9 +1580,12 @@ renderFootprints(footprints) {
 onFilterset(data) {
   this.removeAllImageOverlays()
   this.sharedService.setOverlayShapeData(null)
-  if(this.map){
-    this.map.setZoom(4)
-  }
+  const timeZOne = this.sharedService.timeZoneActive()
+  if(!timeZOne){
+    if(this.map){
+      this.map.setZoom(4)
+    }
+  } 
   this.filterParams = data.params;
   data.params = {...data.params, source: 'home',  page_number: '1', page_size: '50'}
   this.getDataUsingPolygon(data.payload,  data.params);
@@ -1651,6 +1698,20 @@ handleAction(action: string): void {
 
   // Locate user and center the map on their location
   private locateUser(): void {
+    this.map.eachLayer((layer: any) => {
+      if (layer instanceof WMTSLayer) {
+          const url = (layer as any)._url; // Type assertion to bypass TypeScript check
+          if (typeof url === 'string') {
+              this.map.removeLayer(layer);
+          }
+      }
+      
+      this.map.eachLayer((layer: any) => {
+        if (layer.isWMTS && layer._url) {
+          this.map.removeLayer(layer);
+        }
+      });
+  })
     this.map.on('click', (event) => {
       const clickLat = event.latlng.lat;
       const clickLng = event.latlng.lng;
@@ -1785,7 +1846,20 @@ handleAction(action: string): void {
   private enableDrawing(shape: string): void {
     // Clear previous layers
     this.drawLayer.clearLayers();
-    
+    this.map.eachLayer((layer: any) => {
+      if (layer instanceof WMTSLayer) {
+          const url = (layer as any)._url; // Type assertion to bypass TypeScript check
+          if (typeof url === 'string') {
+              this.map.removeLayer(layer);
+          }
+      }
+      
+      this.map.eachLayer((layer: any) => {
+        if (layer.isWMTS && layer._url) {
+          this.map.removeLayer(layer);
+        }
+      });
+  })
     // If there's an active drawing tool, disable it before starting a new one
     if (this.activeDrawTool) {
       this.activeDrawTool.disable();
@@ -2220,9 +2294,8 @@ private openDialogAtPosition(polygon: any, metadata: any): void {
     this.popUpData = null
   });
 }
-
+ 
 receiveData(dataArray: any[]) {
-
   // Initialize the imageOverlays map if it doesn't exist
   if (!this.imageOverlays) {
     this.imageOverlays = new Map<string, L.ImageOverlay>();
@@ -2238,12 +2311,31 @@ receiveData(dataArray: any[]) {
       this.imageOverlays.delete(url);
     }
   });
+  const vendorIds = dataArray.map(item => item.vendor_id); // Extract vendor_id values
+  const tileUrls = dataArray.map(item=> item.tiles_url)
+  this.map.eachLayer((layer: any) => {
+    if (layer instanceof WMTSLayer) {
+        const url = (layer as any)._url; // Type assertion to bypass TypeScript check
+        if (typeof url === 'string' && !vendorIds.some(id => url.includes(id))) {
+            this.map.removeLayer(layer);
+        }
+    }
+    
+    this.map.eachLayer((layer: any) => {
+      if (layer.isWMTS && layer._url && !tileUrls.some(url => layer._url.includes(url))) {
+        this.map.removeLayer(layer);
+      }
+    });
+
+});
 
   // Check if the data array is valid and has coordinates
   if (dataArray && dataArray.length > 0) {
     const allBounds: L.LatLngBounds[] = [];
 
-    dataArray.forEach((data) => {
+    dataArray.forEach(async(data) => {
+      
+      
       if (data?.coordinates_record?.coordinates) {
 
         const LatLngs: L.LatLngExpression[] = [];
@@ -2253,10 +2345,7 @@ receiveData(dataArray: any[]) {
         this.maxMap = this.getMapNumber(this.bbox.maxLon);
 
         const originalCoordinates  = data.coordinates_record.coordinates[0]; // Access the first array of coordinates
-      // if (this.minMap == 0) {
-      //   this.minMap = 1;
-      //   this.maxMap = 2;
-      // }
+      
         // Convert [lng, lat] to [lat, lng] (Leaflet requires [lat, lng] format)
        for (let mapNum = this.minMap; mapNum <= this.maxMap; mapNum++) {
         // Adjust each coordinate in the polygon.
@@ -2268,19 +2357,8 @@ receiveData(dataArray: any[]) {
             coord[0] + (mapNum - 1) * 360 ,
           ];
         });
-        // Check if at least one adjusted coordinate is within the bounding box.
-        // const visible = adjustedLatLngs.some(([lat, lng]) =>
-        //   lng >= this.bbox.minLon && lng <= this.bbox.maxLon &&
-        //   lat >= this.bbox.minLat && lat <= this.bbox.maxLat
-        // );
-        // if (visible) {
           LatLngs.push(adjustedLatLngs);
-        // }
       }
-        // Extract the coordinates and map them to Leaflet's LatLng format
-        // const coordinates = data.coordinates_record.coordinates[0].map((coord: number[]) =>
-        //   new L.LatLng(coord[1], coord[0]+ this.mapFormula) // Convert [lon, lat] to [lat, lon]
-        // );
 
         // Create bounds for the current image
         const bounds = L.latLngBounds(LatLngs);
@@ -2288,28 +2366,76 @@ receiveData(dataArray: any[]) {
 
         // Check if the image overlay already exists
         if (!this.imageOverlays.has(data.presigned_url)) {
-          // Add the image overlay to the map
-          const imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
-            opacity: 1, // Optional: Adjust opacity if needed
-            zIndex: 1000,
-          });
+          
+          if (data.vendor_name === 'airbus' && data.is_purchased) {
 
-          // Add mouseover and mouseout event listeners
-          imageOverlay.on('mouseover', (event) => {
-            this.onPolygonHover(data?.vendor_id)
-            // Change opacity on hover
-          });
+               // Fetch WMTS Info
+            const wmtsInfo = await this.wmtsService.fetchWMTSInfo(data?.vendor_id);
+            if (!wmtsInfo || !wmtsInfo.tileUrlTemplate) {
+              alert("Failed to load WMTS tiles.");
+              return;
+            }
 
-          imageOverlay.on('mouseout', (event) => {
-            this.onPolygonOut(null)
-             // Restore original opacity
-          });
+            // Construct the WMTS Tile URL Template
+            const tileUrlTemplate = wmtsInfo.tileUrlTemplate
+              .replace("{Style}", "rgb")  // Ensure this matches an available style
+              .replace("{TileMatrixSet}", 'EPSG3857' );
 
-          imageOverlay.addTo(this.map);
+            this.map.createPane("wmtsPane");
+            this.map.getPane("wmtsPane").style.zIndex = "500000"; // Higher z-index
+            this.map.getPane("wmtsPane").style.opacity = "1";
 
-          // Store the overlay in the map for tracking
-          this.imageOverlays.set(data.presigned_url, imageOverlay);
+            const wmtsLayer = new WMTSLayer(tileUrlTemplate, {
+            token: this.wmtsService.getToken(),
+            tileSize: 256,
+            minZoom: 0,
+            maxZoom: 20,
+            bounds: bounds, // Pass your bounds here
+            pane: "wmtsPane" // Assign the layer to the new pane
+            });
+
+            wmtsLayer.addTo(this.map);
+
+          
+        
+          } else if(data.vendor_name ==='skyfi-umbra' &&data.is_purchased){
+            const tileUrlTemplate = data.tiles_url
+              
+            this.map.createPane("wmtsPane");
+            this.map.getPane("wmtsPane").style.zIndex = "500000"; // Higher z-index
+            this.map.getPane("wmtsPane").style.opacity = "1";
+
+            const wmtsLayer = L.tileLayer(tileUrlTemplate, {
+              attribution: '© SkyFi',
+              maxZoom: 20,
+            });
+            
+            // Add a custom property to mark it as a WMTS layer
+            (wmtsLayer as any).isWMTS = true;
+            
+            wmtsLayer.addTo(this.map);
+          } else {
+            // Add the image overlay for other vendors
+            const imageOverlay = L.imageOverlay(data.presigned_url, bounds, {
+              opacity: 1,
+              zIndex: 1000,
+            });
+        
+            imageOverlay.on('mouseover', (event) => {
+              this.onPolygonHover(data?.vendor_id);
+            });
+        
+            imageOverlay.on('mouseout', (event) => {
+              this.onPolygonOut(null);
+            });
+        
+            imageOverlay.addTo(this.map);
+        
+            // Store the overlay in the map for tracking
+            this.imageOverlays.set(data.presigned_url, imageOverlay);
+          }
         }
+        
       }
     });
 
@@ -2323,6 +2449,32 @@ receiveData(dataArray: any[]) {
   }
 }
 
+// getLayer() {
+//   this.satelliteService
+//   .getCapabilities('https://access.foundation.api.oneatlas.airbus.com/api/v1/items/f9555a9f-f53c-4746-bd7f-7757d8ad3632/wmts')
+//   .subscribe((xmlText) => {
+//     const parser = new XmlParser();
+//     const xml = parser.parse(xmlText);
+
+//     // Extract tileMatrixSet and layer name
+//     const layerName = 'your_layer_name';
+//     const tileMatrixSet = 'EPSG:3857'; // Modify based on GetCapabilities response
+//     const tileFormat = 'image/png'; // Modify based on GetCapabilities
+
+//     const wmtsLayer = L.tileLayer(
+//       `https://access.foundation.api.oneatlas.airbus.com/api/v1/items/f9555a9f-f53c-4746-bd7f-7757d8ad3632/wmts/tile/{z}/{x}/{y}.${tileFormat}`,
+//       {
+//         attribution: '&copy; Your Attribution',
+//         tileSize: 256,
+//         minZoom: 0,
+//         maxZoom: 18,
+//         subdomains: 'abc',
+//       }
+//     );
+
+//     wmtsLayer.addTo(this.map);
+//   });
+// }
 
 handleMakerData(data: any) {
 
@@ -2716,11 +2868,14 @@ wktToBounds(wkt: string): L.LatLngBounds {
   }
 
   onPolygonOut(data) {
-   this.sharedService.setRowHover(data)
+    if(this.vendorData ==null){
+      this.sharedService.setRowHover(data)
+    }  
   }
 
   closeMarkerPopup(){
     this.vendorData = null
+    this.sharedService.setRowHover(null)
   }
   handleFootprintToggle(){
     this.footPrintActive = !this.footPrintActive

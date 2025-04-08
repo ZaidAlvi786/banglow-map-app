@@ -2,23 +2,37 @@
     <span class="font-semibold text-secondaryText px-[15px]">All notifications</span>
     <div class="flex justify-between py-[15px] px-[15px] border-y border-y-solid border-y-gray-400">
         <div class="flex gap-[15px]">
-            <span class="font-medium text-sm cursor-pointer" [ngClass]="activeTab =='all'? 'text-yellow':'text-secondary-heiglight'" (click)="$event.stopPropagation();setActiveTab('all')">All</span>
-            <span class="font-medium text-sm cursor-pointer text-secondary-heiglight" [ngClass]="activeTab =='unread'? 'text-yellow':'text-secondary-heiglight'" (click)="$event.stopPropagation();setActiveTab('unread')">Unread</span>
+            <span class="font-medium text-sm cursor-pointer" 
+                  [ngClass]="activeTab =='all' ? 'text-yellow' : 'text-secondary-heiglight'"
+                  (click)="$event.stopPropagation();setActiveTab('all')">All</span>
+            <span class="font-medium text-sm cursor-pointer text-secondary-heiglight"
+                  [ngClass]="activeTab =='unread' ? 'text-yellow' : 'text-secondary-heiglight'"
+                  (click)="$event.stopPropagation();setActiveTab('unread')">
+                Unread <span *ngIf="unreadCount > 0" class="bg-yellow text-xs px-2 py-0.5 rounded-full">{{ unreadCount }}</span>
+            </span>
         </div>
         <span class="font-semibold cursor-pointer text-yellow text-sm" (click)="markAllRead()">Mark all as read</span>
     </div>
-    @for (notification of filteredData; track notification;let index = $index) {
+
+    <!-- Notifications List -->
+     <div class="max-h-[500px] overflow-y-auto flex flex-col gap-[15px]">
+    @for (notification of notificationsList; track notification; let index = $index) {
         <div class="flex justify-between px-[15px]" (click)="$event.stopPropagation();readNotification(notification)">
             <div class="flex flex-col gap-[5px]">
                 <span class="text-secondary-heiglight font-medium">{{notification?.name}}</span>
                 <span class="break-words text-secondary-heiglight font-normal">{{notification?.title}}</span>
             </div>
             <div class="flex justify-center items-center gap-[5px]">
-                <span class="text-secondaryText font-normal min-w-[47px]">{{notification?.createdAt| utcMonthDatePipe}}</span>
-                @if(!notification?.read){<span class="bg-yellow rounded-full h-[7px] w-[7px]"></span>}
+                <span class="text-secondaryText font-normal min-w-[47px]">{{notification?.createdAt | utcMonthDatePipe}}</span>
+                @if(!notification?.read) {
+                    <span class="bg-yellow rounded-full h-[7px] w-[7px]"></span>
+                }
             </div>
-            
         </div>
     }
-    <div></div>
+</div>
+    <!-- 🛠️ Test Button -->
+    <button (click)="sendTestNotification()" class="bg-blue-500 text-white p-2 rounded mt-4">
+      🛠️ Send Test Notification
+    </button>
 </div>

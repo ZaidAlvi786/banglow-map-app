@@ -22,7 +22,8 @@ module.exports = {
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],
         serif: ['Merriweather', 'serif'],
-        Barlow: ['Barlow', 'sans-serif']
+        Barlow: ['Barlow', 'sans-serif'],
+        corbel: ['Corbel', 'sans-serif'],
       },
       borderColor: {
         primary: '#1D2428',

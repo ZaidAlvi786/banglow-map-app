@@ -27,9 +27,23 @@ export class SharedService {
   groupData$ = this.groupData.asObservable()
   private siteMarkerData = new BehaviorSubject<any>(null);
   siteMarkerData$ = this.siteMarkerData.asObservable();
+  imageryData= signal<any>(null);
+  imageryFilter = signal<any>(null);
+  groupsData = signal<any>(null);
+  libraryData = signal<any>(null);
+  analyticsData = signal<any>(null);
   shapeType = signal<string>(null);
   refreshList = signal<boolean>(false);
-  shapeDrawStatus = signal<boolean>(false)
+  shapeDrawStatus = signal<boolean>(false);
+  zoomed_wkt = signal<string>(null);
+  libraryFilters = signal<any>(null);
+  libraryColumns = signal<any>(null);
+  libraryTotalCount = signal<any>(0);
+  libraryZoomedCount = signal<any>(0);
+  libraryFocusCount = signal<any>(0);
+  libraryFilterCount = signal<any>(0);
+  selectedTimeZone = signal<string>('UTC')
+  timeZoneActive = signal<boolean>(false)
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {

@@ -13,6 +13,7 @@ import {
   QueryList,
   Renderer2,
   ViewChildren,
+  ViewEncapsulation,
 } from "@angular/core";
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
@@ -61,6 +62,8 @@ import { Options,NgxSliderModule, LabelType } from '@angular-slider/ngx-slider';
 import momentZone from 'moment-timezone';
 import tzLookup from 'tz-lookup';
 import { CommonDailogsComponent } from "../../dailogs/common-dailogs/common-dailogs.component";
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import {WmtsService} from "../../services/wmts.service"
 export class Group {
   name?: string;
   icon?: string; // icon name for Angular Material icons
@@ -111,11 +114,13 @@ export interface PeriodicElement {
     MatSelectModule,
     MatSliderModule,
     NgxSliderModule,
-    UtcDateTimePipe
+    UtcDateTimePipe,
+    MatSlideToggleModule
 ],
 providers: [provideNativeDateAdapter()],
   templateUrl: "./library.component.html",
   styleUrl: "./library.component.scss",
+  // encapsulation: ViewEncapsulation.None,
   animations: [
     trigger("detailExpand", [
       state("collapsed", style({ height: "0px", minHeight: "0" })),
@@ -133,6 +138,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   @ViewChild('menuFilterTrigger') menuFilterTrigger!: MatMenuTrigger;
 
+  private satelliteService = inject(SatelliteService);
 
   //#region Decorators
   @ViewChild("myTemplate", { static: true }) myTemplate!: TemplateRef<any>;
@@ -160,23 +166,33 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
 
   expandedElement: PeriodicElement | null = null;
   dataSource = new MatTableDataSource<any>(/* your data source */);
-  columns = [
+  columns:any = [
     { id: 'acquisition_datetime', displayName: 'Date', visible: true },
-    { id: 'sensor', displayName: 'Sensor', visible: true },
     { id: 'vendor_name', displayName: 'Vendor', visible: true },
+    { id: 'constellation', displayName: 'Constellation', visible: true },
+    { id: 'is_purchased', displayName: 'Purchase', visible: true },
     { id: 'cloud_cover', displayName: 'Clouds', visible: true },
     { id: 'gsd', displayName: 'Resolution', visible: true },
     { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
-    { id: 'is_purchased', displayName: 'Purchase', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
   ];
   
-  get displayedColumns(): string[] {
-    return [
-      ...this.columns.filter(c => c.visible).map(c => c.id),
-      'expand' // Keep expand column always visible
-    ];
+  get displayedColumns(): any {
+    
+      if(this.sharedService.libraryColumns()!==null){
+        this.columns = this.sharedService.libraryColumns();
+        this.filteredColumns = this.columns
+        return [...this.columns.filter(c => c.visible).map(c => c.id),
+          'expand' // Keep expand column always visible
+        ];
+        
+      } else {
+        return [...this.columns.filter(c => c.visible).map(c => c.id),
+          'expand' // Keep expand column always visible
+        ];
+      }
+      
   }
   total_count:any
   selection = new SelectionModel<PeriodicElement>(true, []);
@@ -207,6 +223,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
   filterParams:any;
   isDialogOpen: boolean = false;
 
+
   defaultFilter() {
     return {
       page_number: '1',
@@ -225,8 +242,13 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
             
       this._startDate = value;
       let queryParams = {...this.filterParams, 
+        page_number: '1',
+        page_size: '100',
         start_date: this._startDate,
+        source: 'library',
+        focused_records_ids: this.idArray,
         end_date: this._endDate};
+        
       const payload = {
         wkt_polygon: this.polygon_wkt,
         // original_polygon:this.original_wkt
@@ -357,9 +379,12 @@ set zoomed_wkt(value: string) {
         wkt_polygon: this.polygon_wkt,
         original_polygon:this.original_wkt
       };
+      if(this._zoomed_wkt !== this.sharedService.zoomed_wkt()){
       if (this._zoomed_wkt !== ''&& this.isRefresh) {
+        this.sharedService.zoomed_wkt.set(this._zoomed_wkt)
         queryParams = {...queryParams,  zoomed_wkt: this._zoomed_wkt}
       } else {
+        this.sharedService.zoomed_wkt.set('')
         queryParams = {...queryParams,  zoomed_wkt: ''}
       }
       if(this.polygon_wkt && this.sharedService.shapeDrawStatus()){
@@ -385,23 +410,37 @@ set zoomed_wkt(value: string) {
       this.page_number = '1';
       this.filterParams = {...queryParams}
         this.getSatelliteCatalog(payload, queryParams);
-      } else {
-       
       }
+    } else {
+      if(this.isRefresh){
+        this.loader = true;
+        this.ngxLoader.start(); 
+        this.selectedZone = this.sharedService.selectedTimeZone()
+        console.log(this.sharedService.libraryColumns(),'libraryColumnslibraryColumnslibraryColumnslibraryColumnslibraryColumns');
+        
+        this.getSignalValues()
+        this.loader = false;
+        this.ngxLoader.stop(); 
+      }
+      
+       
+    }
       if (this.isRefresh && this.scrollableDiv) {
         this.scrollableDiv.nativeElement.scrollTop = 0;
       }
     }, 800);
      // Debounce time: 600ms
-  }
+  
   this.setDynamicHeight();
   window.addEventListener('resize', this.setDynamicHeight.bind(this))
   const div = this.scrollableDiv?.nativeElement;
   this.canTriggerAction = true
+  console.log('lllllllllllll');
+  
   if (div) {
     div.addEventListener('wheel', this.handleWheelEvent);
   }
- 
+}
 }
   
   get zoomed_wkt(): string {
@@ -573,16 +612,16 @@ set zoomed_wkt(value: string) {
   searchSubject$ = new Subject<string>();
   filteredColumns = this.columns;
   lastMatchId:any = null
-  isRefresh: boolean = false;
+  isRefresh: boolean = true;
   constructor(
     private dialog: MatDialog,
     private sharedService: SharedService,
-    private satelliteService:SatelliteService,
     private el: ElementRef, private renderer: Renderer2,
     private cdr:ChangeDetectorRef,
     private ngxLoader: NgxUiLoaderService,
     private overlayContainer: OverlayContainer,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private WmtsService:WmtsService
   ) {
      this.searchInput.pipe(
           debounceTime(1000),  // Wait for 1000ms after the last key press
@@ -646,6 +685,12 @@ set zoomed_wkt(value: string) {
             this.sharedService.shapeType.set(null)
           }
         },this.polygon_wkt)
+
+        effect(()=>{
+          console.log('qqqqqqqqqqqqqqqq');
+          
+          this.sharedService.libraryColumns.set(this.displayedColumns)
+        },this.displayedColumns)
 
         effect(() => {
           const refreshInfo =  this.sharedService.refreshList()
@@ -741,7 +786,7 @@ set zoomed_wkt(value: string) {
     this.renderGroup = this.myTemplate;
 
     // this.sharedService.isOpenedEventCalendar$.subscribe(resp=>this.isEventsOpened=resp)
-    if(this.polygon_wkt){
+    if(this.polygon_wkt && this.sharedService.analyticsData() == null) {
       const data = { polygon_wkt: this.polygon_wkt };
 
 //       let geoJSON: any = wktToGeoJSON(this.polygon_wkt);
@@ -770,6 +815,7 @@ set zoomed_wkt(value: string) {
       this.satelliteService.getPolygonSelectionAnalytics(data).subscribe({
         next: (res) => {
           this.analyticsData = res?.data?.analytics
+          this.sharedService.analyticsData.set(res?.data?.analytics)
           this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
             key,
             ...(value as object),
@@ -781,9 +827,15 @@ set zoomed_wkt(value: string) {
         wkt_polygon: this.polygon_wkt
       }
       
+    } else {
+      this.analyticsData = this.sharedService.analyticsData()
+      this.percentageArray = Object.entries(this.analyticsData?.percentages).map(([key, value]) => ({
+        key,
+        ...(value as object),
+      }));
     }
     
-    if(!this.isRefresh){
+    if(!this.isRefresh && !this.sharedService.libraryData()){
       const payload = {
         wkt_polygon: this.polygon_wkt,
         original_polygon:this.original_wkt
@@ -802,6 +854,15 @@ set zoomed_wkt(value: string) {
     this.page_number = '1';
     this.filterParams = {...queryParams}
       this.getSatelliteCatalog(payload, queryParams);
+    } else {
+      this.loader = true;
+      this.ngxLoader.start(); 
+      this.selectedZone = this.sharedService.selectedTimeZone()
+      console.log(this.sharedService.libraryColumns(),'libraryColumnslibraryColumnslibraryColumnslibraryColumnslibraryColumns');
+      
+      this.getSignalValues()
+      this.loader = false;
+      this.ngxLoader.stop();
     }
   }
 
@@ -929,7 +990,6 @@ set zoomed_wkt(value: string) {
   }
 
   getSatelliteCatalog(payload:any,queryParams:any){
-    
     this.satelliteService.getDataFromPolygon(payload,queryParams).subscribe({
       next: (resp) => {
         this.sharedService.refreshList.set(false)
@@ -939,9 +999,11 @@ set zoomed_wkt(value: string) {
           index: idx
         }));
         this.originalData = [...this.dataSource.data];
+       
         this.total_count = resp.total_records
         this.zoomed_captures_count = resp.zoomed_captures_count>0 ? resp.zoomed_captures_count: resp.total_records;
         this.focused_captures_count = resp?.focused_captures_count
+        this.setSignalValues()
         this.loader = false
         this.ngxLoader.stop();
         setTimeout(() => {
@@ -975,6 +1037,7 @@ set zoomed_wkt(value: string) {
       
     }
     this.filterParams = queryParams
+    
     this.formGroup.reset();
     const payload = {
       wkt_polygon: this.polygon_wkt,
@@ -1003,6 +1066,8 @@ set zoomed_wkt(value: string) {
     this.zoomed_wkt = this.polygon_wkt
     this.loader = true
       this.ngxLoader.start(); // Start the loader
+      this.sharedService.libraryFilters.set(queryParams);
+      this.sharedService.libraryFilterCount.set(0)
     this.getSatelliteCatalog(payload,{...queryParams, zoomed_wkt: this._zoomed_wkt})
     this.onFilterset.emit({params: {...queryParams, zoomed_wkt: this._zoomed_wkt}, payload});
     if(this.isEventsOpened){
@@ -1174,6 +1239,23 @@ set zoomed_wkt(value: string) {
     } else {
       // Fallback to local time
       return moment(date).local().format('YYYY-MM-DD');
+    }
+  }
+  getFormattedDateTime(date: Date, centroid?: [number, number]): string {
+    
+    if (this.selectedZone === 'UTC') {
+      // Format date in UTC
+      return momentZone(date).utc().format('YYYY-MM-DD HH:mm [UTC]');
+    } else if (centroid && centroid.length === 2) {
+      // Get the time zone based on latitude and longitude
+      const [latitude, longitude] = centroid;
+      const timeZone = tzLookup(latitude, longitude);
+  
+      // Format the date based on the calculated time zone
+      return momentZone(date).tz(timeZone).format('YYYY-MM-DD HH:mm');
+    } else {
+      // Fallback to local time
+      return moment(date).local().format('YYYY-MM-DD HH:mm');
     }
   }
   formatUtcTime(payload) {
@@ -1422,15 +1504,27 @@ expandedData(data: any) {
   const index = this.selectedObjects.findIndex(obj => obj?.id === expandedElement?.id);
 
   if (index === -1) {
+    if(data.vendor_name === 'airbus' && data.is_purchased){
+      this.satelliteService.setWMTSToken().subscribe(res => {
+        this.WmtsService.setWMTSToken(res.data);
+        this.selectedObjects.push(expandedElement);
+        this.notifyParent.emit(this.selectedObjects);
+
+      }
+      )
+    } else {
+      this.selectedObjects.push(expandedElement);
+      this.notifyParent.emit(this.selectedObjects);
+    }
+   
     // If the object does not exist, push it to the array
-    this.selectedObjects.push(expandedElement);
   } else {
     // If the object exists, remove it from the array
     this.selectedObjects.splice(index, 1);
+    this.notifyParent.emit(this.selectedObjects);
   }
 
   // Emit the updated array
-  this.notifyParent.emit(this.selectedObjects);
 
 }
 markerData(data:any){
@@ -1440,8 +1534,15 @@ markerData(data:any){
 
 //Table Row hover event Emit
 onRowHover(data:any){
-
+  if(this.expandedElement==null){
     this.rowHoveredData.emit(data)
+  }
+}
+
+onRowExpand(row){
+  setTimeout(()=>{
+    this.rowHoveredData.emit(row)
+  },100)
   
 }
 
@@ -1469,7 +1570,7 @@ setDynamicHeight(): void {
     // Get the height of the viewport
     const viewportHeight = window.innerHeight-50;
     // Calculate the remaining height for the target div
-    const remainingHeight = viewportHeight - totalHeight-146;
+    const remainingHeight = viewportHeight - totalHeight-106;
   
     // Get the content div and apply the calculated height
     const contentDiv = this.el.nativeElement.querySelector('.content');
@@ -1500,7 +1601,7 @@ setDynamicHeight(): void {
   const viewportHeight = window.innerHeight + 50;
 
   // Calculate the remaining height for the target div
-  const remainingHeight = viewportHeight - totalHeight -126 ;
+  const remainingHeight = viewportHeight - totalHeight -150 ;
 
   // Get the content div and apply the calculated height
   const contentDiv = this.el.nativeElement.querySelector('.browser-content');
@@ -1558,8 +1659,10 @@ onRefreshCheckboxChange(e:any){
 //Time Zone Change
 selectedTimeZone(zone: string){
   this.selectedZone = zone;
+  this.sharedService.selectedTimeZone.set(zone);
+  this.sharedService.timeZoneActive.set(true)
   this.cdr.detectChanges();
-  this.onSubmit();
+  this.onSubmit(this.filterParams);
 }
 
 //Get Day of Week
@@ -1593,7 +1696,10 @@ private handleWheelEvent = (event: WheelEvent): void => {
   
   // Only trigger if at the bottom and trying to scroll down
   if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
+    
     if (!this.isAtBottom) {
+      console.log('aaaaaaaaaaaa');
+      
       this.isAtBottom = true; // Lock the event trigger
       //  this.customAction('Scroll beyond bottom');
       let num = parseInt(this.page_number, 10)
@@ -1621,6 +1727,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
       }
      this.loader = true
       this.ngxLoader.start(); // Start the loader
+console.log('kkkkkkkkkkkkkkkkkkk');
 
   this.satelliteService.getDataFromPolygon(payload, queryParams).subscribe({
     next: (resp) => {
@@ -1631,6 +1738,7 @@ private handleWheelEvent = (event: WheelEvent): void => {
       }));
       this.dataSource.data = this.dataSource.data.concat(data);
       this.originalData = [...this.dataSource.data];
+      this.setSignalValues()
       
       setTimeout(() => {
         this.setDynamicHeight();
@@ -1711,7 +1819,7 @@ getDateTimeFormat(dateTime: string) {
   sliderShow:boolean = false;
   //Overlay container customization class add functionality
   setClass(){
-    const classesToRemove = ['column-menu', 'filter-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
+    const classesToRemove = ['column-menu', 'filter-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container','log-view-menu'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('library-overlay-container');
@@ -1720,7 +1828,7 @@ getDateTimeFormat(dateTime: string) {
   setFilterClass(){
     const containerElement = this.overlayContainer.getContainerElement();
     // Remove existing class before adding a new one
-    const classesToRemove = ['column-menu', 'library-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container'];
+    const classesToRemove = ['column-menu', 'library-overlay-container','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container','log-view-menu'];
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('filter-overlay-container');
     containerElement.addEventListener('click', (event:  Event)=> {
@@ -1860,6 +1968,8 @@ getDateTimeFormat(dateTime: string) {
           dialogRef.afterClosed().subscribe((result) => {
             if(result.queryParams){
               this.onSubmit(result.queryParams)
+              this.sharedService.libraryFilters.set(result.queryParams)
+              this.sharedService.libraryFilterCount.set(result?.filterCount)
               this.filterCount = result.filterCount
             }
           })
@@ -1917,7 +2027,7 @@ if (endDateControlValue) {
   }
   //set column selection menu class
   setColumnMenuClass(){
-    const classesToRemove = ['library-overlay-container', 'filter-overlay-container','site-menu','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container']
+    const classesToRemove = ['library-overlay-container', 'filter-overlay-container','site-menu','site-menu','custom-menu-container','group-overlay-container','imagery-filter-container','log-view-menu']
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('column-menu');
@@ -1933,6 +2043,7 @@ if (endDateControlValue) {
     this.filteredColumns = this.columns.filter(col => 
       col.displayName.toLowerCase().includes(query.toLowerCase())
     );
+   
   }
 
   //Reset columns to default values
@@ -1944,6 +2055,7 @@ if (endDateControlValue) {
     this.filterColumns('');
     // If you need to reset any other filtering states
     this.filteredColumns = [...this.columns];
+    this.sharedService.libraryColumns.set(this.columns)
   }
 
   //Getting in view list data funtionality
@@ -2049,4 +2161,47 @@ getOverlapData(){
     return holdback || 0
   }
 
+  //Get signal values
+  getSignalValues(){
+    this.zoomed_captures_count = this.sharedService.libraryZoomedCount();
+    this.focused_captures_count = this.sharedService.libraryFocusCount();
+    this.total_count = this.sharedService.libraryTotalCount();
+    const data = this.sharedService.libraryData()
+    this.dataSource.data = data
+    this.page_number = '1';
+    this.filterParams = this.sharedService.libraryFilters();
+    this.filterCount = this.sharedService.libraryFilterCount();
+  }
+
+  //Set signal values
+  setSignalValues(){
+    this.sharedService.libraryTotalCount.set(this.total_count);
+    this.sharedService.libraryZoomedCount.set(this.zoomed_captures_count);
+    this.sharedService.libraryFocusCount.set(this.focused_captures_count);
+    this.sharedService.libraryData.set(this.dataSource.data);
+  }
+
+  checkColumn(){
+    console.log(this.columns,'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    
+    this.sharedService.libraryColumns.set(this.columns)
+  }
+
+  gsdRoundOff(value: number): number {
+    return Math.ceil(value * 100) / 100;
+  }
+
+  imagePreview(data:any,type:any) {
+    const dialogRef = this.dialog.open(ImagePreviewComponent, {
+      width: "1680px",
+      maxHeight:'1200px',
+      data:  {images:data, type:type} ,
+      panelClass: "custom-preview",
+    });
+   
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+        }
+      });
+    }
 }

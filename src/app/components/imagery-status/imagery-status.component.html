@@ -140,7 +140,7 @@
     id="imagery_table"
     #scrollableDiv
   >
-    @if (dataSource) {
+    @if (dataSource.data.length) {
     <div
       class="w-full flex justify-center items-center"
       *ngIf="!dataSource.data.length"
@@ -183,9 +183,12 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          class="min-w-[70px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+          class="min-w-[70px] group !overflow-visible !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Successful
+          <div class="group-hover:flex bg-secondaryBg absolute w-[245px] -left-[120px] top-[40px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+            <span class="text-secondaryText">Added in Imagery Collection Catalog</span>
+          </div>
         </th>
         <td
           mat-cell
@@ -203,9 +206,12 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          class="min-w-[90px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+          class="min-w-[90px] group  !pl-[10px] !overflow-visible text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Failed
+          <div class="group-hover:flex bg-secondaryBg absolute w-[255px] top-[40px] -left-[120px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+            <span class="text-secondaryText">Failed to pass through validation such as uniqueness, valid geometry, etc</span>
+          </div>
         </th>
         <td
           mat-cell
@@ -223,9 +229,12 @@
         <th
           mat-header-cell
           *matHeaderCellDef
-          class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+          class="min-w-[80px] group !pl-[10px] text-secondaryText !overflow-visible font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Total
+          <div class="group-hover:flex bg-secondaryBg absolute w-[240px] top-[40px] -left-[120px] z-[10000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+            <span class="text-secondaryText">Total records fetched from vendors</span>
+          </div>
         </th>
         <td
           mat-cell
@@ -306,9 +315,12 @@
                   <th
                     mat-header-cell
                     *matHeaderCellDef
-                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                    class="min-w-[80px] group !overflow-visible !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
                   >
                     Successful
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[245px] -left-[130px] top-[40px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+                      <span class="text-secondaryText">Added in Imagery Collection Catalog</span>
+                    </div>
                   </th>
                   <td
                     mat-cell
@@ -326,9 +338,12 @@
                   <th
                     mat-header-cell
                     *matHeaderCellDef
-                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                    class="min-w-[80px] group !overflow-visible !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
                   >
                     Failed
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[255px] top-[40px] -left-[160px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+                      <span class="text-secondaryText">Failed to pass through validation such as uniqueness, valid geometry, etc</span>
+                    </div>
                   </th>
                   <td
                     mat-cell
@@ -346,19 +361,35 @@
                   <th
                     mat-header-cell
                     *matHeaderCellDef
-                    class="min-w-[80px] !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
+                    class="min-w-[80px] group !overflow-visible !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
                   >
                     Total
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[240px] top-[40px] -left-[80px] z-[10000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+                      <span class="text-secondaryText">Total records fetched from vendors</span>
+                    </div>
                   </th>
                   <td
                     mat-cell
                     *matCellDef="let row"
-                    class="min-w-[80px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
+                    class="min-w-[80px] flex gap-[10px] items-center h-[52.37px] !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
                   >
+                  <div class="group !overflow-visible relative">
                     {{ row?.message?.total_records }}
                     <div class="group-hover:flex bg-secondaryBg absolute w-[231px] -left-[125px] p-[10px] text-sm z-50 shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
                       <span class="text-secondaryText ">{{ row?.message?.total_records }} of total footprints processed</span>
                     </div>
+                  </div>
+                    <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
+                      <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">
+                          <img src="assets/svg-icons/nav-menu-icon.svg" />
+                      </span>
+                      <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #menu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">
+                          <div class="inline-flex px-[15px] py-[5px] font-Barlow flex-col items-start gap-[15px]">
+                              <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="openDialog(row)">View logs</span>
+                              
+                          </div>
+                      </mat-menu>
+                  </div>
                   </td>
                 </ng-container>
 

@@ -1,7 +1,7 @@
 <mat-drawer-container id="menu-drawer" class="example-container" autosize>
   <div 
-    class="h-screen min-h-[700px] cursor-default relative overflow-hidden"
-    [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? '!bg-[#234436]' : ' z-30'"
+    class="h-screen min-h-[700px] cursor-default relative overflow-hidden !bg-primaryBg"
+    [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? '' : ' z-30'"
   >
   @if (footprintLoader) {
     <div class="!z-[1000000000000] top-0 absolute  !bg-[rgba(32,39,45,0.2)]
@@ -13,7 +13,7 @@
 }
     <div
       class="cursor-default"
-      [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? 'bg-[#131f07]  z-30 h-full' : ' z-30 h-full'"
+      [ngClass]="isGoogleLayerActive === 'OpenStreetMapDark' ||  isGoogleLayerActive === 'GoogleStreetMapDark' ? ' z-30 h-full' : ' z-30 h-full'"
     >
       <div id="header" class="fixed top-0 z-30" (click)="closeDropdown()">
         <app-header
@@ -29,7 +29,7 @@
         <button class="drag-btn" id="dragBtn"><||></button>
         <mat-drawer 
           #drawer 
-          class="library !h-[91.1vh]"
+          class="library !h-[91.1vh] pb-[30px]"
           [ngClass]="{ '!bg-primaryBg': true, 'open': drawer._animationState === 'open' }" 
           mode="side"
           >
@@ -66,7 +66,7 @@
         class="map h-full !w-fill-available"
         [ngClass]="{
           'z-0': isGoogleLayerActive !== 'OpenStreetMapDark' && isGoogleLayerActive !== 'GoogleStreetMapDark',
-          'opacity-50': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
+          '': isGoogleLayerActive === 'OpenStreetMapDark' || isGoogleLayerActive === 'GoogleStreetMapDark',
         }" 
          [ngStyle]="{ 'margin-left.px': sidebarWidth -marginleft}"             
       ></div>

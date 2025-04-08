@@ -1,5 +1,5 @@
-<div class="flex justify-between items-end w-full">
-  <div class="w-fit flex h-[50px] bg-primaryBg rounded-[5px] shadow-custom-black">
+<div class="flex justify-between items-center w-full">
+  <div class="w-fit flex h-[43px] bg-primaryBg rounded-[5px]">
     <div class="border-r border-custom-border px-[15px] w-[120px]">
 
       <!-- <ul *ngIf="isDropdownOpen" class="absolute  h-[100px] rounded-[5px] bg-primaryBg -top-[105px] left-0" [ngClass]="!selectedOption? 'w-[150px]':'w-[70px]'">
@@ -9,7 +9,7 @@
               alt="{{ option.label }}" /></span>
         </li>
       </ul> -->
-      <div class="h-[50px] cursor-pointer" >
+      <div class="h-[43px] cursor-pointer" >
         <div class=" w-full gap-2 items-center flex h-full">
          
             <div *ngFor="let option of options" class="flex">
@@ -55,7 +55,7 @@
 
       </span>
     </div>
-    <div class="flex items-center px-[10px] gap-[10px] w-[55px] h-[50px] relative">
+    <div class="flex items-center px-[10px] gap-[10px] w-[55px] h-[43px] relative">
       <ul *ngIf="showLayers" class="absolute w-[170px] font-Barlow h-auto rounded-[5px] bg-primaryBg shadow-custom-light -top-[255px] left-0">
         <li (click)="selectedLayer('OpenStreetMapLight')" [ngClass]="ActiveLayer === 'OpenStreetMapLight' ? 'bg-yellow text-main-highlight rounded-t-[5px]':'text-secondaryText'"
           class="border-b cursor-pointer h-[50px] last:border-b-0 border-solid border-custom-border text-sm font-medium">
@@ -97,8 +97,8 @@
     <div class=" px-[10px] w-[200px] gap-[10px] items-center flex border-r border-custom-border h-full">
       <div class="flex gap-[10px] w-[200px] items-center">
         <div class="flex gap-2 items-center min-w-[190px]" (contextmenu)="onRightClick($event)">
-          <div class="flex gap-1 z-30 relative min-w-[61px] font-semibold text-xs leading-[14.4px]">
-            <span class="text-secondary-heiglight">{{latitude}}</span></div>
+          <div class="flex gap-1 z-30 relative min-w-[51px] font-semibold text-xs leading-[14.4px]">
+            <span class="text-secondary-heiglight">{{latitude}},</span></div>
           <div class="flex gap-1 z-30 min-w-[64px] relative font-semibold text-xs leading-[14.4px]">
              <span class="text-secondary-heiglight">{{longitude}}</span></div>
           <span class="cursor-pointer" (click)="copyToClipboard()">

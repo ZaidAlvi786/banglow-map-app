@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { GroupsListComponent } from '../../common/groups-list/groups-list.component';
 import { SatelliteService } from '../../services/satellite.service';
 import { MatInputModule } from '@angular/material/input';
@@ -98,19 +98,28 @@ export class GroupsComponent implements OnInit,AfterViewInit {
           })
         ).subscribe({
           next: (resp: any) => {
-            
-            
+
             this.groups = resp;
+            this.sharedService.groupsData.set(resp);
           },
           error: (err: any) => {
             console.error('API call failed', err);
           }
         });
+    }
+    effect(() => {
+      if(this.sharedService.groupsData()!==null){
+        const groups = this.sharedService.groupsData()
+        this.groups = groups
       }
+    })
+    
   }
 
   ngOnInit(): void {
+    if(this.sharedService.groupsData()==null){
     this.getGroups()
+    }
   }
 
   ngAfterViewInit(): void {
@@ -140,6 +149,8 @@ export class GroupsComponent implements OnInit,AfterViewInit {
       this.satelliteService.getParentGroups(params).subscribe({
         next: (resp) => {
           this.groups = resp
+          this.sharedService.groupsData.set(resp)
+         
           
         }
       })
@@ -192,14 +203,14 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   }
 
   setClass(){
-    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu'];
+    const classesToRemove = ['site-menu', 'filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu','log-view-menu'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('custom-menu-container');  
   }
 
   setMainClass(){
-    const classesToRemove = ['custom-menu-container','filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu'];
+    const classesToRemove = ['custom-menu-container','filter-overlay-container','library-overlay-container','imagery-filter-container','column-menu','log-view-menu'];
     const containerElement = this.overlayContainer.getContainerElement();
     containerElement.classList.remove(...classesToRemove);
     containerElement.classList.add('site-menu');

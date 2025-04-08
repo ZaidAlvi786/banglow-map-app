@@ -27,7 +27,7 @@
             <span class="min-w-[355px]">Name</span>
             <span class="min-w-[102.324px]">Updates</span>
             <span class="min-w-[120px]">Date saved</span>
-            <span class="min-w-[127.933px]">Surface</span>
+            <!-- <span class="min-w-[127.933px]">Surface</span> -->
             <span class="">Objects</span>
         </div>
         @for (group of groups; track group;let index = $index) {
@@ -40,9 +40,9 @@
                     </div>
                     <span class="min-w-[102.324px]">{{group.new_updates_count}}</span>
                     <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
-                    <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span>
+                    <!-- <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span> -->
                     <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                        <span class="text-secondary-heiglight">{{group.total_objects}}</span>
+                        <span class="text-secondaryText">{{group.total_objects}}</span>
                         <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">
                             <img src="assets/svg-icons/nav-menu-icon.svg" />
                         </span>
@@ -68,7 +68,7 @@
                 <div 
           *ngIf="activeIndex === index" 
           class="overflow-y-scroll scroll-div scrollbar scrollbar-thumb-secondaryText transition-all duration-300 ease-in-out pl-[15px]" 
-          [ngClass]="activeIndex === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'"
+          [ngClass]="activeIndex === index ? ' opacity-100' : 'max-h-0 opacity-0'"
         >
         @if (nestedGroupsData?.sites?.length > 0){
             @for (site of nestedGroupsData?.sites;track site;let j = $index){
@@ -80,9 +80,9 @@
                         </div>
                         <span class="min-w-[102.324px]">{{site?.new_updates}}</span>
                         <span class="min-w-[120px]">{{site.date | dateFormat}}</span>
-                        <span class="min-w-[127.933px]">{{roundOff(site?.area)}}km²</span>
+                        <!-- <span class="min-w-[127.933px] ">{{roundOff(site?.area)}}km²</span> -->
                         <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                            <span class="text-secondary-heiglight">{{site?.count}}</span>
+                            <span class="text-secondaryText">{{site?.count}}</span>
                             <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setMainClass()" [matMenuTriggerFor]="siteMenu">
                                 <img src="assets/svg-icons/nav-menu-icon.svg" />
                             </span>
@@ -106,7 +106,7 @@
                         </div>
                     </div>
                     <div *ngIf="activeSite === site?.id" class="overflow-hidden transition-all duration-300 ease-in-out px-[5px]"
-                        [ngClass]="activeSite === site?.id ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'">
+                        [ngClass]="activeSite === site?.id ? ' opacity-100' : 'max-h-0 opacity-0'">
                         <div class="flex w-full overflow-x-auto px-[10px] py-[15px] flex-col gap-[15px] bg-primaryBg border-b border-b-solid border-custom-border">
                         <div
                             class="flex w-full items-center gap-[15px] self-stretch ">
@@ -266,7 +266,7 @@
                                               *ngFor="let day of week"
                                               [style.background-color]="day?.backgroundValue"
                                               [style.color]="day?.colorValue"
-                                              class="day group relative"
+                                              class="day h-[33px] group relative"
                                               [ngClass]="hoveredRange == day.rangeName? '!bg-[#93b3ce]':''"
                                               (mouseenter)="calculateTooltipPosition($event, day)"
                                               (mouseleave)="clearTooltipPosition(day)"
