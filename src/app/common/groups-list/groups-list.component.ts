@@ -19,6 +19,7 @@ import {
   ApexPlotOptions
 } from "ng-apexcharts";
 import dayjs from 'dayjs';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -43,7 +44,7 @@ type CalendarMonth = { name: string; weeks: CalendarWeek[] };
 @Component({
   selector: 'app-groups-list',
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, DateFormatPipe, MatMenuModule,NgApexchartsModule],
+  imports: [CommonModule, MatExpansionModule, DateFormatPipe, MatMenuModule,NgApexchartsModule,MatCheckboxModule],
   templateUrl: './groups-list.component.html',
   styleUrl: './groups-list.component.scss'
 })
@@ -74,6 +75,7 @@ export class GroupsListComponent {
       colorRanges = [
         
     ]
+    selectedSites: any[] = [];
   constructor(private overlayContainer: OverlayContainer,
     private dialog: MatDialog,
     private satelliteService:SatelliteService,
@@ -257,16 +259,23 @@ export class GroupsListComponent {
         this.activeSite = null
       }
     }
-    markerData(siteDetail:any){
-      const [lon, lat] = siteDetail?.coordinates?.coordinates[0][0];
-
-      // Creating an object with lat and lon
-      const data = {
-        lat: lat,
-        lon: lon,
-        id: siteDetail.id
-      };
-      this.SharedService.setSiteMarkerData(data)
+    markerData(siteDetail: any) {
+      const alreadyExists = this.selectedSites.some(site => site.id === siteDetail.id);
+      
+      if (!alreadyExists) {
+        this.selectedSites.push(siteDetail);
+      }
+    
+      const dataArray = this.selectedSites.map(site => {
+        const [lon, lat] = site?.coordinates?.coordinates[0][0];
+        return {
+          lat,
+          lon,
+          id: site.id
+        };
+      });
+    
+      this.SharedService.setSiteMarkerData(dataArray);
     }
     //Intialize chart
         //  initializeCharts() {
@@ -605,117 +614,248 @@ export class GroupsListComponent {
     })
   }
 
-      generateCalendarData(apiData: Record<string, number>): void {
-           this.calendarData = [];
-           const dates = Object.keys(apiData).map((date) => dayjs(date));
-           if (dates.length === 0) return;
-       
-           const start = dayjs.min(dates)!;
-           const end = dayjs.max(dates)!;
-           const dataMap = new Map(Object.entries(apiData));
-           let current = start;
-       
-           // Extract non-zero values for range calculation
-           const values = Object.values(apiData).filter((v) => v > 0);
-           const minValue = values.length ? Math.min(...values) : 1;
-           const maxValue = values.length ? Math.max(...values) : 1;
-       
-           // Ensure values maintain two decimal places
-           const formatNumber = (num: number) => parseFloat(num.toFixed(1));
-       
-           // If all values are 0, show "No Data"
-           if (values.length === 0) {
-               while (current.isBefore(end) || current.isSame(end, "month")) {
-                   const monthDays: CalendarDay[] = [];
-                   const monthStart = current.startOf("month");
-                   const monthEnd = current.endOf("month");
-                   let day = monthStart;
-       
-                   while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
-                       const dateString = day.format("YYYY-MM-DD");
-                       monthDays.push({
-                           date: dateString,
-                           value: 0,
-                           colorValue: "#ffffff",
-                           backgroundValue: "",
-                           rangeName: "No Data",
-                       });
-                       day = day.add(1, "day");
-                   }
-       
-                   this.calendarData.push({
-                       name: current.format("MMMM YYYY"),
-                       weeks: this.generateWeeksForMonth(monthDays),
-                   });
-       
-                   current = current.add(1, "month");
-               }
-               return;
-           }
-       
-           // Define color ranges, excluding 0
-           if (minValue === maxValue) {
-               this.colorRanges = [{ 
-                   name: `Range ${formatNumber(minValue)}-${formatNumber(maxValue)}`, 
-                   color: "#319a43", 
-                   start: 1, 
-                   end: formatNumber(maxValue) 
-               }];
-           } else {
-               const stepSize = formatNumber((maxValue - minValue) / 3);
-       
-               this.colorRanges = [
-                   { name: "Minimum", color: "#70ed8b", start: formatNumber(minValue), end: formatNumber(minValue + stepSize) },
-                   { name: "Medium", color: "#319a43", start: formatNumber(minValue + stepSize), end: formatNumber(minValue + 2 * stepSize) },
-                   { name: "Maximum", color: "#ff0000", start: formatNumber(minValue + 2 * stepSize), end: formatNumber(maxValue) },
-               ];
-           }
-       
-           // Function to get range data
-           const getRangeData = (value: number): { color: string; range: string } => {
-               if (value === 0) return { color: "", range: "No Data" };
-       
-               for (const range of this.colorRanges) {
-                   if (value >= range.start && value <= range.end) {
-                       return { color: range.color, range: range.name };
-                   }
-               }
-               return { color: "#ff0000", range: "Maximum" };
-           };
-       
-           // Iterate through months
-           while (current.isBefore(end) || current.isSame(end, "month")) {
-               const monthDays: CalendarDay[] = [];
-               const monthStart = current.startOf("month");
-               const monthEnd = current.endOf("month");
-               let day = monthStart;
-       
-               while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
-                   const dateString = day.format("YYYY-MM-DD");
-                   const value = dataMap.get(dateString) || 0;
-                   const formattedValue = formatNumber(value); // Ensure 2 decimal places
-       
-                   const { color, range } = getRangeData(formattedValue);
-       
-                   monthDays.push({
-                       date: dateString,
-                       value: formattedValue,
-                       colorValue: "#ffffff",
-                       backgroundValue: color,
-                       rangeName: range,
-                   });
-       
-                   day = day.add(1, "day");
-               }
-       
-               this.calendarData.push({
-                   name: current.format("MMMM YYYY"),
-                   weeks: this.generateWeeksForMonth(monthDays),
-               });
-       
-               current = current.add(1, "month");
-           }
-       }
+  generateCalendarData(apiData: Record<string, number>): void {
+    this.calendarData = [];
+    const dates = Object.keys(apiData).map((date) => dayjs(date));
+    if (dates.length === 0) return;
+
+    const start = dayjs.min(dates)!;
+    const end = dayjs.max(dates)!;
+    const dataMap = new Map(Object.entries(apiData));
+    let current = start;
+
+    const values = Object.values(apiData).filter((v) => v > 0);
+    const uniqueValues = Array.from(new Set(values)).sort((a, b) => a - b);
+    const formatNumber = (num: number) => Math.round(num);
+
+    if (values.length === 0) {
+        while (current.isBefore(end) || current.isSame(end, "month")) {
+            const monthDays: CalendarDay[] = [];
+            const monthStart = current.startOf("month");
+            const monthEnd = current.endOf("month");
+            let day = monthStart;
+
+            while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+                const dateString = day.format("YYYY-MM-DD");
+                monthDays.push({
+                    date: dateString,
+                    value: 0,
+                    colorValue: "#ffffff",
+                    backgroundValue: "",
+                    rangeName: "No Data",
+                });
+                day = day.add(1, "day");
+            }
+
+            this.calendarData.push({
+                name: current.format("MMMM YYYY"),
+                weeks: this.generateWeeksForMonth(monthDays),
+            });
+
+            current = current.add(1, "month");
+        }
+        return;
+    }
+
+    const colorPalette = ["#ff0000", "#ffa500", "#d7d717", "#1b901b", "#0000ff"];
+    const numRanges = Math.min(uniqueValues.length, 5);
+    const stepSize = Math.floor(uniqueValues.length / numRanges) || 1;
+
+    this.colorRanges = [];
+    let lastValue = null;
+
+    for (let i = 0; i < numRanges; i++) {
+        const startIdx = i * stepSize;
+        // Always include the last unique value in the final range
+        const endIdx = (i === numRanges - 1)
+            ? uniqueValues.length
+            : Math.min((i + 1) * stepSize, uniqueValues.length);
+
+        const rangeStart = uniqueValues[startIdx];
+        const rangeEnd = uniqueValues[endIdx - 1];
+
+        if (rangeStart === lastValue) continue;
+
+        const paletteIndex = (numRanges - 1) - i;
+
+        this.colorRanges.push({
+            name: `Range ${formatNumber(rangeStart)}-${formatNumber(rangeEnd)}`,
+            color: colorPalette[paletteIndex % colorPalette.length],
+            start: rangeStart,
+            end: rangeEnd,
+        });
+
+        lastValue = rangeEnd;
+    }
+
+    const getRangeData = (value: number): { color: string; range: string } => {
+        if (value === 0) return { color: "", range: "No Data" };
+        const range = this.colorRanges.find(r => value >= r.start && value <= r.end);
+        return range ? { color: range.color, range: range.name } : { color: "#ff0000", range: "Very High" };
+    };
+
+    while (current.isBefore(end) || current.isSame(end, "month")) {
+        const monthDays: CalendarDay[] = [];
+        const monthStart = current.startOf("month");
+        const monthEnd = current.endOf("month");
+        let day = monthStart;
+
+        while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+            const dateString = day.format("YYYY-MM-DD");
+            const value = dataMap.get(dateString) || 0;
+            const formattedValue = formatNumber(value);
+
+            const { color, range } = getRangeData(formattedValue);
+
+            monthDays.push({
+                date: dateString,
+                value: formattedValue,
+                colorValue: "#ffffff",
+                backgroundValue: color,
+                rangeName: range,
+            });
+
+            day = day.add(1, "day");
+        }
+
+        this.calendarData.push({
+            name: current.format("MMMM YYYY"),
+            weeks: this.generateWeeksForMonth(monthDays),
+        });
+
+        current = current.add(1, "month");
+    }
+}
+
+
+
+//   generateCalendarData(apiData: Record<string, number>): void {
+//     this.calendarData = [];
+//     const dates = Object.keys(apiData).map((date) => dayjs(date));
+//     if (dates.length === 0) return;
+
+//     const start = dayjs.min(dates)!;
+//     const end = dayjs.max(dates)!;
+//     const dataMap = new Map(Object.entries(apiData));
+//     let current = start;
+
+//     // Extract non-zero values for range calculation
+//     const values = Object.values(apiData).filter((v) => v > 0);
+//     const uniqueValues = Array.from(new Set(values)); // Get unique values
+//     uniqueValues.sort((a, b) => a - b); // Sort the values in ascending order
+
+//     // Ensure values are rounded to whole numbers
+//     const formatNumber = (num: number) => Math.round(num);
+
+//     // If all values are 0, show "No Data"
+//     if (values.length === 0) {
+//         while (current.isBefore(end) || current.isSame(end, "month")) {
+//             const monthDays: CalendarDay[] = [];
+//             const monthStart = current.startOf("month");
+//             const monthEnd = current.endOf("month");
+//             let day = monthStart;
+
+//             while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+//                 const dateString = day.format("YYYY-MM-DD");
+//                 monthDays.push({
+//                     date: dateString,
+//                     value: 0,
+//                     colorValue: "#ffffff",
+//                     backgroundValue: "",
+//                     rangeName: "No Data",
+//                 });
+//                 day = day.add(1, "day");
+//             }
+
+//             this.calendarData.push({
+//                 name: current.format("MMMM YYYY"),
+//                 weeks: this.generateWeeksForMonth(monthDays),
+//             });
+
+//             current = current.add(1, "month");
+//         }
+//         return;
+//     }
+
+//     // Calculate the number of ranges (maximum 5)
+//     const numRanges = Math.min(uniqueValues.length, 5);
+//     const stepSize = Math.floor(uniqueValues.length / numRanges);
+    
+//     // Generate ranges dynamically, but with a maximum of 5 ranges
+//     this.colorRanges = [];
+//     const colorPalette = ["#0000ff", "#1b901b", "#d7d717", "#ffa500", "#ff0000"]; // Color options
+
+//     // Ensure there are no repeated values in ranges
+//     let lastValue = null;
+//     for (let i = 0; i < numRanges; i++) {
+//         const startIdx = i * stepSize;
+//         const endIdx = Math.min((i + 1) * stepSize, uniqueValues.length);
+
+//         const rangeStart = uniqueValues[startIdx];
+//         const rangeEnd = uniqueValues[endIdx - 1];
+
+//         // Prevent duplicate ranges by checking the last value
+//         if (rangeStart === lastValue) {
+//             continue; // Skip adding this range if it overlaps with the previous range
+//         }
+
+//         this.colorRanges.push({
+//             name: `Range ${formatNumber(rangeStart)}-${formatNumber(rangeEnd)}`,
+//             color: colorPalette[i % colorPalette.length], // Cycle through colors if necessary
+//             start: rangeStart,
+//             end: rangeEnd
+//         });
+
+//         lastValue = rangeEnd; // Update the last value to avoid overlap
+//     }
+
+//     // Get color range for value
+//     const getRangeData = (value: number): { color: string; range: string } => {
+//         if (value === 0) return { color: "", range: "No Data" };
+
+//         // Find the range based on value
+//         const range = this.colorRanges.find(r => value >= r.start && value <= r.end);
+//         return range ? { color: range.color, range: range.name } : { color: "#ff0000", range: "Very High" };
+//     };
+
+//     // Iterate through months
+//     while (current.isBefore(end) || current.isSame(end, "month")) {
+//         const monthDays: CalendarDay[] = [];
+//         const monthStart = current.startOf("month");
+//         const monthEnd = current.endOf("month");
+//         let day = monthStart;
+
+//         while (day.isBefore(monthEnd) || day.isSame(monthEnd, "day")) {
+//             const dateString = day.format("YYYY-MM-DD");
+//             const value = dataMap.get(dateString) || 0;
+//             const formattedValue = formatNumber(value);
+
+//             const { color, range } = getRangeData(formattedValue);
+
+//             monthDays.push({
+//                 date: dateString,
+//                 value: formattedValue,
+//                 colorValue: "#ffffff",
+//                 backgroundValue: color,
+//                 rangeName: range,
+//             });
+
+//             day = day.add(1, "day");
+//         }
+
+//         this.calendarData.push({
+//             name: current.format("MMMM YYYY"),
+//             weeks: this.generateWeeksForMonth(monthDays),
+//         });
+
+//         current = current.add(1, "month");
+//     }
+// }
+
+
+
+
+  
 
         
       
@@ -855,4 +995,32 @@ export class GroupsListComponent {
          }
         })
        }
+
+        isChecked(site: any): boolean {
+             return this.selectedSites.some(s => s.id === site.id); // compare using ID or unique key
+           }
+           toggleSelection(site: any, event: MatCheckboxChange): void {
+             if (event.checked) {
+               // Add only if not already present
+               const exists = this.selectedSites.some(s => s.id === site.id); // or another unique key
+               if (!exists) {
+                 this.selectedSites.push(site);
+               }
+             } else {
+               // Remove if present
+               this.selectedSites = this.selectedSites.filter(s => s.id !== site.id);
+             }
+           
+             console.log('Current selectedSites:', this.selectedSites);
+             const dataArray = this.selectedSites.map(site => {
+               const [lon, lat] = site?.coordinates?.coordinates[0][0];
+               return {
+                 lat,
+                 lon,
+                 id: site.id
+               };
+             });
+           
+             this.SharedService.setSiteMarkerData(dataArray);
+           }
 }

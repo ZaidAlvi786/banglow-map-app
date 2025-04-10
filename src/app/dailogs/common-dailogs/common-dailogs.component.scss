@@ -118,3 +118,30 @@
   
     
   }
+
+  #filter-imagery::ng-deep {
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline
+      .mdc-notched-outline__notch {
+      border-color: #4a5863 !important;
+      border-right: none !important;
+      border-left: none !important;
+    }
+    .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {
+      border-color: #4a5863 !important;
+    }
+    .mdc-text-field--outlined:not(.mdc-text-field--disabled)
+      .mdc-notched-outline__trailing {
+      border-color: #4a5863 !important;
+    }
+    .mdc-floating-label {
+      color: #4a5863 !important;
+      font-weight: 700 !important;
+      font-size: 12px !important;
+    }
+    .mat-mdc-select-arrow svg{
+      fill: #ABB7C0 !important;
+    }
+  
+    
+  }

@@ -196,9 +196,9 @@
                       <div
                           class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[300px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                           <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
-                              <span>Date time:</span>
+                              <span>Oldest image since collection start of::</span>
                               <span>{{data?.markerData?.oldest_info?.acquisition_datetime | utcDateTimePipe}}
-                                  UTC</span>
+                                  </span>
                           </div>
                           <div class="flex gap-[5px] text-xs font-semibold leading-[18px]">
                               <span>Vendor:</span>
@@ -287,8 +287,8 @@
                           <div class="flex flex-col gap-[5px]">
                               <span
                                   class="text-xs font-semibold leading-[18px] flex-wrap">{{roundOff(level?.current_count)}}
-                                  ({{level.key}} days) ÷ {{roundOff(level?.previous_count)}}
-                                  ({{getDouble(level.key)}} days)</span>
+                                  ({{level.key}} days from now) / {{roundOff(level?.previous_count)}}
+                                  ({{getDouble(level.key)}} days from now)</span>
                           </div>
                       </div>
                   </div>

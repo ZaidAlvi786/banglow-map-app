@@ -161,14 +161,10 @@
                                 <div
                                     class="hidden absolute shadow-custom left-[20px] z-10 rounded-[10px] top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                                        <span>Date time:</span>
-                                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | utcDateTimePipe}}
-                                            UTC</span>
+                                        <span>Oldest image since collection start of:</span>
+                                        <span>{{analyticsData?.oldest_info?.acquisition_datetime | utcDateTimePipe}}</span>
                                     </div>
-                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                                        <span>Vendor:</span>
-                                        <span>{{analyticsData?.oldest_info?.vendor_name }}</span>
-                                    </div>
+                                
 
                                 </div>
                             </div>
@@ -193,7 +189,7 @@
                                 <div
                                     class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                                        <span>Total count in last 90 days</span>
+                                        <span>Total for all time</span>
                                     </div>
 
                                 </div>
@@ -201,7 +197,7 @@
                             <div
                                 class="w-[182px] group flex flex-col p-[10px] gap-1 my-3 bg-primaryBg rounded-[5px] text-center items-center justify-center">
                                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">
-                                    Total Avg. for all time
+                                    Avg.
                                 </span>
                                 <span class="text-sm font-semibold leading-[18px] text-secondaryText">
                                     {{analyticsData?.average_per_day.toFixed(2)}}
@@ -210,7 +206,8 @@
                                 <div
                                     class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                                        <span>{{formatNumber(analyticsData?.total_count)}} ÷ 90</span>
+                                        <!-- <span>{{formatNumber(analyticsData?.total_count)}} ÷ 90</span> -->
+                                        <span>Total Avg for all time</span>
                                     </div>
                                 </div>
                             </div>
@@ -256,6 +253,10 @@
                                         <span>{{analyticsData?.newest_clear_cloud_cover_info?.vendor_name }}</span>
                                     </div>
 
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Cloud Cover %:</span>
+                                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.cloud_cover_percent }} (<30%)</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -283,8 +284,8 @@
                                     <div class="flex flex-col gap-[5px]">
                                         <span
                                             class="text-sm font-semibold leading-[18px] flex-wrap">{{roundOff(level.current_count)}}
-                                            ({{level.key}} days) ÷ {{roundOff(level.previous_count)}}
-                                            ({{getDouble(level.key)}} days)</span>
+                                            ({{level.key}} days from now) / {{roundOff(level.previous_count)}}
+                                            ({{getDouble(level.key)}} days from now)</span>
                                     </div>
                                 </div>
                             </div>
@@ -378,7 +379,7 @@
                                 </div>
                                 <div
                                 class="p-[10px] flex  group rounded-[5px] border border-solid border-yellow cursor-pointer"
-                                (click)="resetSorting()"><img  class="w-[20px] h-[20px]"  src='assets/svg-icons/refresh-icon.svg'
+                                (click)="resetSorting()"><img  class="w-[20px] h-[20px] filter contrast-50"  src='assets/svg-icons/refresh-icon.svg'
                                 alt="">
                                 <span class="group-hover:block -top-[30px] right-[6px] z-[999999] hidden absolute bg-secondaryBg text-secondaryText p-[10px] rounded-md shadow-custom">Reset library list</span>
 
@@ -623,6 +624,107 @@
                                         class="min-w-[165px] !pl-[10px] text-secondaryText">
                                         <div class="flex">
                                             <span class="">{{ row?.vendor_id }}</span>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="centroid_local">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText font-semibold">
+                                        Centroid Local</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText">{{ row?.centroid_local }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="centroid_region">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText font-semibold">
+                                        Centroid Region</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText">{{ row?.centroid_region }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="platform">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText font-semibold">
+                                        Platform</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText">{{ row?.platform }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="sun_elevation">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText font-semibold">
+                                        Off NADIR Angle</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText">{{ row?.sun_elevation.toFixed(2) }}°
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="azimuth_angle">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText font-semibold">
+                                        Azimuth Angle</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[160px] !pl-[10px] text-secondaryText">{{ row?.azimuth_angle? row?.azimuth_angle.toFixed(2):'0' }}°
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="illumination_azimuth_angle">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[175px] !pl-[10px] text-secondaryText font-semibold">
+                                        Satellite Azimuth Angle</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[175px] !pl-[10px] text-secondaryText">{{ row?.illumination_azimuth_angle? row?.illumination_azimuth_angle.toFixed(2):'0' }}°
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="illumination_elevation_angle">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[201px] !pl-[10px] text-secondaryText font-semibold">
+                                        Illumination Elevation Angle</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[201px] !pl-[10px] text-secondaryText">{{ row?.illumination_elevation_angle? row?.illumination_elevation_angle.toFixed(2):'0' }}°
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="publication_datetime">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[170px] !pl-[10px] text-secondaryText font-semibold">
+                                        Publication Date Time</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[170px] !pl-[10px] text-secondaryText">{{ row?.publication_datetime? getFormattedDateTime(row?.publication_datetime):null }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="day_of_week">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[110px] !pl-[10px] text-secondaryText font-semibold">
+                                        Day of Week</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[110px] !pl-[10px] text-secondaryText">{{getDayOfWeek(row?.acquisition_datetime,row?.centroid) }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="area">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[115px] !pl-[10px] text-secondaryText font-semibold">
+                                        Area</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[115px] !pl-[10px] text-secondaryText">{{ row?.area}}km²
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="georeferenced">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[135px] !pl-[10px] text-secondaryText font-semibold">
+                                        Geo Referenced</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[135px] !pl-[10px] text-secondaryText">{{ row?.georeferenced?'True':'False' }}
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="centroid">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header
+                                        class="min-w-[145px] !pl-[10px] text-secondaryText font-semibold">
+                                        Centroid Lat, Lon</th>
+                                    <td mat-cell *matCellDef="let row"
+                                        class="min-w-[145px] !pl-[10px] text-secondaryText">
+                                        <div class="flex gap-2" *ngFor="let center of row.centroid;let j =index">
+                                            <span
+                                                class="text-secondaryText"> {{center.toFixed(4)}}<span *ngIf="j <row.centroid.length-1">,</span></span>
                                         </div>
                                     </td>
                                 </ng-container>

@@ -176,6 +176,19 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'holdback_seconds', displayName: 'Holdback', visible: true },
     { id: 'type', displayName: 'Type', visible: true },
     { id: 'vendor_id', displayName: 'ID', visible: true },
+    { id: 'centroid_local', displayName: 'Centroid Local', visible: false },
+    { id: 'centroid_region', displayName: 'Centroid Region', visible: false },
+    { id: 'platform', displayName: 'Platform', visible: false },
+    { id: 'sun_elevation', displayName: 'Off NADIR Angle', visible: false },
+    { id: 'azimuth_angle', displayName: 'Azimuth Angle', visible: false },
+    { id: 'illumination_azimuth_angle', displayName: 'Satellite Azimuth Angle', visible: false },
+    { id: 'illumination_elevation_angle', displayName: 'Illumination Elevation Angle', visible: false },
+    { id: 'publication_datetime', displayName: 'Publication Date Time', visible: false },
+    { id: 'day_of_week', displayName: 'Day of Week', visible: false },
+    { id: 'area', displayName: 'Area', visible: false },
+    { id: 'georeferenced', displayName: 'Geo Referenced', visible: false },
+    { id: 'centroid', displayName: 'Centroid Lat, Lon', visible: false },
+
   ];
   
   get displayedColumns(): any {
@@ -271,8 +284,8 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
           
           // Start the loader
          
-        
-          this.satelliteService.getPolygonCalenderDays(calendarPayload,queryParams).subscribe({
+          const newPayload = this.adjustStartDateTo90Days(calendarPayload)
+          this.satelliteService.getPolygonCalenderDays(newPayload,queryParams).subscribe({
             next: (resp) => {
             
               this.calendarApiData = resp.data;
@@ -1142,8 +1155,8 @@ set zoomed_wkt(value: string) {
           
           // Start the loader
          let queryParams = this.filterParams
-        
-          this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+         const newPayload = this.adjustStartDateTo90Days(payload)
+          this.satelliteService.getPolygonCalenderDays(newPayload,queryParams).subscribe({
             next: (resp) => {
               this.ngxLoader.stop()
               this.calendarApiData = resp.data;
@@ -1164,7 +1177,8 @@ set zoomed_wkt(value: string) {
   }
 
   getCalendarData(payload:any,queryParams:any){
-    this.satelliteService.getPolygonCalenderDays(payload,queryParams).subscribe({
+   const newPayload = this.adjustStartDateTo90Days(payload)
+    this.satelliteService.getPolygonCalenderDays(newPayload,queryParams).subscribe({
       next: (resp) => {
         this.ngxLoader.stop()
         this.calendarApiData = resp.data;
@@ -1536,13 +1550,23 @@ markerData(data:any){
 onRowHover(data:any){
   if(this.expandedElement==null){
     this.rowHoveredData.emit(data)
+   
+    if(data === null){
+      this.tableRowHovered = null
+    } else {
+      this.tableRowHovered = data.vendor_id
+    }
   }
 }
 
 onRowExpand(row){
   setTimeout(()=>{
     this.rowHoveredData.emit(row)
+    this.tableRowHovered = row.vendor_id
   },100)
+  if(row === null){
+    this.tableRowHovered = null
+  }
   
 }
 
@@ -2203,5 +2227,43 @@ getOverlapData(){
         if (result) {
         }
       });
+    }
+
+    adjustStartDateTo90Days(queryParams) {
+      const endDate = new Date(queryParams.end_date);
+      const startDate = new Date(queryParams.start_date);
+    
+      const diffInMs = endDate.getTime() - startDate.getTime();
+      const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+    
+      let adjustedStartDate = startDate;
+    
+      if (diffInDays < 90) {
+        // Adjust to be exactly 90 days before endDate
+        adjustedStartDate = new Date(endDate);
+        adjustedStartDate.setUTCDate(adjustedStartDate.getUTCDate() - 90);
+      }
+    
+      // Format: YYYY-MM-DDTHH:mm:ss.SSSSSS+00:00
+      const pad = (n: number, z = 2) => String(n).padStart(z, '0');
+    
+      const formatDateWithMicroseconds = (date: Date): string => {
+        const year = date.getUTCFullYear();
+        const month = pad(date.getUTCMonth() + 1);
+        const day = pad(date.getUTCDate());
+        const hour = pad(date.getUTCHours());
+        const minute = pad(date.getUTCMinutes());
+        const second = pad(date.getUTCSeconds());
+        const milliseconds = pad(date.getUTCMilliseconds(), 3) + '000'; // Convert ms to 6 digits
+    
+        return `${year}-${month}-${day}T${hour}:${minute}:${second}.${milliseconds}+00:00`;
+      };
+    
+      const newStartDateStr = formatDateWithMicroseconds(adjustedStartDate);
+    
+      return {
+        ...queryParams,
+        start_date: newStartDateStr
+      };
     }
 }
