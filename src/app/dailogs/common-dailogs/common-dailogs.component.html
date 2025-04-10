@@ -161,11 +161,98 @@
     </div>
 } @else if (data.type ==='logs') {
     <div class="!p-[10px] bg-primaryBg flex flex-col gap-[15px]">
-        <div class="">
+        <div class="flex justify-between items-center">
             <span class="font-Barlow text-secondaryText font-semibold text-sm">View Logs</span>
+            <div class="flex items-center justify-center gap-[15px]">
+                <div class="relative flex justify-center items-center">
+                  <button
+                    class="flex gap-[5px] font-Barlow text-base font-medium justify-center items-center w-[70px] h-[50px] my-0 ml-[8px] rounded-[19px]"
+                    [ngClass]="filerCount > 0 ? 'bg-yellow ' : 'bg-primaryBg border border-yellow border-solid'"
+                    (click)="setFilterClass()"
+                    [matMenuTriggerFor]="filter"
+                    #menuFilterTrigger="matMenuTrigger"
+                  >
+                    <img
+                      [src]="
+                        filerCount > 0
+                        ? 'assets/svg-icons/filter-icon-active.svg'
+                        : 'assets/svg-icons/filter-icon.svg'
+                        "
+                      alt=""
+                    />
+                    {{ filerCount > 0 ? filerCount : "" }}
+                  </button>
+                  <mat-menu
+                    #filter="matMenu"
+                    (click)="$event.stopPropagation()"
+                    id="filter"
+                    class="bg-primaryBg"
+                    (closed)="onMenuClose()"
+                  >
+                    <div class="p-[15px]" (click)="$event.stopPropagation()">
+                      <div class="flex flex-col font-Barlow gap-[15px] w-[330px]">
+                        <span
+                          class="text-sm text-secondaryText font-Barlow font-bold leading-[18px]"
+                          >Apply filters</span
+                        >
+                        <mat-form-field appearance="outline" id="filter-imagery" *ngIf="data.status ==='parent'">
+                          <mat-label class="!text-secondaryText">Vendor name</mat-label>
+                          <mat-select
+                            class="!text-secondaryText"
+                            multiple
+                            [formControl]="vendor"
+                            name="vendor"
+                          >
+                            @for (vendor of vendorsList; track vendor) {
+                            <mat-option [value]="vendor">{{ vendor }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" id="filter" class="col-span-2">
+                            <mat-label class="!text-secondaryText text-xs">Exclude Text</mat-label>
+                            <input class="!text-secondaryText text-xs" matInput type="text"
+                                [formControl]="exclude_text">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" id="filter" class="col-span-2">
+                            <mat-label class="!text-secondaryText text-xs">Search Text</mat-label>
+                            <input class="!text-secondaryText text-xs" matInput type="text"
+                            [formControl]="search_text">
+                        </mat-form-field>
+                        <!-- <mat-form-field appearance="outline" id="filter" (click)="$event.stopPropagation()">
+                                      <mat-label>Start date</mat-label>
+                                      <input matInput [matDatepicker]="start" formControlName="start_date">
+                                        <mat-hint>MM/DD/YYYY</mat-hint>
+                                        <mat-datepicker-toggle matIconSuffix [for]="start"></mat-datepicker-toggle>
+                                        <mat-datepicker #start></mat-datepicker>
+                                  </mat-form-field> -->
+                        <div class="flex gap-3 justify-center">
+                          <button
+                            (click)="closeFilterMenu()"
+                            class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-secondary-heiglight text-secondaryText"
+                            type="button"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            class="text-xs w-1/2 leading-[18px] py-[9px] font-semibold my-[7px] mr-[7px] rounded-[10px] px-[20px] bg-yellow text-[#453303]"
+                            (click)="onFilterSubmit()"
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-menu>
+                </div>
+                <span
+                  class="p-[10px] flex bg-yellow rounded-[10px] text-secondaryBg font-Barlow text-sm font-medium cursor-pointer"
+                  (click)="resetFilter()"
+                  >Reset</span
+                >
+              </div>
         </div>
-        <div class="overflow-auto max-h-[560px] px-[10px]">
-            <table  mat-table [dataSource]="viewLogsData" class="!bg-primaryBg !border !border-secondaryText !border-solid !rounded-md">
+        <div class="overflow-auto max-h-[560px] px-[10px] content"  #scrollableDiv>
+            <table  mat-table [dataSource]="viewLogsData" class="!bg-primaryBg">
                 <ng-container matColumnDef="db_id">
                 <th
                     mat-header-cell

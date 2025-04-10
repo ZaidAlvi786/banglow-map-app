@@ -10,7 +10,13 @@
   }
 
   @font-face {
-    font-family: 'Corbel';
-    src: url('/src/assets/fonts/Corbel.ttf') format('truetype');
+    font-family: 'CorbelBold';
+    src: url('./assets/fonts/corbel-bold.ttf')  format('truetype');
     font-style: normal;
+    font-weight: bold;
+  }
+
+  .corbel-bold {
+    font-family: 'CorbelBold';
+color: white;
   }

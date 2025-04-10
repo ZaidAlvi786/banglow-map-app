@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, Inject, OnInit, QueryList, Renderer2, ViewChildren } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, QueryList, Renderer2, ViewChild, ViewChildren } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,20 +9,24 @@ import { LabelType, NgxSliderModule, Options } from '@angular-slider/ngx-slider'
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { UtcDateTimePipe } from '../../pipes/date-format.pipe';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import dayjs from 'dayjs';
 
 @Component({
   selector: 'app-common-dailogs',
   standalone: true,
   imports: [CommonModule,FormsModule,MatFormFieldModule,ReactiveFormsModule,MatInputModule,MatSelectModule,
       MatSliderModule,MatCheckboxModule,
+      MatMenuModule,
       MatTableModule,UtcDateTimePipe,
       NgxSliderModule,],
   templateUrl: './common-dailogs.component.html',
   styleUrl: './common-dailogs.component.scss'
 })
-export class CommonDailogsComponent implements OnInit  {
+export class CommonDailogsComponent implements OnInit,AfterViewInit  {
   name: string = '';
 vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
   typesList:any[]=['morning','midday','evening','overnight', 'unknown'];
@@ -160,13 +164,28 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     
   };
   @ViewChildren('sliderElement') sliderElements!: QueryList<ElementRef>;
+  @ViewChild("menuFilterTrigger") menuFilterTrigger!: MatMenuTrigger;
+  @ViewChild("scrollableDiv") scrollableDiv!: ElementRef<HTMLDivElement>;
   sliderShow:boolean = false;
-  viewLogsData:any[]=[];
+  viewLogsData=new MatTableDataSource<any>(/* your data source */);
+  filterParams:any;
+  filerCount:number = 0
   innerDisplayedColumns = ['db_id','vendor_id','failure_reason', 'process_time'];
+   vendor = new FormControl([]);
+   exclude_text:FormControl<string> = new FormControl('');
+   search_text:FormControl<string> = new FormControl('');
+   page_number= 1
+    page_size= 50
+    originalData: any[] = [];
+    private canTriggerAction = true;
+    private isAtBottom = false;
+    totalPages:any
   constructor(@Inject(MAT_DIALOG_DATA) public data: any,
    private satelliteService:SatelliteService,
    private fb: FormBuilder,
    private renderer: Renderer2,
+   private el: ElementRef,
+   private overlayContainer: OverlayContainer,
    public dialogRef: MatDialogRef<CommonDailogsComponent>
   ){
     this.formGroup = this.fb.group({
@@ -226,20 +245,56 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     }
 
     if(this.data.type === 'logs'){
-      console.log(this.data,'datadatadatadatadatadatadatadatadata');
-      const queryParams = {
-        pipeline_history_id:this.data.data.id
-      }
-      this.satelliteService.getPipelineCollection(queryParams).subscribe({
-        next: (resp)=> {
-          console.log(resp,'resprespresprespresprespresprespresp');
-          this.viewLogsData = resp?.data?.records
-        },
-        error:(err)=>{
-          console.error(err)
+      let queryParams
+      if(this.data.status ==='parent'){
+        const inputDate = dayjs.utc(this.data.data.date);
+
+        // Start of the given day
+        const startDate = inputDate.startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+
+        // End of the given day
+        const endDate = inputDate.endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+        queryParams = {
+          start_date:startDate,
+          end_date:endDate,
+          page_number:this.page_number,
+          page_size:this.page_size
         }
-      })
+      } else {
+        queryParams = {
+          pipeline_history_id:this.data.data.id,
+          page_number:this.page_number,
+          page_size:this.page_size
+        }
+      }
+      this.filterParams = queryParams
+      console.log(this.data,'datadatadatadatadatadatadatadatadata');
+      this.getPipeLineData(queryParams)
+      
     }
+    
+  }
+
+  ngAfterViewInit(): void {
+    if (this.viewLogsData && this.data.type === 'logs') {
+      setTimeout(() => {
+        console.log('lllllllll');
+    
+        this.setDynamicHeight();
+        window.addEventListener("resize", this.setDynamicHeight.bind(this));
+        
+        const div = this.scrollableDiv?.nativeElement;
+    
+        if (div) {
+          div.addEventListener("wheel", this.handleWheelEvent);
+        } else {
+          console.warn("scrollableDiv is undefined");
+        }
+    
+      }, 300);
+    }
+    
+    // this.dataSource.sort = this.sort;
     
   }
   addGroup(){
@@ -503,4 +558,215 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
   closeDialog(){
     this.dialogRef.close()
   }
+
+  setFilterClass() {
+    const containerElement = this.overlayContainer.getContainerElement();
+    // Remove existing class before adding a new one
+    const classesToRemove = [
+      "column-menu",
+      "library-overlay-container",
+      "site-menu",
+      "custom-menu-container",
+      "group-overlay-container",
+      "filter-overlay-container",
+      "log-view-menu"
+    ];
+    containerElement.classList.remove(...classesToRemove);
+    containerElement.classList.add("imagery-filter-container");
+    containerElement.addEventListener("click", (event: Event) => {
+      event.stopPropagation();
+    });
+  }
+  onMenuClose() {
+    this.sliderShow = false;
+  }
+
+  closeFilterMenu() {
+
+    if (this.menuFilterTrigger) {
+      this.menuFilterTrigger.closeMenu();
+    }
+  }
+
+  getPipeLineData(queryParams){
+    this.satelliteService.getPipelineCollection(queryParams).subscribe({
+      next: (resp)=> {
+        console.log(resp,'resprespresprespresprespresprespresp');
+        // this.viewLogsData = resp?.data?.records;
+        this.totalPages = resp?.data?.total_pages
+        // this.originalData = resp?.data?.records;
+        this.viewLogsData.data = resp?.data?.records;
+        this.originalData = [...this.viewLogsData.data];
+      },
+      error:(err)=>{
+        console.error(err)
+      }
+    })
+  }
+  resetFilter(): void {
+    this.filerCount=0
+    this.vendor.reset()
+    this.exclude_text.setValue('');
+    this.search_text.setValue('');
+    let queryParams 
+    if(this.data.status ==='parent'){
+      const inputDate = dayjs.utc(this.data.data.date);
+
+      // Start of the given day
+      const startDate = inputDate.startOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+
+      // End of the given day
+      const endDate = inputDate.endOf('day').format('YYYY-MM-DDTHH:mm:ss.SSSSSSZ');
+      queryParams = {
+        start_date:startDate,
+        end_date:endDate,
+        page_number:this.page_number,
+        page_size:this.page_size
+      }
+    } else {
+      queryParams = {
+        pipeline_history_id:this.data.data.id,
+        page_number:this.page_number,
+        page_size:this.page_size
+      }
+    }
+    this.filterParams = queryParams
+    this.getPipeLineData(queryParams)
+    // this.filterParams  queryParams
+    // this.sharedService.imageryFilter.set({filterParams:this.filterParams,filterCount:this.filterCount}, )
+    // this.getImageryCollection(queryParams)
+  }
+ 
+  onFilterSubmit() {
+    const excludeText = this.exclude_text.value?.trim();
+    const searchText = this.search_text.value?.trim();
+    const vendors = this.vendor?.value?.join(',');
+  
+    console.log('Form values:', { excludeText, searchText, vendors });
+    console.log('Current filterParams:', this.filterParams);
+  
+    const queryParams: any = { ...this.filterParams };
+  
+    // Exclude Text
+    if (excludeText && excludeText !== this.filterParams?.exclude_text) {
+      queryParams.exclude_text = excludeText;
+      if (!this.filterParams?.exclude_text) this.filerCount++;
+    } else if (!excludeText && this.filterParams?.exclude_text) {
+      delete queryParams.exclude_text;
+      if (this.filerCount > 0) this.filerCount--;
+    }
+  
+    // Search Text
+    if (searchText && searchText !== this.filterParams?.search_text) {
+      queryParams.search_text = searchText;
+      if (!this.filterParams?.search_text) this.filerCount++;
+    } else if (!searchText && this.filterParams?.search_text) {
+      delete queryParams.search_text;
+      if (this.filerCount > 0) this.filerCount--;
+    }
+  
+    // Vendors
+    if (vendors && vendors !== this.filterParams?.vendor_name) {
+      queryParams.vendor_name = vendors;
+      if (!this.filterParams?.vendor_name) this.filerCount++;
+    } else if (!vendors && this.filterParams?.vendor_name) {
+      delete queryParams.vendor_name;
+      if (this.filerCount > 0) this.filerCount--;
+    }
+  
+    // Only call if there are any changes
+    if (JSON.stringify(queryParams) !== JSON.stringify(this.filterParams)) {
+      
+      const newQueryParams = {
+        ...this.filterParams,
+        ...queryParams
+      }
+      this.filterParams = newQueryParams;
+      console.log('Updated queryParams:', newQueryParams);
+      this.getPipeLineData(newQueryParams);
+      this.closeFilterMenu();
+    }
+  }
+
+  setDynamicHeight(): void {
+    // Get the height of the elements above
+
+    // const header = document.getElementById("header");
+
+    // // Calculate the total height of all the above elements
+    // const totalHeight = [header].reduce(
+    //   (acc, el) => acc + (el ? el.offsetHeight : 0),
+    //   0
+    // );
+
+    // Get the height of the viewport
+    const viewportHeight = window.innerHeight;
+
+    // Calculate the remaining height for the target div
+    const remainingHeight = 698  - 140;
+    console.log(remainingHeight,'remainingHeightremainingHeightremainingHeight');
+    
+    // Get the content div and apply the calculated height
+    const contentDiv = this.el.nativeElement.querySelector(".content");
+
+    if (contentDiv) {
+      this.renderer.setStyle(contentDiv, "height", `${remainingHeight}px`);
+    }
+  }
+
+  private handleWheelEvent = (event: WheelEvent): void => {
+    const div = this.scrollableDiv?.nativeElement;
+
+    console.log(div.clientHeight,'clientHeightclientHeight',div.scrollHeight);
+    
+    // Detect if at the bottom
+    const isAtBottom =
+      div.scrollTop + div.clientHeight + 150 >= div.scrollHeight;
+
+    // Only trigger if at the bottom and trying to scroll down
+    if (isAtBottom && event.deltaY > 0 && this.canTriggerAction) {
+      if (!this.isAtBottom) {
+        this.isAtBottom = true; // Lock the event trigger
+        let num = this.page_number;
+        this.page_number = num + 1;
+        
+          let queryParams = {
+            ...this.filterParams,
+            page_number: this.page_number,
+            page_size: this.page_size,
+          };
+          if(this.page_number <=this.totalPages){
+          
+          this.satelliteService.getPipelineCollection(queryParams).subscribe({
+            next: (resp)=> {
+              console.log(resp,'resprespresprespresprespresprespresp');
+              const data = resp.data.records.map((item, idx) => ({
+                ...item,
+                index: idx,
+              }));
+              this.totalPages = resp?.data?.total_pages
+              this.viewLogsData.data = this.viewLogsData.data.concat(data);
+              this.originalData = [...this.viewLogsData.data];
+            },
+            error:(err)=>{
+              console.error(err)
+            }
+          })
+          console.log(this.viewLogsData?.data?.length,'lengthlengthlengthlength');
+        }
+        
+        setTimeout(() => {
+          this.setDynamicHeight();
+          window.addEventListener("resize", this.setDynamicHeight.bind(this));
+        }, 300);
+        // Set debounce flag to false and reset it after 3 seconds
+        this.canTriggerAction = false;
+        setTimeout(() => {
+          this.canTriggerAction = true;
+          this.isAtBottom = false; // Reset at bottom flag
+        }, 2000); // 3 seconds delay
+      }
+    }
+  };
+  
 }
