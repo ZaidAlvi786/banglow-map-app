@@ -563,8 +563,8 @@ export class ImageryStatusComponent implements OnInit, AfterViewInit {
     containerElement.classList.add('log-view-menu');  
   }
 
-  openDialog(data:any){
-    const logData = {type:'logs', data:data}
+  openDialog(data:any,status:any){
+    const logData = {type:'logs', data:data,status:status}
       const dialogRef = this.dialog.open(CommonDailogsComponent, {
           width: 'auto',
           height: 'auto',

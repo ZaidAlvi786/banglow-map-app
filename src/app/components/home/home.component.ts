@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   vectorLayer!: L.LayerGroup;
   shapeLayersData:any[]
   type: string = '';
-
+  markerMap: Map<string, L.Marker> = new Map(); // Tracks markers by site ID
   private wmtsService =  inject(WmtsService);
   private zoomControlEnabled = false;
   private isDarkMode = true;
@@ -308,8 +308,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
                 target.style.width = this.sidebarWidth + 280 + 'px';
                 mapContainer.style.marginLeft = this.sidebarWidth + 280 + 'px';
               }else {
-                target.style.width = `${this.sidebarWidth}px`;
-                mapContainer.style.marginLeft = `${this.sidebarWidth}px`;
+                // mapContainer.style.marginLeft = `0px`;
               }
             })
             
@@ -335,113 +334,125 @@ hybridLayer:L.TileLayer = L.tileLayer(
     }
     })
 
-    this.sharedService.siteMarkerData$.subscribe((event) =>{
-      if (event.lat || event.lon) {
+    this.sharedService.siteMarkerData$.subscribe((eventArray) => {
+      if (!Array.isArray(eventArray)) return;
+    
+      const incomingIds = eventArray.map(event => event.id);
+    
+      // 🔁 Remove markers not in the latest eventArray
+      this.markerMap.forEach((marker, id) => {
+        if (!incomingIds.includes(id)) {
+          this.map.removeLayer(marker); // Remove from map
+          this.markerMap.delete(id);    // Remove from markerMap
+        }
+      });
+    
+      // 🔁 Add or skip markers from new eventArray
+      eventArray.forEach(event => {
+        const siteId = event.id;
+        if (!siteId || this.markerMap.has(siteId)) return;
+    
         const clickLat = event.lat;
         const clickLng = event.lon;
-      
-        // Create a marker and add it to the map
+    
         const newMarker = L.marker([clickLat, clickLng], {
           icon: L.icon({
             iconUrl: 'assets/svg-icons/pin-location-icon.svg',
             iconSize: [21, 26],
           }),
         }).addTo(this.map);
-      
-        // Get current zoom level and update it if needed
+    
+        this.markerMap.set(siteId, newMarker);
+    
         const currentZoom = this.map.getZoom();
         const targetZoom = currentZoom < 6 ? 6 : currentZoom;
-      
-        // Move the map to the marker's location and set zoom if needed
         this.map.setView([clickLat, clickLng], targetZoom);
-      
-        // Add click event on marker to fetch API and open the dialog
+    
         newMarker.on('click', () => {
-          // Convert lat/lng to screen coordinates
           const mapContainer = this.map.getContainer();
           const markerPoint = this.map.latLngToContainerPoint({ lat: clickLat, lng: clickLng });
-      
-          // Default dialog position
-          let position = {
+    
+          const position = {
             top: `${markerPoint.y + mapContainer.offsetTop}px`,
             left: `${markerPoint.x + mapContainer.offsetLeft + 20}px`,
           };
-      
-          // Fetch API when clicking on the marker
+    
           const { normalizedLatitude, normalizedLongitude } = this.getlatlngNormalized(clickLat, clickLng);
           const payload = {
             latitude: normalizedLatitude,
             longitude: normalizedLongitude,
             distance: 1,
-            site_id: event.id
+            site_id: siteId,
           };
-      
+    
           this.satelliteService.getPinSelectionAnalytics(payload).subscribe({
             next: (resp) => {
-              if (resp) {
-                const markerData = resp?.data?.analytics;
-      
-                this.getAddress(clickLat, clickLng).then((address) => {
-                  const dialogRef = this.dialog.open(MapControllersPopupComponent, {
-                    width: '357px',
-                    data: { type: 'marker', markerData, pointData: payload, status: 'view' },
-                    position,
-                    panelClass: 'custom-dialog-class',
-                  });
-      
-                  // After dialog opens, measure and adjust position
-                  dialogRef.afterOpened().subscribe(() => {
-                    const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
-                    if (dialogElement) {
-                      const dialogHeight = dialogElement.offsetHeight;
-                      const mapHeight = mapContainer.offsetHeight;
-                      const mapWidth = mapContainer.offsetWidth;
-      
-                      // Adjust horizontal position (left or right)
-                      let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
-                      if (markerPoint.x + 300 > mapWidth) {
-                        newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
-                      }
-      
-                      // Adjust vertical position (top or bottom)
-                      let newTop: number;
-                      const spaceAboveMarker = markerPoint.y;
-                      const spaceBelowMarker = mapHeight - markerPoint.y;
-      
-                      if (spaceBelowMarker >= dialogHeight + 20) {
-                        newTop = markerPoint.y + mapContainer.offsetTop + 10;
-                      } else if (spaceAboveMarker >= dialogHeight + 20) {
-                        newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10;
-                      } else {
-                        newTop = Math.max(
-                          mapContainer.offsetTop,
-                          Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
-                        );
-                      }
-      
-                      // Update dialog position dynamically
-                      dialogRef.updatePosition({
-                        top: `${newTop + 10}px`,
-                        left: newLeft > 1300 ? `${newLeft - 400}px` : `${newLeft}px`,
-                      });
-                    }
-                  });
-      
-                  dialogRef.afterClosed().subscribe(() => {
-                  
-                    this.sharedService.setSiteMarkerData(null);
-                  });
+              const markerData = resp?.data?.analytics;
+    
+              this.getAddress(clickLat, clickLng).then((address) => {
+                const dialogRef = this.dialog.open(MapControllersPopupComponent, {
+                  width: '357px',
+                  data: { type: 'marker', markerData, pointData: payload, status: 'view' },
+                  position,
+                  panelClass: 'custom-dialog-class',
                 });
-              }
+    
+                dialogRef.afterOpened().subscribe(() => {
+                  const dialogElement = document.querySelector('.custom-dialog-class') as HTMLElement;
+                  if (dialogElement) {
+                    const dialogHeight = dialogElement.offsetHeight;
+                    const mapHeight = mapContainer.offsetHeight;
+                    const mapWidth = mapContainer.offsetWidth;
+    
+                    let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
+                    let newTop: number;
+    
+                    // Check if there is enough space on the right
+                    if (markerPoint.x + 360 < mapWidth) {
+                      newLeft = markerPoint.x + mapContainer.offsetLeft + 20; // Show on the right
+                    } else {
+                      // If not enough space on the right, position on the left
+                      newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20;
+                    }
+    
+                    // Check if there is enough space below the marker
+                    const spaceAboveMarker = markerPoint.y;
+                    const spaceBelowMarker = mapHeight - markerPoint.y;
+    
+                    if (spaceBelowMarker >= dialogHeight + 20) {
+                      newTop = markerPoint.y + mapContainer.offsetTop + 10; // Show below
+                    } else if (spaceAboveMarker >= dialogHeight + 20) {
+                      newTop = markerPoint.y + mapContainer.offsetTop - dialogHeight - 10; // Show above
+                    } else {
+                      newTop = Math.max(
+                        mapContainer.offsetTop,
+                        Math.min(markerPoint.y + mapContainer.offsetTop - dialogHeight / 2, mapHeight - dialogHeight)
+                      );
+                    }
+    
+                    dialogRef.updatePosition({
+                      top: `${newTop + 10}px`,
+                      left: `${newLeft}px`,
+                    });
+                  }
+                });
+    
+                dialogRef.afterClosed().subscribe(() => {
+                  this.sharedService.setSiteMarkerData(null);
+                });
+              });
             },
             error: (err) => {
               console.log("err getPolyGonData: ", err);
             },
           });
         });
-      }
-      
-    })
+      });
+    });
+    
+    
+    
+    
   }
 
   applyMargin() {
@@ -1770,7 +1781,7 @@ handleAction(action: string): void {
           
                   // Adjust horizontal position (left or right)
                   let newLeft = markerPoint.x + mapContainer.offsetLeft + 20;
-                  if (markerPoint.x + 300 > mapWidth) {
+                  if (markerPoint.x + 360 > mapWidth) {
                     
                     
                     newLeft = markerPoint.x + mapContainer.offsetLeft - 300 - 20; // Move to the left
@@ -1983,7 +1994,7 @@ handleAction(action: string): void {
                             const mapWidth = mapContainer.offsetWidth;
   
                             let newLeft = polygonPoint.x + mapContainer.offsetLeft + 20;
-                            if (polygonPoint.x + 300 > mapWidth) {
+                            if (polygonPoint.x + 360 > mapWidth) {
                               newLeft = polygonPoint.x + mapContainer.offsetLeft - 300 - 20;
                             }
   
@@ -2652,11 +2663,90 @@ highLightShape(data: any): void {
   }
 
   // Create a new polygon
-  this.highlightedPolygon = L.polygon(LatLngs, {
-    color: color, // Outline color
-    fillColor: color, // Fill color
-    fillOpacity: 0.5, // Adjust opacity as needed
+  // Create highlighted polygon
+this.highlightedPolygon = L.polygon(LatLngs, {
+  color: color, // Outline color
+  fillColor: color, // Fill color
+  fillOpacity: 0.5, // Adjust opacity as needed
+}) as L.Polygon & { vendorData: any };
+
+// Attach your vendor data
+this.highlightedPolygon.vendorData = data;
+
+// Add to the map
+this.highlightedPolygon.addTo(this.map);
+
+// Add hover events
+this.highlightedPolygon.on('mouseover', (e) => this.onPolygonHover(data.vendor_id));
+this.highlightedPolygon.on('mouseout', (e) => this.onPolygonOut(null));
+
+// Add click event
+this.highlightedPolygon.on('click', (event: L.LeafletMouseEvent) => {
+  if (this.currentAction === 'location') return;
+
+  const clickedPoint = event.latlng;
+  const clickedVendorData: any[] = [];
+
+  // Check which polygons contain the clicked point
+  this.extraShapesLayer.eachLayer((layer: L.Layer) => {
+    if (layer instanceof L.Polygon) {
+      const polygonLayer = layer as L.Polygon & { vendorData: any };
+      if (polygonLayer.getBounds().contains(clickedPoint)) {
+        clickedVendorData.push(polygonLayer.vendorData);
+      }
+    }
   });
+
+  if (clickedVendorData.length > 1) {
+    this.sharedService.setOverlayShapeData(clickedVendorData);
+  }
+
+  // Now handle intersecting polygons
+  const clickedLatLngs = this.highlightedPolygon.getLatLngs()[0] as L.LatLng[];
+  const clickedBoundingBox = this.getBoundingBox(clickedLatLngs);
+
+  const intersectingPolygons: any[] = [];
+
+  this.extraShapesLayer.eachLayer((layer: L.Layer) => {
+    if (layer instanceof L.Polygon) {
+      const layerLatLngs = layer.getLatLngs()[0] as L.LatLng[];
+      const layerBoundingBox = this.getBoundingBox(layerLatLngs);
+      if (this.isBoundingBoxIntersecting(clickedBoundingBox, layerBoundingBox)) {
+        const polygonData = (layer as any).options.data;
+        if (polygonData) {
+          intersectingPolygons.push(polygonData);
+        }
+      }
+    }
+  });
+
+  // Prepare query params
+  const queryParams = {
+    page_number: '1',
+    page_size: '50',
+    start_date: '',
+    end_date: '',
+    vendor_id: data.vendor_id,
+    source: 'library',
+    enableLoader: 'enableLoader',
+  };
+
+  // Fetch data
+  this.satelliteService.getDataFromPolygon('', queryParams).subscribe({
+    next: (resp) => {
+      const vendorData = resp.data[0];
+      this.vendorData = vendorData;
+      this.sharedService.setRowHover(data?.vendor_id);
+      this.sharedService.setVendorData(vendorData);
+      this.onPolygonOut(null);
+      // Optional: show popup or additional actions
+    },
+    error: (err) => {
+      console.error('Error fetching polygon data: ', err);
+    },
+  });
+});
+
 
   // Add the polygon to the map
   this.highlightedPolygon.addTo(this.map); // Replace `this.map` with your Leaflet map variable

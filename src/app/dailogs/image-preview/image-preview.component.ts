@@ -252,6 +252,10 @@ export class ImagePreviewComponent implements OnInit,AfterViewInit {
     return `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
   }
 
+  gsdRoundOff(value: number): number {
+    return Math.ceil(value * 100) / 100;
+  }
+
   @HostListener('window:mouseup')
   onWindowMouseUp() {
     this.isDragging = false;

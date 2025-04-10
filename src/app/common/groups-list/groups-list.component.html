@@ -1,5 +1,5 @@
 @if(type === 'Groups'){
-    <div class="font-Barlow" >
+    <div class="corbel-bold " >
         <!-- Group Header -->
             <!-- @if (isExpanded) {
                 <span class="w-[14px] h-[12px]">
@@ -10,7 +10,7 @@
                     <img src="assets/svg-icons/folder-icon.svg" alt="Search" class="w-[14px]" />
                 </span>
             } -->
-          <div (click)="toggle(group)" class="py-[10px] cursor-pointer flex border-y border-y-solid border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
+          <div (click)="toggle(group)" class="py-[10px] cursor-pointer flex border-y border-y-solid border-y-custom-border corbel-bold font-medium leading-[18px] text-secondaryText text-xs">
             <div class="min-w-[355px] flex gap-[15px]" [ngStyle]="{ 'padding-left': padding + 'px' }">
                 <img [src]="activeIndex?.id == group?.id ? 'assets/svg-icons/folder-icon-expanded.svg':'assets/svg-icons/folder-icon.svg'" alt="" />
                 <span >{{group.name}}</span>
@@ -24,7 +24,7 @@
                     <img src="assets/svg-icons/nav-menu-icon.svg" />
                 </span>
                 <mat-menu class="bg-secondaryBg" #menu="matMenu" id="site">
-                    <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
+                    <div class="inline-flex p-[15px] corbel-bold flex-col items-start gap-[15px]">
                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                         <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                             <button (click)="$event.stopPropagation();setNotifications(true,group)"
@@ -49,7 +49,7 @@
             @if (group?.sites.length > 0){
                 @for (site of group?.sites;track site;let j = $index){
                     <div class="flex flex-col gap-[10px]">
-                        <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
+                        <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] corbel-bold font-medium leading-[18px] text-secondaryText text-xs">
                             <div class="min-w-[340px] flex items-center gap-[15px]" [ngStyle]="{ 'padding-left': getPadding(padding) + 'px' }">
                                 <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
                                 <span >{{site.name}}</span>
@@ -64,7 +64,7 @@
                                     <img src="assets/svg-icons/nav-menu-icon.svg" />
                                 </span>
                                 <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #siteMenu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">
-                                    <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
+                                    <div class="inline-flex p-[15px] corbel-bold flex-col items-start gap-[15px]">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                                         <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                                             <button (click)="updateSite(true,site)"
@@ -93,25 +93,25 @@
                             <div class="flex flex-col items-start gap-[15px] flex-0">
                                 <div class="flex min-w-[775px] w-full items-center gap-[50px] self-stretch">
                                     <div
-                                        class="flex flex-col relative group justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col min-w-[13%] relative group justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight group text-xs font-bold leading-[18px]">Frequency</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.frequency}}</span>
                                         <div
-                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
-                                                <span>Frequency of images:</span>
-                                                <span>{{siteDetail?.frequency}}
+                                                <span>{{siteDetail?.frequency}}:</span>
+                                                <span>Number of distinct acquisitions on Most Recent Capture
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
                                     <div
-                                        class="flex flex-col group relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
-                                        <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent</span>
+                                        class="flex flex-col min-w-[13%] group relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most Recent</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.most_recent_info?.acquisition_datetime |
                                             dateFormat}}</span>
                                             <div
-                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
                                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                     <span>Date time:</span>
                                                     <span>{{siteDetail?.most_recent_info?.acquisition_datetime | dateFormat}}
@@ -125,12 +125,12 @@
                                             </div>
                                     </div>
                                     <div
-                                        class="flex flex-col group relative justify-center items-start px-[8px] py-[15px] min-w-[60px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col group relative min-w-[13%] justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Gap</span>
                                         <span
                                             class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.gap.toFixed(3)}}</span>
                                             <div
-                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
                                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                     <span>Days since last image:</span>
                                                     <span>{{siteDetail?.gap.toFixed(3)}}
@@ -139,15 +139,15 @@
                                             </div>
                                     </div>
                                     <div
-                                        class="flex flex-col group relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
-                                        <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most recent clear</span>
-                                        <span class="text-yellow text-xs font-bold leading-normal">{{siteDetail?.most_recent_clear |
+                                        class="flex flex-col group min-w-[25%] relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most Recent Clear</span>
+                                        <span class="text-yellow text-xs font-bold leading-normal" *ngIf="siteDetail?.most_recent_clear_info!==null">{{siteDetail?.most_recent_clear |
                                             dateFormat}}</span>
-                                            <div
-                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
+                                            <div *ngIf="siteDetail?.most_recent_clear_info!==null"
+                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                 <span>Date time:</span>
-                                                <span>{{siteDetail?.most_recent_clear_info?.acquisition_datetime | dateFormat}}
+                                                <span >{{ siteDetail?.most_recent_clear_info?.acquisition_datetime | dateFormat}}
                                                     UTC</span>
                                             </div>
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
@@ -157,9 +157,12 @@
                                         
                                         </div>
                                     </div>
-                                    <div class="w-[30px] h-[16px] ml-[5px] cursor-pointer"
-                                                (click)="$event.stopPropagation();markerData(siteDetail)"><img
-                                                    src="assets/svg-icons/marker-icon.svg" alt=""></div>
+                                    <div class="flex items-center">
+                                        <div class="w-[30px] h-[16px] ml-[5px] cursor-pointer" (click)="$event.stopPropagation();markerData(siteDetail)">
+                                            <img src="assets/svg-icons/marker-icon.svg" alt=""></div>
+                                        <mat-checkbox [checked]="isChecked(siteDetail)" (change)="toggleSelection(siteDetail, $event)">
+                                        </mat-checkbox>
+                                    </div>
                                    
                                 </div>
                             </div>
@@ -170,7 +173,7 @@
             
                                 @if (calendarData?.length) {
                                 <div class="flex flex-col gap-[10px]">
-                                    <!-- <div class="flex gap-[5px] font-Barlow flex-wrap"> -->
+                                    <!-- <div class="flex gap-[5px] corbel-bold flex-wrap"> -->
                                     <!-- <div class="flex items-center flex-col gap-[5px]">
                                                         <span class="w-[15px] h-[15px] bg-[#272F34] rounded-[5px]"></span>
                                                         <span class="text-secondaryText text-[10px]">Very low</span>
@@ -203,7 +206,7 @@
                                                     
                                                   </div> -->
                                     <!-- </div> -->
-                                     <div class="flex  flex-wrap items-center justify-center w-[50%] gap-[20px] mb-[5px]">
+                                     <div class="flex  flex-wrap items-center justify-center w-full gap-[20px] mb-[5px]">
                                         <div *ngFor="let range of colorRanges" class="flex items-center flex-col gap-[5px]"
                                         (mouseenter)="hoveredRange = range.name"
                                         (mouseleave)="hoveredRange = null" >
@@ -216,13 +219,13 @@
                                           
                                         </div>
                                         </div>
-                                     <div class="flex gap-[15px]">
+                                     <div class="flex gap-[15px] justify-center flex-wrap">
                                     <div *ngFor="let month of calendarData" class="month border border-solid border-custom-border">
                                         <!-- <div class="flex flex-wrap gap-[10px] pb-[10px] justify-center">
                                           <div class="flex gap-[5px]" *ngFor="let legend of legens_calendar">
                                             <div class="flex flex-col items-center gap-[5px]">
                                               <div class="w-[20px] h-[20px] rounded-[5px]" [ngStyle]="{'background-color':legend?.color}"></div>
-                                              <div class="text-secondaryText text-sm font-medium leading-[18px] font-Barlow">{{legend?.min}}-{{legend?.max}}</div>
+                                              <div class="text-secondaryText text-sm font-medium leading-[18px] corbel-bold">{{legend?.min}}-{{legend?.max}}</div>
                                             </div>
                                     
                                           </div>
@@ -248,7 +251,7 @@
                                               (mouseleave)="clearTooltipPosition(day)"
                                             >
                                             {{ getDayFromDate(day.date) }}
-                                              <div *ngIf="day.value>0" [ngStyle]="tooltipPosition[day.date]" class="group-hover:inline-flex min-w-[160px] z-[9999999999] w-max absolute hidden font-Barlow p-[15px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+                                              <div *ngIf="day.value>0" [ngStyle]="tooltipPosition[day.date]" class="group-hover:inline-flex min-w-[160px] z-[9999999999] w-max absolute hidden corbel-bold p-[15px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
                                                 <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(month.name,day)}}</span>
                                                 <span class="text-secondaryText text-sm font-medium leading-[18px]">{{day.value}} images available</span>
                                                 <!-- <span class="text-yellow pt-[15px] border-t border-t-solid border-t-custom-border text-xs font-bold leading-[18px]">Browse images</span> -->
@@ -279,9 +282,9 @@
     }
       </div>
 } @else{
-    <div class="font-Barlow" >
+    <div class="corbel-bold" >
         <!-- Group Header -->
-        <div class="group-header flex gap-[15px] text-sm font-medium text-secondaryText p-[15px] border-y border-y-solid border-y-custom-border" [ngClass]="isExpanded? 'bg-[#232B32] ':'bg-primaryBg'" (click)="toggle(group)">
+        <div class="group-header !corbel-bold flex gap-[15px] text-sm font-medium text-secondaryText p-[15px] border-y border-y-solid border-y-custom-border" [ngClass]="isExpanded? 'bg-[#232B32] ':'bg-primaryBg'" (click)="toggle(group)">
             @if (isExpanded) {
                 <span class="w-[14px] h-[12px]">
                     <img src="assets/svg-icons/folder-icon-expanded.svg" alt="Search" class="w-[14px]" />
@@ -297,7 +300,7 @@
         <!-- Subgroups -->
         @if (isExpanded){<div class="subgroup" [ngClass]="isExpanded? 'bg-[#232B32] ':'bg-primaryBg'">
             @for (subgroup of group.subgroups; track subgroup) {
-            <app-groups-list [group]="subgroup" [backgroundColor]="backgroundColor"></app-groups-list>
+            <app-groups-list [group]="subgroup"  [backgroundColor]="backgroundColor"></app-groups-list>
              }
         </div>
     }
