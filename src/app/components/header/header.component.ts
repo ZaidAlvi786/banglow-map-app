@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -28,7 +29,7 @@ declare var google: any;
   templateUrl: "./header.component.html",
   styleUrl: "./header.component.scss",
 })
-export class HeaderComponent implements OnInit,OnChanges {
+export class HeaderComponent implements AfterViewInit,OnChanges {
   @Input() toggleDrawer?: () => void;
   @Output() toggleEvent = new EventEmitter<string>();
   @Input() drawerStatus:any
@@ -62,7 +63,7 @@ export class HeaderComponent implements OnInit,OnChanges {
   private ngZone = inject(NgZone);
   searchQuery: string = "";
 @Input() toggleType:string=''
-  ngOnInit(): void {
+ngAfterViewInit(): void {
     this.initializeAutocomplete();
   }
 
@@ -90,12 +91,18 @@ export class HeaderComponent implements OnInit,OnChanges {
 }
 
 private initializeAutocomplete() {
-
   const input = this.searchInput.nativeElement;
 
-  // Initialize Google Maps Places Autocomplete
+  // Ensure Google Maps API is loaded
+  if (!window.google || !window.google.maps || !window.google.maps.places) {
+    console.error("Google Maps API is not loaded!");
+    return;
+  }
+
+  // Initialize Google Places Autocomplete for all types of places (places, businesses, cities, streets)
   this.autocomplete = new google.maps.places.Autocomplete(input, {
-    types: ["geocode"], // Adjust this if needed
+    types: [], // Empty array to enable FULL autocomplete (places, businesses, cities, streets)
+    fields: ["place_id", "geometry", "name", "formatted_address", "types", "adr_address"], // Get detailed information
   });
 
   // Add listener for place selection
@@ -104,19 +111,23 @@ private initializeAutocomplete() {
       const place: google.maps.places.PlaceResult = this.autocomplete.getPlace();
 
       if (place && place.geometry) {
-        // If a valid place is selected
+        // Extract latitude and longitude
         const lat = place.geometry.location?.lat();
         const lng = place.geometry.location?.lng();
 
+        console.log("Selected Place:", place.name, place.formatted_address, place.types);
+
+        // Emit selected place
         this.searchEvent.emit(place);
       } else {
-        // If no place is selected, validate and parse coordinate input
-        const inputValue = input.value;
-        this.handleCoordinateInput(inputValue);
+        // Handle manual input (coordinates)
+        this.handleCoordinateInput(input.value);
       }
     });
   });
 }
+
+
 
 /**
  * Validates and handles coordinate input in both DMS and Decimal formats

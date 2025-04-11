@@ -79,9 +79,9 @@ export class MapCalendarComponent implements OnInit {
     let current = start;
 
     const values = Object.values(apiData).filter((v) => v > 0);
-    const uniqueValues = Array.from(new Set(values)).sort((a, b) => a - b);
     const formatNumber = (num: number) => Math.round(num);
 
+    // No data fallback
     if (values.length === 0) {
         while (current.isBefore(end) || current.isSame(end, "month")) {
             const monthDays: CalendarDay[] = [];
@@ -111,35 +111,29 @@ export class MapCalendarComponent implements OnInit {
         return;
     }
 
-    const colorPalette = ["#ff0000", "#ffa500", "#d7d717", "#1b901b", "#0000ff"];
-    const numRanges = Math.min(uniqueValues.length, 5);
-    const stepSize = Math.floor(uniqueValues.length / numRanges) || 1;
+    // Palette from low to high: blue → green → yellow → orange → red
+    const fullPalette = ["#0000ff", "#1b901b", "#d7d717", "#ffa500", "#ff0000"];
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+
+    const rangeCount = Math.min(5, maxValue === minValue ? 1 : maxValue - minValue + 1);
+    const rangeSize = Math.ceil((maxValue - minValue + 1) / rangeCount);
+    const colorPalette = fullPalette.slice(-rangeCount); // ✅ Use highest-intensity colors in correct order
 
     this.colorRanges = [];
-    let lastValue = null;
 
-    for (let i = 0; i < numRanges; i++) {
-        const startIdx = i * stepSize;
-        // Always include the last unique value in the final range
-        const endIdx = (i === numRanges - 1)
-            ? uniqueValues.length
-            : Math.min((i + 1) * stepSize, uniqueValues.length);
+    for (let i = 0; i < rangeCount; i++) {
+        const rangeStart = minValue + i * rangeSize;
+        const rangeEnd = (i === rangeCount - 1) ? maxValue : rangeStart + rangeSize - 1;
 
-        const rangeStart = uniqueValues[startIdx];
-        const rangeEnd = uniqueValues[endIdx - 1];
-
-        if (rangeStart === lastValue) continue;
-
-        const paletteIndex = (numRanges - 1) - i;
+        const color = colorPalette[i]; // ✅ Keep color order: low → high
 
         this.colorRanges.push({
-            name: `Range ${formatNumber(rangeStart)}-${formatNumber(rangeEnd)}`,
-            color: colorPalette[paletteIndex % colorPalette.length],
+            name: `Range ${rangeStart} - ${rangeEnd}`,
+            color,
             start: rangeStart,
             end: rangeEnd,
         });
-
-        lastValue = rangeEnd;
     }
 
     const getRangeData = (value: number): { color: string; range: string } => {
@@ -180,6 +174,8 @@ export class MapCalendarComponent implements OnInit {
         current = current.add(1, "month");
     }
 }
+
+
 
   // generateCalendarData(apiData: Record<string, number>): void {
   //   this.calendarData = [];
