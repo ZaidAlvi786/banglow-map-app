@@ -43,7 +43,8 @@ export class SharedService {
   libraryFocusCount = signal<any>(0);
   libraryFilterCount = signal<any>(0);
   selectedTimeZone = signal<string>('UTC')
-  timeZoneActive = signal<boolean>(false)
+  timeZoneActive = signal<boolean>(false);
+  private activeSites = signal<any[]>([]);
   constructor() {}
 
   setIsOpenedEventCalendar(isOpened: boolean): void {
@@ -84,6 +85,15 @@ setGroupData(data: any): void {
 
 setSiteMarkerData(data: any): void {
   this.siteMarkerData.next(data);
+}
+
+setActiveSites(sites: any[]) {
+  this.activeSites.set(sites);  // Set the new value for the signal
+}
+
+// Method to get the active sites signal
+mapActiveSites() {
+  return this.activeSites;
 }
 
 }

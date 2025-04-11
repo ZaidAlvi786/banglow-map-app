@@ -1,4 +1,4 @@
-<div class="flex h-full flex-col z-[1000000000] corbel-bold">
+<div class="flex h-full flex-col z-[1000000000] font-Barlow">
     <div id="header"
         class="flex items-center justify-center self-stretch min-h-[48px] bg-secondaryBg px-[15px] gap-[15px] border-y border-solid border-custom-border">
         <span class="text-xs leading-[18px] font-bold text-secondary-heiglight w-full flex gap-[15px] items-center">
@@ -23,7 +23,7 @@
         </span>
     </div>
     <div class="flex flex-col overflow-x-auto h-screen">
-        <div class="py-[10px] bg-table-header px-[15px] flex corbel-bold font-medium leading-[18px] text-secondaryText text-xs">
+        <div class="py-[10px] bg-table-header px-[15px] flex font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
             <span class="min-w-[355px]">Name</span>
             <span class="min-w-[102.324px]">Updates</span>
             <span class="min-w-[120px]">Date saved</span>
@@ -33,21 +33,39 @@
         @for (group of groups; track group;let index = $index) {
           <ng-container>
             <div [ngClass]="activeIndex == index ? 'bg-[#232B32]':'bg-transparent'">
-                <div (click)="rowExpanded(index,group)" [ngClass]="activeIndex == index ? 'bg-[#232B32]':'bg-primaryBg'" class="py-[10px] cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] corbel-bold font-medium leading-[18px] text-secondaryText text-xs">
+                <div (click)="rowExpanded(index,group)" [ngClass]="activeIndex == index ? 'bg-[#232B32]':'bg-primaryBg'" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
                     <div class="min-w-[355px] flex gap-[15px]">
+                       
                         <img [src]="activeIndex == index? 'assets/svg-icons/folder-icon-expanded.svg':'assets/svg-icons/folder-icon.svg'" alt="" />
                         <span >{{group.name}}</span>
                     </div>
+                    <div class="min-w-[102.324px] group relative">
                     <span class="min-w-[102.324px]">{{group.new_updates_count}}</span>
+                    <div
+                        class="hidden absolute shadow-custom rounded-[10px] z-10 top-[20px] min-w-[200px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                        <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                            <span>Updates since {{group.created_at | utcDateTimePipe}}</span>
+                        </div>
+
+                    </div>
+                </div>
                     <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
-                    <!-- <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span> -->
                     <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                        <span class="text-secondaryText">{{group.total_objects}}</span>
+                        <div class="min-w-[102.324px] group relative">
+                            <span class="min-w-[102.324px]">{{group.total_objects}}</span>
+                            <div
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[20px] min-w-[200px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                    <span>How many footprints since {{group.created_at | utcDateTimePipe}}</span>
+                                </div>
+        
+                            </div>
+                        </div>
                         <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">
                             <img src="assets/svg-icons/nav-menu-icon.svg" />
                         </span>
                         <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #menu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">
-                            <div class="inline-flex p-[15px] corbel-bold flex-col items-start gap-[15px]">
+                            <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
                                 <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                                 <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                                     <button (click)="$event.stopPropagation();setNotifications(true,group)"
@@ -67,27 +85,51 @@
                 </div>
                 <div 
           *ngIf="activeIndex === index" 
-          class="overflow-y-scroll scroll-div scrollbar scrollbar-thumb-secondaryText transition-all duration-300 ease-in-out pl-[15px]" 
+          class=" scroll-div scrollbar scrollbar-thumb-secondaryText transition-all duration-300 ease-in-out pl-[15px]" 
           [ngClass]="activeIndex === index ? ' opacity-100' : 'max-h-0 opacity-0'"
         >
         @if (nestedGroupsData?.sites?.length > 0){
             @for (site of nestedGroupsData?.sites;track site;let j = $index){
                 <div class="flex flex-col gap-[10px]">
-                    <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border corbel-bold font-medium leading-[18px] text-secondaryText text-xs">
+                    <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
                         <div class="min-w-[355px] items-center flex gap-[15px] pl-[5px]">
+                            <span (click)="$event.stopPropagation()">
+                                <mat-checkbox [checked]="isChecked(site)" (change)="toggleSelection(site, $event)">
+                                </mat-checkbox>
+                            </span>
                             <img [ngClass]="{'point-site': site?.site_type == 'Point'}" class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="getSiteType(site?.site_type)" alt="" />
                             <span class="w-[225px]">{{site.name}}</span>
                         </div>
-                        <span class="min-w-[102.324px]">{{site?.new_updates}}</span>
+                        <!-- <span class="min-w-[102.324px]">{{site?.new_updates}}</span> -->
+                        <div class="min-w-[102.324px] group relative">
+                            <span class="min-w-[102.324px]">{{site?.new_updates}}</span>
+                            <div
+                                class="hidden absolute shadow-custom rounded-[10px] z-10 top-[20px] min-w-[200px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                    <span>Updates since {{group.created_at | utcDateTimePipe}}</span>
+                                </div>
+        
+                            </div>
+                        </div>
                         <span class="min-w-[120px]">{{site.date | dateFormat}}</span>
                         <!-- <span class="min-w-[127.933px] ">{{roundOff(site?.area)}}km²</span> -->
                         <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                            <span class="text-secondaryText">{{site?.count}}</span>
+                            <!-- <span class="text-secondaryText">{{site?.count}}</span> -->
+                            <div class="min-w-[102.324px] group relative">
+                                <span class="min-w-[102.324px]">{{site?.count}}</span>
+                                <div
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[20px] min-w-[200px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>How many footprints since {{group.created_at | utcDateTimePipe}}</span>
+                                    </div>
+            
+                                </div>
+                            </div>
                             <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setMainClass()" [matMenuTriggerFor]="siteMenu">
                                 <img src="assets/svg-icons/nav-menu-icon.svg" />
                             </span>
                             <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #siteMenu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">
-                                <div class="inline-flex p-[15px] corbel-bold flex-col items-start gap-[15px]">
+                                <div class="inline-flex p-[15px] font-Barlow flex-col items-start gap-[15px]">
                                     <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Notifications</span>
                                     <div class="rounded-[25px] bg-primaryBg flex items-center justify-between">
                                         <button (click)="updateSite(true,site)"
@@ -118,7 +160,7 @@
                                         <span class="text-secondary-heiglight group text-xs font-bold leading-[18px]">Frequency</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.frequency}}</span>
                                         <div
-                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
+                                            class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                 <span>{{siteDetail?.frequency}}:</span>
                                                 <span>Number of distinct acquisitions on Most Recent Capture
@@ -133,10 +175,10 @@
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.most_recent_info?.acquisition_datetime |
                                             dateFormat}}</span>
                                             <div
-                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
+                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
                                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                     <span>Date time:</span>
-                                                    <span>{{siteDetail?.most_recent_info?.acquisition_datetime | dateFormat}}
+                                                    <span>{{siteDetail?.most_recent_info?.acquisition_datetime | utcDateTimePipe}}
                                                         UTC</span>
                                                 </div>
                                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
@@ -153,7 +195,7 @@
                                         <span
                                             class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.gap.toFixed(3)}}</span>
                                             <div
-                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
+                                                class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
                                                 <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                     <span>Days since last image:</span>
                                                     <span>{{siteDetail?.gap.toFixed(3)}}
@@ -167,15 +209,20 @@
                                         <span class="text-yellow text-xs font-bold leading-normal" *ngIf="siteDetail?.most_recent_clear_info!==null">{{siteDetail?.most_recent_clear |
                                             dateFormat}}</span>
                                             <div *ngIf="siteDetail?.most_recent_clear_info!==null"
-                                            class="hidden absolute shadow-custom left-[0px] right-[30px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] corbel-bold">
+                                            class="hidden absolute shadow-custom left-[0px] right-[30px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]" >
                                                 <span>Date time:</span>
-                                                <span>{{siteDetail?.most_recent_clear_info?.acquisition_datetime | dateFormat}}
+                                                <span>{{siteDetail?.most_recent_clear_info?.acquisition_datetime | utcDateTimePipe}}
                                                     UTC</span>
                                             </div>
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                 <span>Vendor:</span>
                                                 <span>{{siteDetail?.most_recent_clear_info?.vendor_name }}</span>
+                                            </div>
+
+                                            <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                                <span>Cloud Cover %:</span>
+                                                <span>{{toParseInt(siteDetail?.most_recent_clear_info?.cloud_cover_percent) }} (<30%)</span>
                                             </div>
                                         
                                         </div>
@@ -183,8 +230,6 @@
                                     <div class="flex items-center">
                                     <div class="w-[30px] h-[16px] ml-[5px] cursor-pointer" (click)="$event.stopPropagation();markerData(siteDetail)"><img
                                             src="assets/svg-icons/marker-icon.svg" alt=""></div>
-                                    <mat-checkbox [checked]="isChecked(siteDetail)" (change)="toggleSelection(siteDetail, $event)">
-                                    </mat-checkbox>
                                     </div>
                                    
                                 </div>
@@ -196,7 +241,7 @@
             
                                 @if (calendarData?.length) {
                                 <div class="flex flex-col gap-[10px]">
-                                    <!-- <div class="flex gap-[5px] corbel-bold flex-wrap"> -->
+                                    <!-- <div class="flex gap-[5px] font-Barlow flex-wrap"> -->
                                     <!-- <div class="flex items-center flex-col gap-[5px]">
                                                         <span class="w-[15px] h-[15px] bg-[#272F34] rounded-[5px]"></span>
                                                         <span class="text-secondaryText text-[10px]">Very low</span>
@@ -249,7 +294,7 @@
                                           <div class="flex gap-[5px]" *ngFor="let legend of legens_calendar">
                                             <div class="flex flex-col items-center gap-[5px]">
                                               <div class="w-[20px] h-[20px] rounded-[5px]" [ngStyle]="{'background-color':legend?.color}"></div>
-                                              <div class="text-secondaryText text-sm font-medium leading-[18px] corbel-bold">{{legend?.min}}-{{legend?.max}}</div>
+                                              <div class="text-secondaryText text-sm font-medium leading-[18px] font-Barlow">{{legend?.min}}-{{legend?.max}}</div>
                                             </div>
                                     
                                           </div>
@@ -275,7 +320,7 @@
                                               (mouseleave)="clearTooltipPosition(day)"
                                             >
                                             {{ getDayFromDate(day.date) }}
-                                              <div *ngIf="day.value>0" [ngStyle]="tooltipPosition[day.date]" class="group-hover:inline-flex min-w-[160px] z-[9999999999] w-max absolute hidden corbel-bold p-[15px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
+                                              <div *ngIf="day.value>0" [ngStyle]="tooltipPosition[day.date]" class="group-hover:inline-flex min-w-[160px] z-[9999999999] w-max absolute hidden font-Barlow p-[15px] flex-col items-start gap-[15px] rounded-[10px] bg-secondaryBg shadow-custom">
                                                 <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">{{getDate(month.name,day)}}</span>
                                                 <span class="text-secondaryText text-sm font-medium leading-[18px]">{{day.value}} images available</span>
                                                 <!-- <span class="text-yellow pt-[15px] border-t border-t-solid border-t-custom-border text-xs font-bold leading-[18px]">Browse images</span> -->
@@ -298,7 +343,7 @@
         }
         @for (nestedGroup of nestedGroupsData?.subgroups;track nestedGroup  ;let i = $index){
             <ng-container>
-                <app-groups-list class="corbel-bold"
+                <app-groups-list class="font-Barlow"
             [group]="nestedGroup" 
             (selectedGroup)="selectedGroupEvent($event)" 
             [index]="i"

@@ -286,9 +286,21 @@
                           class="absolute z-10 top-[380px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
                           <div class="flex flex-col gap-[5px]">
                               <span
-                                  class="text-xs font-semibold leading-[18px] flex-wrap">{{roundOff(level?.current_count)}}
+                                  class="text-xs font-semibold leading-[18px] flex-wrap">
+                                  <ng-container *ngIf="roundOff(level.previous_count); else NA"> 
+                                    {{roundOff(level.current_count)}}
+                                    ({{level.key}} days from now) / {{roundOff(level.previous_count)}}
+                                    ({{getDouble(level.key)}} days from now)
+                                </ng-container>
+                                <ng-template #NA>
+                                    N/A
+                                </ng-template>
+<!--                                   
+                                  {{roundOff(level?.current_count)}}
                                   ({{level.key}} days from now) / {{roundOff(level?.previous_count)}}
-                                  ({{getDouble(level.key)}} days from now)</span>
+                                  ({{getDouble(level.key)}} days from now) -->
+                                
+                                </span>
                           </div>
                       </div>
                   </div>
