@@ -186,7 +186,7 @@
           class="min-w-[70px] group !overflow-visible !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Successful
-          <div class="group-hover:flex bg-secondaryBg absolute w-[245px] -left-[120px] top-[40px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+          <div class="group-hover:flex bg-secondaryBg absolute w-[245px] -left-[120px] top-[40px] z-[1000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
             <span class="text-secondaryText">Added in Imagery Collection Catalog</span>
           </div>
         </th>
@@ -196,7 +196,7 @@
           class="min-w-[70px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
           {{ row?.total_success }}
-          <div class="group-hover:flex bg-secondaryBg absolute w-[280px] p-[10px] z-50 text-sm shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+          <div class="group-hover:flex bg-secondaryBg absolute w-[280px] p-[10px] z-[1000000] text-sm shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
             <span class="text-secondaryText ">{{ row?.total_success }} of footprints successfully processed</span>
           </div>
         </td>
@@ -209,7 +209,7 @@
           class="min-w-[90px] group  !pl-[10px] !overflow-visible text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
         >
           Failed
-          <div class="group-hover:flex bg-secondaryBg absolute w-[255px] top-[40px] -left-[120px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+          <div class="group-hover:flex bg-secondaryBg absolute w-[255px] top-[40px] -left-[120px] z-[1000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
             <span class="text-secondaryText">Failed to pass through validation such as uniqueness, valid geometry, etc</span>
           </div>
         </th>
@@ -219,7 +219,7 @@
           class="min-w-[90px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
         >
           {{ row?.total_failed }}
-          <div class="group-hover:flex bg-secondaryBg absolute w-[550px] -left-[210px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+          <div class="group-hover:flex bg-secondaryBg absolute w-[550px] -left-[210px] z-[1000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
             <span class="text-secondaryText"> Vendor Records failed to added in DB, View logs for more details</span>
           </div>
         </td>
@@ -243,20 +243,17 @@
         >
         <div class="min-w-[80px] group">
           {{ row?.total }}
-          <div class="group-hover:flex bg-secondaryBg absolute w-[231px] p-[10px] text-sm z-50 shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+          <div class="group-hover:flex bg-secondaryBg absolute w-[231px] p-[10px] text-sm z-[1000000] shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
             <span class="text-secondaryText ">{{ row?.total }} of total footprints processed</span>
           </div>
         </div>
           <div class="flex  gap-[15px] min-w-[85px] justify-between items-center">
-            <span class="w-[16px] absolute top-[18px] -right-[70px] z-50 h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">
-                <img src="assets/svg-icons/nav-menu-icon.svg" />
+            <span class="w-min-[66px] absolute top-[15px] -right-[115px] z-[100] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" >
+              <div class="inline-flex px-[15px] font-Barlow flex-col items-start gap-[15px]">
+                <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="openDialog(row,'parent')">View logs</span>
+                
+            </div>
             </span>
-            <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #menu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">
-                <div class="inline-flex px-[15px] py-[5px] font-Barlow flex-col items-start gap-[15px]">
-                    <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="openDialog(row,'parent')">View logs</span>
-                    
-                </div>
-            </mat-menu>
         </div>
         </td>
         
@@ -331,7 +328,7 @@
                     class="min-w-[80px] group !overflow-visible !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
                   >
                     Successful
-                    <div class="group-hover:flex bg-secondaryBg absolute w-[245px] -left-[130px] top-[40px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[245px] -left-[130px] top-[40px] z-[1000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
                       <span class="text-secondaryText">Added in Imagery Collection Catalog</span>
                     </div>
                   </th>
@@ -341,7 +338,7 @@
                     class="min-w-[80px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
                   >
                     {{ row?.message?.valid_records }}
-                    <div class="group-hover:flex bg-secondaryBg absolute w-[280px] p-[10px] z-50 text-sm shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[280px] p-[10px] z-[1000000] text-sm shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
                       <span class="text-secondaryText ">{{ row?.message?.valid_records }} of footprints successfully processed</span>
                     </div>
                   </td>
@@ -354,7 +351,7 @@
                     class="min-w-[80px] group !overflow-visible !pl-[10px] text-secondaryText font-semibold !border-b !border-b-solid !border-b-secondaryText"
                   >
                     Failed
-                    <div class="group-hover:flex bg-secondaryBg absolute w-[255px] top-[40px] -left-[160px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[255px] top-[40px] -left-[160px] z-[1000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
                       <span class="text-secondaryText">Failed to pass through validation such as uniqueness, valid geometry, etc</span>
                     </div>
                   </th>
@@ -364,7 +361,7 @@
                     class="min-w-[80px] group relative !overflow-visible !pl-[10px] text-secondaryText !border-b !border-b-solid !border-b-secondaryText"
                   >
                     {{ row?.message?.invalid_records }}
-                    <div class="group-hover:flex bg-secondaryBg absolute w-[550px] -left-[330px] z-50 shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[550px] -left-[330px] z-[1000000] shadow-custom-light text-sm p-[10px] rounded-sm hidden gap-[10px] font-Barlow">
                       <span class="text-secondaryText">Vendor Records failed to added in DB, View logs for more details</span>
                     </div>
                   </td>
@@ -388,20 +385,20 @@
                   >
                   <div class="group !overflow-visible relative">
                     {{ row?.message?.total_records }}
-                    <div class="group-hover:flex bg-secondaryBg absolute w-[231px] -left-[125px] p-[10px] text-sm z-50 shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
+                    <div class="group-hover:flex bg-secondaryBg absolute w-[231px] -left-[125px] p-[10px] text-sm z-[1000000] shadow-custom-light rounded-sm hidden gap-[10px] font-Barlow">
                       <span class="text-secondaryText ">{{ row?.message?.total_records }} of total footprints processed</span>
                     </div>
                   </div>
                     <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                      <span class="w-[16px] h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()" [matMenuTriggerFor]="menu">
-                          <img src="assets/svg-icons/nav-menu-icon.svg" />
+                      <span class="h-[16px] flex cursor-pointer" (click)="$event.stopPropagation();setClass()">
+                        <div class="inline-flex px-[15px] font-Barlow flex-col items-start gap-[15px]">
+                          <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="openDialog(row,'child')">View logs</span>
+                          
+                      </div>
                       </span>
-                      <mat-menu class="bg-secondaryBg" panelClass="custom-panel-class"  #menu="matMenu" id="site" overlayPanelClass="custom-backdrop-class">
-                          <div class="inline-flex px-[15px] py-[5px] font-Barlow flex-col items-start gap-[15px]">
-                              <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="openDialog(row,'child')">View logs</span>
-                              
-                          </div>
-                      </mat-menu>
+
+                    
+               
                   </div>
                   </td>
                 </ng-container>

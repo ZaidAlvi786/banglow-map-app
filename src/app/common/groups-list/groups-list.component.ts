@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, inject, input, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, effect, EventEmitter, inject, input, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { DateFormatPipe, UtcDateTimePipe } from '../../pipes/date-format.pipe';
 import { MatMenuModule } from '@angular/material/menu';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { MatDialog } from '@angular/material/dialog';
@@ -44,7 +44,7 @@ type CalendarMonth = { name: string; weeks: CalendarWeek[] };
 @Component({
   selector: 'app-groups-list',
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, DateFormatPipe, MatMenuModule,NgApexchartsModule,MatCheckboxModule],
+  imports: [CommonModule, MatExpansionModule, DateFormatPipe, MatMenuModule,NgApexchartsModule,MatCheckboxModule, UtcDateTimePipe],
   templateUrl: './groups-list.component.html',
   styleUrl: './groups-list.component.scss'
 })
@@ -81,6 +81,10 @@ export class GroupsListComponent {
     private satelliteService:SatelliteService,
     private SharedService: SharedService
   ) { 
+    effect(() => {
+      this.selectedSites = this.SharedService.mapActiveSites()();  // Automatically updates when the signal changes
+      console.log(this.selectedSites, 'selectedSites');
+    });
   }
 
   
@@ -271,7 +275,9 @@ export class GroupsListComponent {
         return {
           lat,
           lon,
-          id: site.id
+          id: site.id,
+          name: site.name
+
         };
       });
     
@@ -625,9 +631,9 @@ export class GroupsListComponent {
     let current = start;
 
     const values = Object.values(apiData).filter((v) => v > 0);
-    const uniqueValues = Array.from(new Set(values)).sort((a, b) => a - b);
     const formatNumber = (num: number) => Math.round(num);
 
+    // No data fallback
     if (values.length === 0) {
         while (current.isBefore(end) || current.isSame(end, "month")) {
             const monthDays: CalendarDay[] = [];
@@ -657,35 +663,29 @@ export class GroupsListComponent {
         return;
     }
 
-    const colorPalette = ["#ff0000", "#ffa500", "#d7d717", "#1b901b", "#0000ff"];
-    const numRanges = Math.min(uniqueValues.length, 5);
-    const stepSize = Math.floor(uniqueValues.length / numRanges) || 1;
+    // Palette from low to high: blue → green → yellow → orange → red
+    const fullPalette = ["#0000ff", "#1b901b", "#d7d717", "#ffa500", "#ff0000"];
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+
+    const rangeCount = Math.min(5, maxValue === minValue ? 1 : maxValue - minValue + 1);
+    const rangeSize = Math.ceil((maxValue - minValue + 1) / rangeCount);
+    const colorPalette = fullPalette.slice(-rangeCount); // ✅ Use highest-intensity colors in correct order
 
     this.colorRanges = [];
-    let lastValue = null;
 
-    for (let i = 0; i < numRanges; i++) {
-        const startIdx = i * stepSize;
-        // Always include the last unique value in the final range
-        const endIdx = (i === numRanges - 1)
-            ? uniqueValues.length
-            : Math.min((i + 1) * stepSize, uniqueValues.length);
+    for (let i = 0; i < rangeCount; i++) {
+        const rangeStart = minValue + i * rangeSize;
+        const rangeEnd = (i === rangeCount - 1) ? maxValue : rangeStart + rangeSize - 1;
 
-        const rangeStart = uniqueValues[startIdx];
-        const rangeEnd = uniqueValues[endIdx - 1];
-
-        if (rangeStart === lastValue) continue;
-
-        const paletteIndex = (numRanges - 1) - i;
+        const color = colorPalette[i]; // ✅ Keep color order: low → high
 
         this.colorRanges.push({
-            name: `Range ${formatNumber(rangeStart)}-${formatNumber(rangeEnd)}`,
-            color: colorPalette[paletteIndex % colorPalette.length],
+            name: `Range ${rangeStart} - ${rangeEnd}`,
+            color,
             start: rangeStart,
             end: rangeEnd,
         });
-
-        lastValue = rangeEnd;
     }
 
     const getRangeData = (value: number): { color: string; range: string } => {
@@ -726,6 +726,7 @@ export class GroupsListComponent {
         current = current.add(1, "month");
     }
 }
+
 
 
 
@@ -1012,15 +1013,57 @@ export class GroupsListComponent {
              }
            
              console.log('Current selectedSites:', this.selectedSites);
+             this.SharedService.setActiveSites(this.selectedSites)
              const dataArray = this.selectedSites.map(site => {
                const [lon, lat] = site?.coordinates?.coordinates[0][0];
                return {
                  lat,
                  lon,
-                 id: site.id
+                 id: site.id,
+                 name: site.name
                };
              });
            
              this.SharedService.setSiteMarkerData(dataArray);
            }
+
+           isGroupChecked(group: any): boolean {
+            return group.sites.every((site: any) => 
+              this.selectedSites.some((s: any) => s.id === site.id)
+            );
+          }
+      
+          toggleGroupSelection(group: any, event: MatCheckboxChange): void {
+            if (event.checked) {
+              // Select all sites in the group
+              group.sites.forEach((site: any) => {
+                if (!this.selectedSites.some((s: any) => s.id === site.id)) {
+                  this.selectedSites.push(site);
+                }
+              });
+            } else {
+              // Deselect all sites in the group
+              this.selectedSites = this.selectedSites.filter((site: any) => 
+                !group.sites.some((groupSite: any) => groupSite.id === site.id)
+              );
+            }
+            
+            console.log('Current selectedSites:', this.selectedSites);
+            this.SharedService.setActiveSites(this.selectedSites)
+            const dataArray = this.selectedSites.map((site: any) => {
+              const [lon, lat] = site?.coordinates?.coordinates[0][0];
+              return {
+                lat,
+                lon,
+                id: site.id,
+                name: site.name
+              };
+            });
+          
+            this.SharedService.setSiteMarkerData(dataArray);
+          }
+
+           toParseInt(value:any){
+            return parseInt(value);
+          }
 }

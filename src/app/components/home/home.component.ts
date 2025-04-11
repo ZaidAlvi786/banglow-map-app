@@ -355,11 +355,24 @@ hybridLayer:L.TileLayer = L.tileLayer(
         const clickLat = event.lat;
         const clickLng = event.lon;
     
+        console.log("eventeventevent",event);
+        
+        // Create a custom icon for the marker
+        const siteName = event?.name || 'Unnamed Site'; // Fallback to 'Unnamed Site' if no name is found
+        const customIcon = L.divIcon({
+          className: 'custom-marker',
+          html: `
+            <div class="corbel-bold w-max text-[10px] text-white" style="text-align:center;">
+              ${siteName}
+              <img src='assets/svg-icons/pin-location-icon.svg', alt='' />
+            </div>
+          `,
+          iconSize: [40, 60],  // Adjust the size of the marker icon (larger to accommodate both marker and name)
+          iconAnchor: [20, 60], // Anchor it properly to center the icon (adjust accordingly)
+        });
+    
         const newMarker = L.marker([clickLat, clickLng], {
-          icon: L.icon({
-            iconUrl: 'assets/svg-icons/pin-location-icon.svg',
-            iconSize: [21, 26],
-          }),
+          icon: customIcon,
         }).addTo(this.map);
     
         this.markerMap.set(siteId, newMarker);
@@ -453,6 +466,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     
     
     
+    
   }
 
   applyMargin() {
@@ -527,14 +541,14 @@ hybridLayer:L.TileLayer = L.tileLayer(
     const markerId = `marker-${Date.now()}`;
     // Bind the popup to the marker but do not open it automatically
     marker.bindPopup(`<b>Location:</b> ${result.formatted_address}
-      <span id="${markerId}" style="height:20px;width:20px;display:block;cursor: pointer;
+      <span id="${markerId}" style="height:15px;width:15px;display:block;cursor: pointer;
       position: absolute;
       top: 20px;
-      right: 2px;>
+      right: 5px;>
       <?xml version="1.0" encoding="utf-8"?>
       <!-- License: CC Attribution. Made by salesforce: https://lightningdesignsystem.com/ -->
       <svg fill="#191E22" xmlns="http://www.w3.org/2000/svg" 
-        width="20px" height="20px" viewBox="0 0 52 52" enable-background="new 0 0 52 52" xml:space="preserve">
+        width="15px" height="15px" viewBox="0 0 52 52" enable-background="new 0 0 52 52" xml:space="preserve">
       <g>
         <path d="M45.5,10H33V6c0-2.2-1.8-4-4-4h-6c-2.2,0-4,1.8-4,4v4H6.5C5.7,10,5,10.7,5,11.5v3C5,15.3,5.7,16,6.5,16h39
           c0.8,0,1.5-0.7,1.5-1.5v-3C47,10.7,46.3,10,45.5,10z M23,7c0-0.6,0.4-1,1-1h4c0.6,0,1,0.4,1,1v3h-6V7z"/>

@@ -186,7 +186,7 @@ export class LibraryComponent implements OnInit,OnDestroy,AfterViewInit {
     { id: 'publication_datetime', displayName: 'Publication Date Time', visible: false },
     { id: 'day_of_week', displayName: 'Day of Week', visible: false },
     { id: 'area', displayName: 'Area', visible: false },
-    { id: 'georeferenced', displayName: 'Geo Referenced', visible: false },
+    // { id: 'georeferenced', displayName: 'Geo Referenced', visible: false },
     { id: 'centroid', displayName: 'Centroid Lat, Lon', visible: false },
 
   ];
@@ -1650,6 +1650,14 @@ roundOff(value: number): any {
 toDecimal(value:number){
   return value.toFixed(2);
 }
+
+
+toParseInt(value:any){
+  return parseInt(value);
+}
+
+
+
 // On checkbox change
 onCheckboxChange(row: any) {
   

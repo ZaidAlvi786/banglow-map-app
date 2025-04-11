@@ -207,7 +207,7 @@
                                     class="hidden absolute shadow-custom rounded-[10px] z-10 top-[120px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                         <!-- <span>{{formatNumber(analyticsData?.total_count)}} ÷ 90</span> -->
-                                        <span>Total Avg for all time</span>
+                                        <span>Total Avg per Day All Time</span>
                                     </div>
                                 </div>
                             </div>
@@ -255,7 +255,7 @@
 
                                     <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                         <span>Cloud Cover %:</span>
-                                        <span>{{analyticsData?.newest_clear_cloud_cover_info?.cloud_cover_percent }} (<30%)</span>
+                                        <span>{{toParseInt(analyticsData?.newest_clear_cloud_cover_info?.cloud_cover_percent) }} (<30%)</span>
                                     </div>
                                 </div>
                             </div>
@@ -283,9 +283,16 @@
                                     class="absolute z-10 top-[248px] max-w-[200px] font-Barlow text-secondaryText group-hover:block hidden bg-primaryBg p-[10px]">
                                     <div class="flex flex-col gap-[5px]">
                                         <span
-                                            class="text-sm font-semibold leading-[18px] flex-wrap">{{roundOff(level.current_count)}}
-                                            ({{level.key}} days from now) / {{roundOff(level.previous_count)}}
-                                            ({{getDouble(level.key)}} days from now)</span>
+                                            class="text-sm font-semibold leading-[18px] flex-wrap">
+                                            <ng-container *ngIf="roundOff(level.previous_count); else NA"> 
+                                                {{roundOff(level.current_count)}}
+                                                ({{level.key}} days from now) / {{roundOff(level.previous_count)}}
+                                                ({{getDouble(level.key)}} days from now)
+                                            </ng-container>
+                                            <ng-template #NA>
+                                                N/A
+                                            </ng-template>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -708,14 +715,14 @@
                                         class="min-w-[115px] !pl-[10px] text-secondaryText">{{ row?.area}}km²
                                     </td>
                                 </ng-container>
-                                <ng-container matColumnDef="georeferenced">
+                                <!-- <ng-container matColumnDef="georeferenced">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header
                                         class="min-w-[135px] !pl-[10px] text-secondaryText font-semibold">
                                         Geo Referenced</th>
                                     <td mat-cell *matCellDef="let row"
                                         class="min-w-[135px] !pl-[10px] text-secondaryText">{{ row?.georeferenced?'True':'False' }}
                                     </td>
-                                </ng-container>
+                                </ng-container> -->
                                 <ng-container matColumnDef="centroid">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header
                                         class="min-w-[145px] !pl-[10px] text-secondaryText font-semibold">
@@ -844,11 +851,11 @@
                                                         </span> <span
                                                             class="text-secondaryText">{{element?.area}}km²</span>
                                                     </div>
-                                                    <div class="flex py-2 gap-2"> <span
+                                                    <!-- <div class="flex py-2 gap-2"> <span
                                                             class="text-secondary-heiglight font-semibold">Geo
                                                             Referenced: </span> <span
                                                             class="text-secondaryText">{{element?.georeferenced?'True':'False'}}</span>
-                                                    </div>
+                                                    </div> -->
                                                     <!-- <div class="flex py-2"> <span class="text-secondary-heiglight font-semibold">Collection Date:
                                         </span> <span class="text-secondaryText">{{getDateTimeFormat(element?.acquisition_datetime)}}</span> </div> -->
                                                     
