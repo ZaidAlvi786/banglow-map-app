@@ -359,7 +359,8 @@
       <div class="flex flex-col items-start gap-[5px] self-stretch">
         <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Date of Image</span>
         <div class="flex items-center gap-[15px] self-stretch w-full">
-            <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{getDateTimeFormat(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)}}</span>
+            <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{getFormattedDate(data?.vendorData?.acquisition_datetime, data?.vendorData?.centroid)
+                                            +' '+ formatUtcTime(data?.vendorData)}}</span>
             <span class="h-[17px] w-[16px] cursor-pointer" matTooltip="Coppy Address">
                 <img src="/assets/svg-icons/calender-icon.svg" alt="" />
             </span>          
@@ -418,7 +419,7 @@
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Azimuth Angle</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-          <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle}}°</span>         
+          <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.azimuth_angle?data?.vendorData?.azimuth_angle.toFixed(2):'0'}}°</span>         
       </div> 
     </div>      
 </div><div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
@@ -441,14 +442,14 @@
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Illumination Angle</span>
     <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_azimuth_angle}}°</span>         
+        <span class="flex-0 font-Barlow text-xs font-medium leading-[18px] text-secondaryText w-full break-words">{{data?.vendorData?.illumination_elevation_angle?data?.vendorData?.illumination_elevation_angle.toFixed(2):'0'}}°</span>         
     </div> 
   </div>    
   <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
     <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Satellite Angle</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.illumination_azimuth_angle}}°</span>
+        <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.illumination_azimuth_angle?data?.vendorData?.illumination_azimuth_angle.toFixed(2):'0'}}°</span>
       </div>
     <!-- </div> -->
   </div>         
@@ -466,12 +467,30 @@
     <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
       <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Publication</span>
       <div class="flex items-center gap-[15px] self-stretch w-full">
-        <span class="text-secondaryText text-xs font-medium leading-[18px]">{{getDateTimeFormat(data?.vendorData?.publication_datetime, data?.vendorData?.centroid)}}</span>
+        <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.publication_datetime? getFormattedDateTime(data?.vendorData?.publication_datetime):null}}</span>
       </div>
     <!-- </div> -->
   </div> 
   </div>    
- 
+  <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Off NADIR
+          Angle:</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.sun_elevation.toFixed(2)}}°</span>
+        </div>
+      <!-- </div> -->
+    </div>       
+    <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
+      <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->
+        <span class="flex-0 text-secondary-heiglight font-Barlow font-bold text-xs leading-[18px]">Area</span>
+        <div class="flex items-center gap-[15px] self-stretch w-full">
+          <span class="text-secondaryText text-xs font-medium leading-[18px]">{{data?.vendorData?.area}}km²</span>
+        </div>
+      <!-- </div> -->
+    </div> 
+  </div>    
   <div class="flex items-center gap-[5px] self-stretch w-full font-Barlow">   
     <div class="flex flex-col w-2/4 p-[8px] gap-[5px] flex-0 rounded-[3px] bg-primaryBg justify-center">
       <!-- <div class="flex flex-col items-start gap-[5px] self-stretch"> -->

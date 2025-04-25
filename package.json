@@ -26,6 +26,7 @@
     "interactjs": "^1.10.27",
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
+    "logrocket": "^9.0.2",
     "martinez-polygon-clipping": "^0.7.4",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.46",
@@ -56,8 +57,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "tailwindcss": "^3.4.14",
     "tailwind-scrollbar": "^3.1.0",
+    "tailwindcss": "^3.4.14",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },

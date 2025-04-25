@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, effect, inject, Inject, Input, OnChanges, OnInit, Optional, SimpleChanges, TemplateRef, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -72,6 +72,7 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
   siteData: any;
   vendorData:any = null;
   @Input()type:string = '';
+  selectedZone:string
   isHovered:boolean = false;
   @Input()pointMarkerData:any = null
   constructor(@Optional() @Inject(MAT_DIALOG_DATA) public data: any,
@@ -102,6 +103,11 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
         console.error('API call failed', err);
       }
     });
+    effect(()=>{
+      this.selectedZone= this.sharedService.selectedTimeZone()
+      console.log(this.selectedZone,'timetimetimetimetimetime');
+      
+    })
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -122,6 +128,7 @@ export class MapControllersPopupComponent implements OnInit, OnChanges,AfterView
     this.sharedService.groupData$.subscribe((group)=>{
       this.activeGroup = group;
     })
+   
   }
 
   ngOnInit(): void {
@@ -601,5 +608,79 @@ getValue(value:any,total:any){
     ...(value as any), // Ensure additional properties exist
   }));
 }
+
+//Format Date according to Selected Zone
+getFormattedDate(date: Date, centroid?: [number, number]): string {
+    
+    if (this.selectedZone === 'UTC') {
+      // Format date in UTC
+      return momentZone(date).utc().format('YYYY-MM-DD');
+    } else if (centroid && centroid.length === 2) {
+      // Get the time zone based on latitude and longitude
+      const [latitude, longitude] = centroid;
+      const timeZone = tzLookup(latitude, longitude);
+  
+      // Format the date based on the calculated time zone
+      return momentZone(date).tz(timeZone).format('YYYY-MM-DD');
+    } else {
+      // Fallback to local time
+      return moment(date).local().format('YYYY-MM-DD');
+    }
+  }
+
+  formatUtcTime(payload) {
+      // Check if payload contains valid acquisition_datetime
+      if (!payload?.acquisition_datetime) {
+        throw new Error('Invalid payload or acquisition_datetime missing');
+      }    
+  
+      const date = new Date(payload.acquisition_datetime);
+    
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date passed');
+      }
+    
+      if (this.selectedZone === 'UTC') {
+        return momentZone.utc(date).format('HH:mm [UTC]');
+      }
+    
+      if (this.selectedZone === 'local' && payload.centroid?.length === 2) {
+        const [latitude, longitude] = payload.centroid;
+    
+        try {
+          // Get the time zone based on latitude and longitude
+          const timeZone = tzLookup(latitude, longitude);
+    
+          // Convert the time to the local time zone
+          const localTime = momentZone(date).tz(timeZone).format('HH:mm');
+    
+          return localTime;
+        } catch (error) {
+          console.error('Failed to determine time zone:', error);
+          throw new Error('Unable to determine local time');
+        }
+      }
+    
+      throw new Error('Invalid selectedZone or centroid information');
+    }
+
+    getFormattedDateTime(date: Date, centroid?: [number, number]): string {
+    
+      if (this.selectedZone === 'UTC') {
+        // Format date in UTC
+        return momentZone(date).utc().format('YYYY-MM-DD HH:mm [UTC]');
+      } else if (centroid && centroid.length === 2) {
+        // Get the time zone based on latitude and longitude
+        const [latitude, longitude] = centroid;
+        const timeZone = tzLookup(latitude, longitude);
+    
+        // Format the date based on the calculated time zone
+        return momentZone(date).tz(timeZone).format('YYYY-MM-DD HH:mm');
+      } else {
+        // Fallback to local time
+        return moment(date).local().format('YYYY-MM-DD HH:mm');
+      }
+    }
 
 }

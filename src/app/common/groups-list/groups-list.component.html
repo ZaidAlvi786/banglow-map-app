@@ -20,10 +20,18 @@
                 <span >{{group.name}}</span>
             </div>
             <span class="min-w-[102.324px]"></span>
-            <span class="min-w-[120px]">{{group.created_at | dateFormat}}</span>
+            <div class="min-w-[102.324px] group relative">
+                <span class="min-w-[102.324px]">{{group.created_at | dateFormat}}</span>
+                <div
+                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[20px] min-w-[200px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                        <span>Updates since {{group.created_at | utcDateTimePipe}}</span>
+                    </div>
+
+                </div>
+            </div>
             <!-- <span class="min-w-[127.933px]">{{roundOff(group.surface_area)}}km²</span> -->
             <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                <!-- <span class="text-secondaryText">{{group.total_objects}}</span> -->
                 <div class="min-w-[102.324px] group relative">
                     <span class="min-w-[102.324px]">{{group.total_objects}}</span>
                     <div
@@ -65,19 +73,32 @@
                     <div class="flex flex-col gap-[10px]">
                         <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
                             <div class="min-w-[340px] flex items-center gap-[15px]" [ngStyle]="{ 'padding-left': getPadding(padding) + 'px' }">
-                                <span (click)="$event.stopPropagation()">
-                                    <mat-checkbox [checked]="isChecked(site)" (change)="toggleSelection(site, $event)">
-                                    </mat-checkbox>
-                                </span>
+                                <div class="flex">
+                                    <span (click)="$event.stopPropagation()">
+                                        <mat-checkbox [checked]="isChecked(site)" (change)="toggleSelection(site, $event)">
+                                        </mat-checkbox>
+                                    </span>
+                                    <div class="flex items-center">
+                                        <div class="w-[16px] h-[16px] ml-[5px] cursor-pointer" (click)="$event.stopPropagation();markerData(site)">
+                                            <img src="assets/svg-icons/marker-icon.svg" alt=""></div>
+                                    
+                                    </div>
+                                </div>
                                 <img class="h-[25px] w-[25px] object-cover" height="30" width="30" [src]="site.site_type == 'Rectangle'? 'assets/svg-icons/rectangle-icon.svg':'assets/svg-icons/polygon-icon.svg'" alt="" />
                                 <span >{{site.name}}</span>
                             </div>
                             <span class="min-w-[102.324px]"></span>
-                            <span class="min-w-[120px]">{{site.date | dateFormat}}</span>
-                            <!-- <span class="min-w-[127.933px]">{{roundOff(site?.area)}}km²</span> -->
+                            <div class="min-w-[102.324px] group relative">
+                                <span class="min-w-[102.324px]">{{site.date | dateFormat}}</span>
+                                <div
+                                    class="hidden absolute shadow-custom rounded-[10px] z-10 top-[20px] min-w-[200px] text-secondaryText group-hover:flex flex-col bg-primaryBg p-[10px] font-Barlow">
+                                    <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
+                                        <span>Updates since {{group.created_at | utcDateTimePipe}}</span>
+                                    </div>
+            
+                                </div>
+                            </div>
                             <div class="flex gap-[15px] min-w-[85px] justify-between items-center">
-                                <!-- <span class="text-secondary-heiglight">{{site.total_objects}}</span> -->
-                                <!-- <span class="text-secondaryText">{{site?.count}}</span> -->
                                 <div class="min-w-[102.324px] group relative">
                                     <span class="min-w-[102.324px]">{{site?.count}}</span>
                                     <div
@@ -119,9 +140,9 @@
                         <div
                             class="flex w-full items-center gap-[15px] self-stretch ">
                             <div class="flex flex-col items-start gap-[15px] flex-0">
-                                <div class="flex min-w-[775px] w-full items-center gap-[50px] self-stretch">
+                                <div class="flex min-w-[775px] w-full items-center gap-[63px] self-stretch">
                                     <div
-                                        class="flex flex-col min-w-[13%] relative group justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col min-w-[13%] relative group justify-center items-center px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight group text-xs font-bold leading-[18px]">Frequency</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.frequency}}</span>
                                         <div
@@ -134,7 +155,7 @@
                                         </div>
                                     </div>
                                     <div
-                                        class="flex flex-col min-w-[13%] group relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col min-w-[13%] group relative justify-center items-center px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most Recent</span>
                                         <span class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.most_recent_info?.acquisition_datetime |
                                             dateFormat}}</span>
@@ -153,7 +174,7 @@
                                             </div>
                                     </div>
                                     <div
-                                        class="flex flex-col group relative min-w-[13%] justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col group relative min-w-[13%] justify-center items-center px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Gap</span>
                                         <span
                                             class="text-secondaryText text-xs font-bold leading-normal">{{siteDetail?.gap.toFixed(3)}}</span>
@@ -167,7 +188,7 @@
                                             </div>
                                     </div>
                                     <div
-                                        class="flex flex-col group min-w-[25%] relative justify-center items-start px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
+                                        class="flex flex-col group min-w-[25%] relative justify-center items-center px-[8px] py-[15px] self-stretch gap-[5px] rounded-[5px] border border-solid border-custom-border bg-primaryBg">
                                         <span class="text-secondary-heiglight text-xs font-bold leading-[18px]">Most Recent Clear</span>
                                         <span class="text-yellow text-xs font-bold leading-normal" *ngIf="siteDetail?.most_recent_clear_info!==null">{{siteDetail?.most_recent_clear |
                                             dateFormat}}</span>
@@ -191,11 +212,7 @@
                                         
                                         </div>
                                     </div>
-                                    <div class="flex items-center">
-                                        <div class="w-[30px] h-[16px] ml-[5px] cursor-pointer" (click)="$event.stopPropagation();markerData(siteDetail)">
-                                            <img src="assets/svg-icons/marker-icon.svg" alt=""></div>
-                                       
-                                    </div>
+                                    
                                    
                                 </div>
                             </div>
