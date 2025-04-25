@@ -72,6 +72,7 @@ export class GroupsComponent implements OnInit,AfterViewInit {
 ]
   tooltipPosition: any = {};
   weekDays: string[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+  checkedGroup:boolean = false
   calendarData: CalendarMonth[] = [];
   selectedSites: any[] = [];
   constructor(
@@ -560,13 +561,13 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     
 
     markerData(siteDetail: any) {
-      const alreadyExists = this.selectedSites.some(site => site.id === siteDetail.id);
+      const alreadyExists = this.selectedSites?.some(site => site?.id === siteDetail?.id);
       
       if (!alreadyExists) {
         this.selectedSites.push(siteDetail);
       }
     
-      const dataArray = this.selectedSites.map(site => {
+      const dataArray = this.selectedSites?.map(site => {
         const [lon, lat] = site?.coordinates?.coordinates[0][0];
         return {
           lat,
@@ -1034,24 +1035,24 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     }
 
     isChecked(site: any): boolean {
-      return this.selectedSites.some(s => s.id === site.id); // compare using ID or unique key
+      return this.selectedSites?.some(s => s?.id === site.id); // compare using ID or unique key
     }
     toggleSelection(site: any, event: MatCheckboxChange): void {
      
       if (event.checked) {
         // Add only if not already present
-        const exists = this.selectedSites.some(s => s.id === site.id); // or another unique key
+        const exists = this.selectedSites?.some(s => s?.id === site.id); // or another unique key
         if (!exists) {
           this.selectedSites.push(site);
         }
       } else {
         // Remove if present
-        this.selectedSites = this.selectedSites.filter(s => s.id !== site.id);
+        this.selectedSites = this.selectedSites?.filter(s => s?.id !== site.id);
       }
     
       console.log('Current :', this.selectedSites);
       this.sharedService.setActiveSites(this.selectedSites)
-      const dataArray = this.selectedSites.map(site => {
+      const dataArray = this.selectedSites?.map(site => {
         const [lon, lat] = site?.coordinates?.coordinates[0][0];
         return {
           lat,
@@ -1069,5 +1070,93 @@ export class GroupsComponent implements OnInit,AfterViewInit {
     
     toParseInt(value:any){
       return parseInt(value);
+    }
+
+    onParentCheck(group:any,event:MatCheckboxChange,index:any){
+     
+      if(this.activeIndex !== index&& event.checked){
+        console.log('aaaaaaaaaaaaaaaa');
+        
+        this.activeIndex = index
+        this.checkedGroup = event.checked
+        const data = {group_id:group.id}
+        this.parentGroupID = group.id
+        this.sharedService.setUpdatedNestedGroup(this.parentGroupID)
+        this.satelliteService.getNestedGroup(data).subscribe({
+        next: (resp) => {
+  
+          this.nestedGroupsData = resp
+          console.log(event.checked,'targettargettargettargettarget');
+          if(this.nestedGroupsData){
+            const data ={group:this.nestedGroupsData,checked:event.checked}
+            this.sharedService.setParentCheck(data)
+          }
+          resp.sites.map(site=>{
+            this.selectedSites.push(site)
+          })
+          console.log('Current :', this.selectedSites);
+          this.sharedService.setActiveSites(this.selectedSites)
+          const dataArray = this.selectedSites?.map(site => {
+            const [lon, lat] = site?.coordinates?.coordinates[0][0];
+            return {
+              lat,
+              lon,
+              id: site.id,
+              name: site.name
+            };
+          });
+        
+          this.sharedService.setSiteMarkerData(dataArray);
+        }})
+  
+      } else {
+        
+        this.checkedGroup = event.checked
+        console.log(event.checked,'targettargettargettargettarget');
+      
+          const data ={group:this.nestedGroupsData,checked:event.checked}
+          this.sharedService.setParentCheck(data)
+        if(this.checkedGroup) {
+          this.nestedGroupsData.sites.map(site=>{
+            this.selectedSites.push(site)
+          })
+          console.log('Current :', this.selectedSites);
+          this.sharedService.setActiveSites(this.selectedSites)
+          const dataArray = this.selectedSites?.map(site => {
+            const [lon, lat] = site?.coordinates?.coordinates[0][0];
+            return {
+              lat,
+              lon,
+              id: site.id,
+              name: site.name
+            };
+          });
+        
+          this.sharedService.setSiteMarkerData(dataArray);
+        } else {
+          console.log('dddd');
+          
+          
+          this.selectedSites = []
+          this.sharedService.setActiveSites(this.selectedSites)
+          console.log(this.selectedSites,'llllllllllllll');
+          
+          const dataArray = this.selectedSites?.map(site => {
+            this.isChecked(site)
+            const [lon, lat] = site?.coordinates?.coordinates[0][0];
+            return {
+              lat,
+              lon,
+              id: site.id,
+              name: site.name
+            };
+          });
+        
+          this.sharedService.setSiteMarkerData(dataArray);
+        }
+      }
+     
+      
+      
     }
 }

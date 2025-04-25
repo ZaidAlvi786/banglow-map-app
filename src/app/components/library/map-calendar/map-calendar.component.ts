@@ -111,25 +111,29 @@ export class MapCalendarComponent implements OnInit {
         return;
     }
 
-    // Palette from low to high: blue → green → yellow → orange → red
+    // Color palette from low to high
     const fullPalette = ["#0000ff", "#1b901b", "#d7d717", "#ffa500", "#ff0000"];
     const minValue = Math.min(...values);
     const maxValue = Math.max(...values);
 
-    const rangeCount = Math.min(5, maxValue === minValue ? 1 : maxValue - minValue + 1);
-    const rangeSize = Math.ceil((maxValue - minValue + 1) / rangeCount);
-    const colorPalette = fullPalette.slice(-rangeCount); // ✅ Use highest-intensity colors in correct order
+    const uniqueValueCount = maxValue - minValue + 1;
+    const rangeCount = Math.min(5, uniqueValueCount);
+    const rangeSize = Math.ceil(uniqueValueCount / rangeCount);
+    const colorPalette = fullPalette.slice(-rangeCount);
 
     this.colorRanges = [];
 
     for (let i = 0; i < rangeCount; i++) {
-        const rangeStart = minValue + i * rangeSize;
-        const rangeEnd = (i === rangeCount - 1) ? maxValue : rangeStart + rangeSize - 1;
+        let rangeStart = minValue + i * rangeSize;
+        let rangeEnd = Math.min(rangeStart + rangeSize - 1, maxValue);
 
-        const color = colorPalette[i]; // ✅ Keep color order: low → high
+        // Skip if start > end (e.g. when min=max or near)
+        if (rangeStart > maxValue) continue;
+
+        const color = colorPalette[i];
 
         this.colorRanges.push({
-            name: `Range ${rangeStart} - ${rangeEnd}`,
+            name: `${rangeStart}-${rangeEnd}`,
             color,
             start: rangeStart,
             end: rangeEnd,
@@ -174,6 +178,7 @@ export class MapCalendarComponent implements OnInit {
         current = current.add(1, "month");
     }
 }
+
 
 
 

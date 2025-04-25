@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { NgxUiLoaderModule } from 'ngx-ui-loader';
 import { LoadingService } from './services/loading.service';
@@ -7,13 +7,13 @@ import { SharedService } from './components/shared/shared.service';
 import { SocketService } from './services/socket.service';
 import { Subscription } from 'rxjs';
 import { UtcDateTimePipe } from './pipes/date-format.pipe';
-
-// import { AppRoutingModule } from './app.routes';
+import { CommonModule } from '@angular/common';
+import { SatelliteService } from './services/satellite.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HomeComponent,NgxUiLoaderModule,UtcDateTimePipe],
+  imports: [CommonModule, NgxUiLoaderModule,UtcDateTimePipe, RouterModule],
   providers: [],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -26,12 +26,15 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
   private socketSubscription!: Subscription;
   message: any;
   siteUpdateInfo:any
-  constructor(private LoadingService:LoadingService,private sharedService:SharedService,private cdr:ChangeDetectorRef,private socketService: SocketService){
+
+  findIp: boolean = false;
+
+  constructor(private LoadingService:LoadingService,private sharedService:SharedService,
+    private socketService: SocketService, private satelliteService: SatelliteService){
 
   }
   ngOnInit(): void {
     this.socketService.getMessages().subscribe((msg)=>{
-      console.log("jkdsnkjsdvds", msg)
       if(msg.type === "new_records" && msg.new_updates>0){
         this.showRefreshInfo = true;
         this.message = msg
@@ -50,10 +53,14 @@ export class AppComponent implements OnInit, OnChanges, AfterViewInit {
     })
 
 
+    this.satelliteService.validateIpAddress().subscribe( {
+      next: (data) =>  this.findIp = true,
+      error: (err) => {
+        alert(err?.error?.error)
+        this.findIp = false
+      }
+    });
 
-    console.log("this.socketServicethis.socketService", this.socketService);
-        // this.siteNotification = false
-    // this.showRefreshInfo = true
   }
 
   ngAfterViewInit(): void {

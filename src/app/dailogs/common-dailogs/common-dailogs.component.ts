@@ -29,6 +29,7 @@ import dayjs from 'dayjs';
 export class CommonDailogsComponent implements OnInit,AfterViewInit  {
   name: string = '';
 vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra'];
+dayOfWeeks:any[]=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
   typesList:any[]=['morning','midday','evening','overnight', 'unknown'];
   formGroup: FormGroup;
   // Default values for manual filters
@@ -191,6 +192,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
     this.formGroup = this.fb.group({
       vendor:[],
       type: [],
+      day_of_week:[],
       vendorId:null,
       
     });
@@ -222,6 +224,9 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
       this.formGroup.patchValue({
         vendor: this.data?.filterParams?.vendor_name 
           ? this.data?.filterParams?.vendor_name.split(',') 
+          : [],
+          day_of_week:this.data?.filterParams?.day_of_week 
+          ? this.data?.filterParams?.day_of_week.split(',') 
           : [],
       
         vendorId: this.data?.filterParams?.vendor_id 
@@ -523,7 +528,7 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
       
       const vendorName = this.formGroup.get('vendor')?.value?.join(',');
       const userDurationType = this.formGroup.get('type')?.value?.join(',');
-    
+      const dayOfWeek = this.formGroup.get('day_of_week')?.value?.join(',');
       // Add vendor-related filters only if they have values
       if (vendorId && vendorId !== this.data?.filterParams?.vendor_id) {
         queryParams.vendor_id = vendorId;
@@ -547,6 +552,13 @@ vendorsList:any[]=['airbus','blacksky','capella','maxar','planet','skyfi-umbra']
       queryParams.vendor_name = vendorName;
       filterCount++;
     }
+    if (dayOfWeek && dayOfWeek !== this.data?.filterParams?.day_of_week) {
+      queryParams.day_of_week = dayOfWeek;
+      filterCount++;
+  } else if(dayOfWeek && dayOfWeek === this.data?.filterParams?.day_of_week){
+    queryParams.day_of_week = dayOfWeek;
+    filterCount++;
+  }
     
     if (userDurationType && userDurationType !== this.data?.filterParams?.user_duration_type) {
         queryParams.user_duration_type = userDurationType;
