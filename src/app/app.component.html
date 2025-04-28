@@ -49,7 +49,8 @@
     </div>
 }
 </div>
-
-<app-home></app-home>
+<ng-container *ngIf="findIp">
+    <router-outlet></router-outlet>
+</ng-container>
 
 

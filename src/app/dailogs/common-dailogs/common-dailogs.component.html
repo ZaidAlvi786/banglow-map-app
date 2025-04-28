@@ -62,6 +62,15 @@
                 <input class="!text-secondaryText text-xs" matInput type="text"
                     formControlName="vendorId">
             </mat-form-field>
+            <mat-form-field appearance="outline" id="filter" class="col-span-2">
+                <mat-label class="!text-secondaryText text-xs">Day of week</mat-label>
+                <mat-select class="!text-secondaryText text-xs" multiple
+                    formControlName="day_of_week" name="day">
+                    @for (day of dayOfWeeks; track day) {
+                    <mat-option [value]="day">{{day}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
 
             <div class="flex-col gap-2 custom-slider pb-[10px] relative col-span-1">
                 

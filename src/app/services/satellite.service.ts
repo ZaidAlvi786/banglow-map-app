@@ -107,6 +107,8 @@ getPipelineCollection(queryParams): Observable<any> {
   });
 }
 
-
+validateIpAddress() {
+  return this.get(createUrl("/validate-ip-address"));
+}
 
 }

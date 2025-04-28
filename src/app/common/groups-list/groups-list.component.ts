@@ -58,6 +58,7 @@ export class GroupsListComponent {
   @Input() type: string = ''
   @Input() padding: string = '';
   private _snackBar = inject(MatSnackBar);
+  parentCheck = this.SharedService.getParentCheckValue();
   site_objects_count:any;
   siteDetail:any = {
     acquisition_count: 219,frequency: 2.5,gap: 6.792676837905093,heatmap: [{date: "2025-01-01", count: 2}],
@@ -76,6 +77,7 @@ export class GroupsListComponent {
         
     ]
     selectedSites: any[] = [];
+    selectedGroups:any[]=[]
   constructor(private overlayContainer: OverlayContainer,
     private dialog: MatDialog,
     private satelliteService:SatelliteService,
@@ -84,7 +86,32 @@ export class GroupsListComponent {
     effect(() => {
       this.selectedSites = this.SharedService.mapActiveSites()();  // Automatically updates when the signal changes
       console.log(this.selectedSites, 'selectedSites');
+     
+      
     });
+    effect(()=>{
+      const checkValue = this.parentCheck()
+      console.log(checkValue,'checkValuecheckValuecheckValuecheckValuecheckValuecheckValue');
+      if(checkValue.checked){
+        checkValue.group.subgroups.map(x=>{
+          this.selectedGroups.push(x)
+          this.toggleGroupSelection(x,checkValue)
+          
+          
+         
+        })
+      }else {
+        this.selectedGroups =[]
+        checkValue.group.subgroups.map(x=>{
+          this.toggleGroupSelection(x,checkValue)
+          
+          
+         
+        })
+      }
+      
+    }, { allowSignalWrites: true })
+
   }
 
   
@@ -1028,29 +1055,32 @@ export class GroupsListComponent {
            }
 
            isGroupChecked(group: any): boolean {
-            return group.sites.every((site: any) => 
-              this.selectedSites.some((s: any) => s.id === site.id)
-            );
+            return this.selectedGroups.some((s: any) => s.id === group.id)
+            
           }
       
           toggleGroupSelection(group: any, event: MatCheckboxChange): void {
+            console.log(group,'groupgroupgroupgroupgroupgroup',event);
+            
             if (event.checked) {
               // Select all sites in the group
               group.sites.forEach((site: any) => {
-                if (!this.selectedSites.some((s: any) => s.id === site.id)) {
+                if (!this.selectedSites?.some((s: any) => s?.id === site.id)) {
                   this.selectedSites.push(site);
                 }
               });
             } else {
               // Deselect all sites in the group
-              this.selectedSites = this.selectedSites.filter((site: any) => 
-                !group.sites.some((groupSite: any) => groupSite.id === site.id)
+              
+              this.selectedSites = this.selectedSites?.filter((site: any) => 
+                !group.sites.some((groupSite: any) => groupSite?.id === site?.id)
               );
+              this.selectedSites = []
             }
             
-            console.log('Current selectedSites:', this.selectedSites);
+            console.log('dataArray selectedSites:', this.selectedSites);
             this.SharedService.setActiveSites(this.selectedSites)
-            const dataArray = this.selectedSites.map((site: any) => {
+            const dataArray = this.selectedSites?.map((site: any) => {
               const [lon, lat] = site?.coordinates?.coordinates[0][0];
               return {
                 lat,

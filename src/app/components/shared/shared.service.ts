@@ -44,6 +44,7 @@ export class SharedService {
   libraryFilterCount = signal<any>(0);
   selectedTimeZone = signal<string>('UTC')
   timeZoneActive = signal<boolean>(false);
+  private onParentCheck = signal<any>({})
   private activeSites = signal<any[]>([]);
   constructor() {}
 
@@ -94,6 +95,14 @@ setActiveSites(sites: any[]) {
 // Method to get the active sites signal
 mapActiveSites() {
   return this.activeSites;
+}
+
+setParentCheck(value:any){
+  this.onParentCheck.set(value)
+}
+
+getParentCheckValue(){
+  return this.onParentCheck
 }
 
 }
