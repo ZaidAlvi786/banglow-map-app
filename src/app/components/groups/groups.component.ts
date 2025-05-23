@@ -21,6 +21,7 @@ import {
 } from "ng-apexcharts";
 import dayjs from 'dayjs';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -47,7 +48,8 @@ type CalendarMonth = { name: string; weeks: CalendarWeek[] };
 @Component({
   selector: 'app-groups',
   standalone: true,
-  imports: [CommonModule,GroupsListComponent,MatInputModule,DateFormatPipe,MatMenuModule,NgApexchartsModule,MatCheckboxModule, UtcDateTimePipe],
+  imports: [CommonModule,GroupsListComponent,MatInputModule,DateFormatPipe,
+    MatMenuModule,NgApexchartsModule,MatCheckboxModule, UtcDateTimePipe, MatIconModule],
   templateUrl: './groups.component.html',
   styleUrl: './groups.component.scss'
 })
@@ -67,6 +69,8 @@ export class GroupsComponent implements OnInit,AfterViewInit {
   @ViewChild("chart") chart: ChartComponent;
   public chartOptions: Partial<ChartOptions>;
   hoveredRange: string | null = null;
+  expandedElement: any | null;
+
   colorRanges = [
     
 ]
