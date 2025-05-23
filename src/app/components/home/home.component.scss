@@ -157,3 +157,29 @@ cursor: nwse-resize;
   color: gray;
   background: #20272d;
 }
+
+#custom_slider::ng-deep {
+.mat-mdc-slider {
+    width: 180px !important;
+    min-width: 180px !important;
+}
+
+.mdc-slider__track--inactive {
+  background-color: #191E22 !important;
+}
+.mdc-slider__track--active{
+background-color: #FCCA40 !important;
+}
+.mdc-slider__thumb-knob {
+    height: 15px !important;
+    color: #FCCA40 !important;
+    border-radius: 5px !important;
+    width: 6px !important;
+    top: 48% !important;
+    border: none !important;
+    background-color: #FCCA40 !important;
+}
+.mdc-slider__track--active_fill {
+  background-color: #FCCA40 !important;
+}
+}

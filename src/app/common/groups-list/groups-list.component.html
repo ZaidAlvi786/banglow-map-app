@@ -10,8 +10,15 @@
                     <img src="assets/svg-icons/folder-icon.svg" alt="Search" class="w-[14px]" />
                 </span>
             } -->
-          <div (click)="toggle(group)" class="py-[10px] cursor-pointer flex border-y border-y-solid items-center border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
+          <div  class="py-[3px] cursor-pointer flex border-y border-y-solid items-center border-y-custom-border font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
             <div class="min-w-[355px] flex gap-[15px] items-center" [ngStyle]="{ 'padding-left': padding + 'px' }" >
+                <button mat-icon-button aria-label="expand row" (click)="toggle(group); $event.stopPropagation();" >
+                    @if (activeIndex === group) {
+                      <mat-icon>keyboard_arrow_up</mat-icon>
+                    } @else {
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    }
+                </button>
                 <span (click)="$event.stopPropagation()">
                     <mat-checkbox [checked]="isGroupChecked(group)" (change)="toggleGroupSelection(group, $event)">
                     </mat-checkbox>
@@ -62,6 +69,7 @@
                         <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="deleteGroup('delete',group,'deleteGroup')">Delete</span>
                     </div>
                 </mat-menu>
+
             </div>
         </div>
         
@@ -71,8 +79,15 @@
             @if (group?.sites.length > 0){
                 @for (site of group?.sites;track site;let j = $index){
                     <div class="flex flex-col gap-[10px]">
-                        <div (click)="getSitesDetail(site)" class="py-[10px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
+                        <div  class="py-[3px] items-center cursor-pointer flex border-y border-y-solid border-y-custom-border px-[15px] font-Barlow font-medium leading-[18px] text-secondaryText text-xs">
                             <div class="min-w-[340px] flex items-center gap-[15px]" [ngStyle]="{ 'padding-left': getPadding(padding) + 'px' }">
+                                <button mat-icon-button aria-label="expand row" (click)="getSitesDetail(site); $event.stopPropagation();" >
+                                        @if (activeSite === site.id) {
+                                        <mat-icon>keyboard_arrow_up</mat-icon>
+                                        } @else {
+                                        <mat-icon>keyboard_arrow_down</mat-icon>
+                                        }
+                                </button>
                                 <div class="flex">
                                     <span (click)="$event.stopPropagation()">
                                         <mat-checkbox [checked]="isChecked(site)" (change)="toggleSelection(site, $event)">
@@ -129,6 +144,8 @@
                                         <span class="text-yellow text-xs font-bold leading-[18px] cursor-pointer" (click)="deleteSite('delete',site)">Delete</span>
                                     </div>
                                 </mat-menu>
+
+  
                             </div>
                         </div>
                         <div 
@@ -149,7 +166,7 @@
                                             class="hidden absolute shadow-custom left-[0px] z-50 rounded-[10px] top-[80px] w-max text-secondaryText group-hover:flex flex-col bg-secondaryBg p-[10px] font-Barlow">
                                             <div class="flex gap-[5px] text-sm font-semibold leading-[18px]">
                                                 <span>{{siteDetail?.frequency}}:</span>
-                                                <span>Number of distinct acquisitions on Most Recent Capture
+                                                <span>Total captures/ No of days
                                                 </span>
                                             </div>
                                         </div>
