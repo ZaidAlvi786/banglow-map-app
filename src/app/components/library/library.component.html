@@ -1,14 +1,14 @@
 <div class="flex h-full flex-col gap-3 z-[1000000000]" (click)="hideMenu()">
-    <div class="flex">
-        <div class="flex flex-col gap-3 w-100">
+    <div class="flex h-full">
+        <div class="flex flex-col h-full gap-3 w-100">
             <div id="header" class="flex items-center justify-between h-[48px] bg-secondaryBg p-3">
                 <span class="text-xs leading-[18px] font-semibold text-secondary-heiglight">Library</span>
                 <span class="w-[16px] h-[14px] cursor-pointer" (click)="closeLibraryDrawer()">
                     <img src="assets/svg-icons/drawer-toggle-icon.svg" />
                 </span>
             </div>
-            <div class="flex flex-row gap-3">
-                <div class="flex flex-col  flex-0 custom-h overflow-x-hidden overflow-y-hidden">
+            <div class="flex flex-row gap-3 h-full">
+                <div class="flex flex-col  flex-0  overflow-x-hidden overflow-y-hidden">
                     @if (analyticsData) {
                     <!-- <div id="analyticsData" class="mx-[15px] gap-3 grid-cols-4 flex font-Barlow">
 

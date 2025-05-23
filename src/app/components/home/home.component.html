@@ -29,8 +29,8 @@
         <button class="drag-btn" id="dragBtn"><||></button>
         <mat-drawer 
           #drawer 
-          class="library !h-[91.1vh] pb-[30px]"
-          [ngClass]="{ '!bg-primaryBg': true, 'open': drawer._animationState === 'open' }" 
+          class="library pb-[20px]"
+          [ngClass]="{ '!bg-primaryBg': true, 'open': drawer._animationState === 'open', '!h-[91.1vh] ': type !== 'library' }" 
           mode="side"
           >
          <!-- @if (drawer._animationState === 'open') { -->
@@ -152,6 +152,49 @@
             />
             }
           </div>
+           <div class="relative">
+        <span class="p-[10px] -right-[12px] bg-secondaryBg border border-solid border-yellow top-[12px] mr-[12px] absolute rounded-[5px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer"
+         (click)="grayLayerOverlayAdd()">
+        <img src="assets/svg-icons/overlay-icon.svg" alt="" width="20" height="20" />
+        </span>
+        @if (showOverlayControls) {
+           <div id="custom_slider" class="absolute flex top-[10px] min-w-[200px] right-[45px] flex-col gap-3 p-3 bg-secondaryBg rounded-md">
+          <div class="flex flex-col">
+            <div class="flex justify-between font-Barlow">
+              <span class="text-secondaryText text-sm font-medium">Satellite:</span>
+              <span class="text-secondaryText text-sm font-normal">{{slider.value}}</span>
+            </div>
+            <mat-slider
+              class="w-full"
+              [max]="maxOverlay"
+              [min]="minOverlay"
+              [step]="step"
+              (input)="onSliderChange($event,'overlay')"
+              [discrete]="thumbLabel"
+              [showTickMarks]="showTicks">
+              <input matSliderThumb [(ngModel)]="overlayValue" #slider>
+            </mat-slider>
+          </div>
+          <div class="flex flex-col ">
+            <div class="flex justify-between font-Barlow">
+              <span class="text-secondaryText text-sm font-medium">Thickness Shape:</span>
+              <span class="text-secondaryText text-sm font-normal">{{slider2.value}}</span>
+            </div>
+            <mat-slider
+              class="w-full"
+              [max]="maxThickness"
+              [min]="minThickness"
+              [step]="stepThickness"
+              (input)="onSliderChange($event,'thickness')"
+              [discrete]="thumbLabel"
+              [showTickMarks]="showTicks">
+              <input matSliderThumb [(ngModel)]="thicknessValue" #slider2>
+            </mat-slider>
+          </div>
+        </div>
+        }
+        
+      </div>
           <!-- <div class="border-b border-b-solid border-custom-border p-[10px] h-[40px] min-w-[40px] w-auto flex justify-center items-center cursor-pointer" (click)="handleAction('settings')">
         <img src="assets/svg-icons/filter-icon.svg" alt="pin location icon" />
       </div>
@@ -171,6 +214,7 @@
           alt="Footprint icon"
         />
       </div>
+     
       </div>
       
 

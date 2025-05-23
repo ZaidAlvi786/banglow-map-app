@@ -38,6 +38,7 @@ import interact from 'interactjs';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { WmtsService } from '../../services/wmts.service';
 import { WMTSLayer } from '../../services/wmts-layer';
+import { MatSliderModule } from '@angular/material/slider';
 (window as any).type = undefined;
 
 declare module 'leaflet' {
@@ -59,7 +60,7 @@ declare module 'leaflet' {
     HeaderComponent,
     MatSidenavModule,
     SidebarDrawerComponent,
-    MapCalendarComponent,
+    MatSliderModule,
     MapControllersPopupComponent,
     NgxUiLoaderModule
   ],
@@ -100,6 +101,7 @@ export class HomeComponent implements OnInit, AfterViewInit,OnDestroy {
   vectorLayer!: L.LayerGroup;
   shapeLayersData:any[]
   type: string = '';
+  polygonsShapes:any[]=[]
   markerMap: Map<string, L.Marker> = new Map(); // Tracks markers by site ID
   private wmtsService =  inject(WmtsService);
   private zoomControlEnabled = false;
@@ -149,6 +151,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   startDate: string ='';
   endDate: string ='';
   data: any;
+  grayOverlay:any
   @ViewChild(FooterComponent) childComponent!: FooterComponent;
   isDropdownOpen: boolean = false;
   showLayers:boolean = false;
@@ -180,9 +183,20 @@ hybridLayer:L.TileLayer = L.tileLayer(
   isCalenderOpen:boolean = false;
   shapeLoader:boolean = false;
   originalPolygon:any = null;
+  showOverlayControls:boolean = false
   bbox : any;
   minMap: any;
   maxMap: any;
+  maxOverlay = 1;
+  minOverlay = 0;
+  showTicks = false;
+  step = 0.01;
+  thumbLabel = false;
+  overlayValue = 0;
+  maxThickness = 10
+  minThickness =1
+  stepThickness = 1
+  thicknessValue =2
   constructor(@Inject(PLATFORM_ID) private platformId: Object,
    private satelliteService:SatelliteService,private dialog: MatDialog,
    private http: HttpClient,
@@ -590,7 +604,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Add Tile Layer (Dark mode basemap)
     this.darkLayer.addTo(this.map);
-  
+    this.darkLayer.getContainer().style.filter = 'grayscale(100%) brightness(70%)';
     // Initialize the drawing layer
     this.drawLayer = new L.FeatureGroup();
     this.extraShapesLayer = L.featureGroup().addTo(this.map);
@@ -599,7 +613,7 @@ hybridLayer:L.TileLayer = L.tileLayer(
     // Initialize and add the vector layer
     this.vectorLayer = L.layerGroup();
     this.vectorLayer.addTo(this.map);
-  
+    
     // Define the polygon coordinates
     const polygonCoordinates: L.LatLngExpression[] = [
       [10, 90],   // [latitude, longitude]
@@ -631,7 +645,23 @@ hybridLayer:L.TileLayer = L.tileLayer(
   
     // Move the map center to the center of the polygon
     this.map.setView(polygonCenter, this.map.getZoom(), { animate: true });
-  
+//   this.map.createPane("grayOverlayPane");
+// this.map.getPane("grayOverlayPane").style.zIndex = '450';
+
+// const worldPolygonCoords: L.LatLngExpression[][] = [[
+//   [-90, -180],
+//   [-90, 180],
+//   [90, 180],
+//   [90, -180],
+//   [-90, -180]
+// ]];
+
+// this.grayOverlay = L.polygon(worldPolygonCoords, {
+//   pane: "grayOverlayPane",
+//   stroke: false,
+//   fillColor: "#888888",
+//   fillOpacity: 0.5
+// }).addTo(this.map);
     // Debugging: Log GeoJSON and bounds of the polygon
     const geoJSON = this.polygon.toGeoJSON();
     const orginalCords = this.latLngBoundsToPolygon(polygonBounds)
@@ -1415,11 +1445,11 @@ if (data.vendor_name === 'planet') {
 const polygon = L.polygon(latLngs, {
   color: color,
   fillColor: fillColor,
-  fillOpacity: 0,
-  opacity:0.5,
-  weight: 0.5
+  fillOpacity: 0.4,
+  opacity:0.7,
+  weight: 1
 }) as L.Polygon & { vendorData: any };
-
+this.polygonsShapes.push(polygon) 
 polygon.vendorData = data; // Now TypeScript knows about this property
 
 // In your click handler
@@ -2135,6 +2165,7 @@ toggleMapLayer(type:string) {
     this.map.removeLayer(this.googlestreetDarkLayer)
     this.map.removeLayer(this.hybridLayer)
     this.lightLayer.addTo(this.map);
+     this.lightLayer.getContainer().style.filter = 'grayscale(10%) brightness(100%)';
   } else if(this.isGoogleLayerActive === 'OpenStreetMapDark') {
     // Remove Dark Layer and add Google Streets layer
     this.map.removeLayer(this.googleStreets);
@@ -2142,6 +2173,7 @@ toggleMapLayer(type:string) {
     this.map.removeLayer(this.googlestreetDarkLayer)
     this.map.removeLayer(this.hybridLayer)
     this.darkLayer.addTo(this.map);
+     this.darkLayer.getContainer().style.filter = 'grayscale(10%) brightness(100%)';
   }else if(this.isGoogleLayerActive === 'GoogleStreetMapLight') {
     // Remove Dark Layer and add Google Streets layer
     this.map.removeLayer(this.darkLayer);
@@ -2149,21 +2181,25 @@ toggleMapLayer(type:string) {
     this.map.removeLayer(this.googlestreetDarkLayer)
     this.map.removeLayer(this.hybridLayer)
     this.googleStreets.addTo(this.map);
+     this.googleStreets.getContainer().style.filter = 'grayscale(10%) brightness(100%)';
   } else if(this.isGoogleLayerActive === 'hybridLayer'){
     this.map.removeLayer(this.darkLayer);
     this.map.removeLayer(this.googleStreets)
     this.map.removeLayer(this.googlestreetDarkLayer)
     this.map.removeLayer(this.hybridLayer)
     this.hybridLayer.addTo(this.map);
+     this.hybridLayer.getContainer().style.filter = 'grayscale(10%) brightness(100%)';
   } else {
     this.map.removeLayer(this.darkLayer);
     this.map.removeLayer(this.lightLayer)
     this.map.removeLayer(this.googleStreets)
     this.map.removeLayer(this.hybridLayer)
     this.googlestreetDarkLayer.addTo(this.map);
+    this.googlestreetDarkLayer.getContainer().style.filter = 'grayscale(10%) brightness(100%)';
   }
   
 }
+
 
 onDateRangeChanged(event: { startDate: string, endDate: string }) {
 
@@ -2408,7 +2444,8 @@ receiveData(dataArray: any[]) {
 
             this.map.createPane("wmtsPane");
             this.map.getPane("wmtsPane").style.zIndex = "500000"; // Higher z-index
-            this.map.getPane("wmtsPane").style.opacity = "1";
+            // this.map.getPane("wmtsPane").style.opacity = "1";
+            this.map.getPane("wmtsPane").style.opacity = "0.5";
 
             const wmtsLayer = new WMTSLayer(tileUrlTemplate, {
             token: this.wmtsService.getToken(),
@@ -2418,7 +2455,8 @@ receiveData(dataArray: any[]) {
             bounds: bounds, // Pass your bounds here
             pane: "wmtsPane" // Assign the layer to the new pane
             });
-
+            // wmtsLayer.getContainer().style.opacity = '0.5';
+            // wmtsLayer.getContainer().style.fillOpacity = '0';
             wmtsLayer.addTo(this.map);
 
           
@@ -3019,6 +3057,32 @@ wktToBounds(wkt: string): L.LatLngBounds {
       },
       
     });
+  }
+
+  //satellite view overlay view controls menu function
+
+  grayLayerOverlayAdd(){
+    this.showOverlayControls = !this.showOverlayControls
+  }
+
+  onSliderChange(event: any,type) {
+    const sliderValue = event.target.value; // Get the slider's current value
+    console.log('Slider value changed:', sliderValue);
+    if(type === 'overlay') {
+    // Convert decimal (0 to 1) to percentage (0 to 100)
+    const grayscalePercent = sliderValue * 100;
+    const brightnessPercent = 100; // fixed, or control separately
+
+    this.map.getContainer().style.filter = `grayscale(${grayscalePercent}%) brightness(${brightnessPercent}%)`;
+  } else {
+      this.polygonsShapes.forEach(polygon => {
+        console.log(polygon,'polygonpolygonpolygonpolygon');
+        
+        polygon.setStyle({ weight: sliderValue });
+      });
+    }
+    // You can now pass this value to a function
+   
   }
 
 }

@@ -1,5 +1,5 @@
 <div class="h-full overflow-hidden">
-    @if (type=='library') {  <div>
+    @if (type=='library') {  <div class="h-full">
         <app-library [endDate]="endDate" [sidebarWidth]="sidebarWidth" (onFilterset)="onFiltersetData($event)" [shapeHoverData]="shapeHoverData"  [popUpData]="popUpData" [zoomed_wkt]="zoomed_wkt" [startDate]="startDate" (closeDrawer)="closeDrawer($event)" (rowHoveredData)="highlightData($event)" (notifyParent)="handleData($event)" (addMarkerToMap)="handelMarkerData($event)" [polygon_wkt]="polygon_wkt" [original_wkt]="original_wkt"></app-library>
     </div>
 } 
